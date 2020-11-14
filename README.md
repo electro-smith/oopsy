@@ -45,4 +45,6 @@ node oopsy.js field ../examples/simple.cpp
 - If the `watch` keyword is added to the oopsy.js arguments, it will re-run the process every time any of the cpp files change -- which is handy since gen~ will re-export on every edit.
 - For a custom hardware configuration (other than Patch/Field/Petal/Pod) you can specify a JSON file in the arguments.
 
+## Using from within Max
 
+*Coming soon*
