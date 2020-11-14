@@ -2,11 +2,9 @@
 
 Exporting Max Gen patchers for the ElectroSmith Daisy hardware platforms
 
-## Prerequisites
+## Installing
 
-Developing for an embedded platform like Daisy requires a few low-level tools and libraries to be installed first. 
-
-First, follow the steps in the [Daisy wiki](https://github.com/electro-smith/DaisyWiki/wiki/1.-Setting-Up-Your-Development-Environment) to set up `ARM-Toolchain` and `dfu-util`. 
+Developing for an embedded platform like Daisy requires a few low-level tools and libraries to be installed first. First, follow the steps in the [Daisy wiki](https://github.com/electro-smith/DaisyWiki/wiki/1.-Setting-Up-Your-Development-Environment) to set up `ARM-Toolchain` and `dfu-util`. 
 
 On OSX you can simply run:
 
@@ -17,6 +15,7 @@ brew install make armmbed/formulae/arm-none-eabi-gcc dfu-util
 Second, install Oopsy and build the Daisy library dependencies:
 
 ```
+# first open a console in your Documents/Max 8/Packages folder, then:
 git clone https://github.com/grrrwaaa/oopsy.git
 cd oopsy
 git submodule update --init
