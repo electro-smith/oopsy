@@ -1,0 +1,3 @@
+[submodule "source/DaisyExamples"]
+	path = source/DaisyExamples
+	url = git@github.com:electro-smith/DaisyExamples.git
