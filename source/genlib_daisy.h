@@ -328,7 +328,7 @@ struct GenDaisy {
 			if (displaytimer.ready(dt)) {
 
 				// displaying app menu?
-				if (GEN_DAISY_TARGET_FIELD)
+				#ifdef GEN_DAISY_TARGET_FIELD
 				if (hardware.GetSwitch(0)->TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
 				#else
 				if (hardware.encoder.TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
@@ -411,11 +411,12 @@ struct GenDaisy {
 		hardware.UpdateAnalogControls();
 		#endif
 
-		if (GEN_DAISY_TARGET_FIELD)
+		#ifdef GEN_DAISY_TARGET_FIELD
 		int incr = hardware.GetSwitch(1)->FallingEdge();
 		#else
 		int incr =  hardware.encoder.Increment();
 		#endif
+
 		switch (mode) {
 			case MODE_MENU: {
 				app_selecting += incr;
