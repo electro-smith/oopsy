@@ -1,0 +1,25 @@
+{
+	"author" : "Graham Wakefield",
+	"authors" : [  ],
+	"categories" : [  ],
+	"description" : "A package to support exporting gen~ patchers for the Electro-Smith Daisy platforms",
+	"displayname" : "",
+	"extends" : "",
+	"extensible" : 0,
+	"homepatcher" : "oopsy-guide.maxpat",
+	"max_version_max" : "none",
+	"max_version_min" : "none",
+	"name" : "Oopsy",
+	"readme" : "",
+	"tags" : [ "gen~", "code export", "Daisy", "Eurorack" ],
+	"version" : "0.0.1",
+	"versions" : null,
+	"website" : "",
+	"filelist" : {
+		"externals" : [],
+		"patchers" : [],
+		"help" : [],
+		"misc" : [],
+		"extras" : []
+	}
+}
