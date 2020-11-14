@@ -47,3 +47,15 @@ node oopsy.js field ../examples/simple.cpp
 ## Using from within Max
 
 *Coming soon*
+
+## How gen~ features map to Daisy
+
+Mostly this works by adding an appropriate name to the `in`, `out`, and `param` objects.
+
+- `in 1`, `in 2` (and `in 3`, `in 4` on the DaisyPatch) are the audio device inputs.
+- `out 1`, `out 2` (and `out 3`, `out 4` on the DaisyPatch) are the audio device outputs.
+- `param cv1`, `param gate2`, `param knob1`, `param key2`  etc. will give you the CV and gate inputs, hardware knobs, keys, etc. Use `@min` and `@max` to remap the normalized ranges. Note that on the Patch the CV and Knob inputs are the same. Use `@min` and `@max` to remap normalized ranges as desired.
+- `out <n> cv1`, `out <n> gate2`, etc. will send the signal to a CV or Gate output (the timing resolution is limited by the block rate, 1ms by default). `<n>` just needs to be an output channel number that isn't being used for anything else.
+- `in <n> midi` will give you a signal packed with any incoming MIDI bytes (see examples on parsing the signal). `<n>` just needs to be an output channel number that isn't being used for anything else.
+- `out <n> midi` will let you fill a signal with MIDI data to send to the device MIDI output (see examples on formatting the signal). `<n>` just needs to be an output channel number that isn't being used for anything else.
+
