@@ -1,0 +1,34 @@
+{
+    "structname": "DaisyPod",
+    "audio_ins": [
+      "dsy_in1",
+      "dsy_in2"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2"
+    ],
+    "midi_ins": [
+      "dsy_midi_in1"
+    ],
+    "midi_outs": [],
+	"switches": [
+		"switch1",
+		"switch2"
+	],
+	"cv_ins": [],
+	"cv_outs": [],
+	"gate_ins": [],
+	"gate_outs": [],
+	"knobs": [
+		"knob1",
+		"knob2"
+	],
+	"encoder": [
+		"encoder1"
+	],
+	"leds": [
+		"led1",
+		"led2"
+	]
+}

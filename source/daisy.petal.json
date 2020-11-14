@@ -1,0 +1,50 @@
+{
+    "structname": "DaisyPetal",
+    "audio_ins": [
+      "dsy_in1",
+      "dsy_in2"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2"
+    ],
+    "midi_ins": [],
+    "midi_outs": [],
+    "cv_ins": [],
+    "cv_outs": [],
+    "gate_ins": [],
+    "gate_outs": [],
+	"knobs": [
+		"knob1",
+		"knob2",
+		"knob3",
+		"knob4",
+		"knob5",
+		"knob6"
+	],
+	"switches": [
+		"switch1",
+		"switch2",
+		"switch3",
+		"switch4",
+		"switch5",
+		"switch6",
+		"switch7"
+	],
+	"expression": [
+		"exp1"
+	],
+	"encoder": [
+		"encoder1"
+	],
+	"leds": [
+		"led1",
+		"led2",
+		"led3",
+		"led4",
+		"led5",
+		"led6",
+		"led7",
+		"led8"
+	]
+}

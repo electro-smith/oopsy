@@ -1,0 +1,42 @@
+{
+    "structname": "DaisyPatch",
+    "audio_ins": [
+      "dsy_in1",
+      "dsy_in2",
+      "dsy_in3",
+      "dsy_in4"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2",
+      "dsy_out3",
+      "dsy_out4"
+    ],
+    "midi_ins": [
+      "dsy_midi_in1"
+    ],
+    "midi_outs": [
+      "dsy_midi_out1"
+    ],
+    "cv_ins": [
+      "cv_in1",
+      "cv_in2",
+      "cv_in3",
+      "cv_in4"
+    ],
+    "cv_outs": [
+      "cv_out1",
+      "cv_out2"
+    ],
+    "gate_ins": [
+      "gate_in1",
+      "gate_in2"
+    ],
+    "gate_outs": [
+      "gate_out1"
+    ],
+    "encoder": [
+      "encoder1"
+    ],
+    "oled": true
+}

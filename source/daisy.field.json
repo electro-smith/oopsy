@@ -1,0 +1,92 @@
+{
+    "structname": "DaisyField",
+    "audio_ins": [
+      "dsy_in1",
+      "dsy_in2"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2"
+    ],
+    "midi_ins": [
+      "dsy_midi_in1"
+    ],
+    "midi_outs": [
+      "dsy_midi_out1"
+    ],
+    "cv_ins": [
+      "cv_in1",
+      "cv_in2",
+      "cv_in3",
+      "cv_in4"
+    ],
+    "cv_outs": [
+      "cv_out1",
+      "cv_out2"
+	],
+	"knobs": [
+		"knob1",
+		"knob2",
+		"knob3",
+		"knob4",
+		"knob5",
+		"knob6",
+		"knob7",
+		"knob8"
+	],
+    "gate_ins": [
+      "gate_in1"
+    ],
+    "gate_outs": [
+      "gate_out1"
+	],
+	"leds": [
+		"led1",
+		"led2",
+		"led3",
+		"led4",
+		"led5",
+		"led6",
+		"led7",
+    	"led8",
+		"ledA1",
+		"ledA2",
+		"ledA3",
+		"ledA4",
+		"ledA5",
+		"ledA6",
+		"ledA7",
+    	"ledA8",
+		"ledB1",
+		"ledB2",
+		"ledB3",
+		"ledB4",
+		"ledB5",
+		"ledB6",
+		"ledB7",
+    	"ledB8"
+	],
+	"switches": [
+		"switch1",
+		"switch2"
+	],
+	"keys": [
+		"key1",
+		"key2",
+		"key3",
+		"key4",
+		"key5",
+		"key6",
+		"key7",
+		"key8",
+		"key9",
+		"key10",
+		"key11",
+		"key12",
+		"key13",
+		"key14",
+		"key15",
+		"key16"
+	],
+	"oled": true
+}
