@@ -46,7 +46,7 @@ typedef daisy::DaisySeed Daisy;
 #define GEN_DAISY_BUFFER_SIZE 48
 #define GEN_DAISY_MIDI_BUFFER_SIZE 64
 #define GEN_DAISY_LONG_PRESS_MS 250
-#define GEN_DAISY_DISPLAY_PERIOD_MS 33
+#define GEN_DAISY_DISPLAY_PERIOD_MS 20
 
 struct Timer {
 	int32_t period = GEN_DAISY_DISPLAY_PERIOD_MS, t=0;

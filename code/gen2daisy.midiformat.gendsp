@@ -1,0 +1,375 @@
+{
+	"patcher" : 	{
+		"fileversion" : 1,
+		"appversion" : 		{
+			"major" : 8,
+			"minor" : 1,
+			"revision" : 5,
+			"architecture" : "x64",
+			"modernui" : 1
+		}
+,
+		"classnamespace" : "dsp.gen",
+		"rect" : [ 124.0, 78.0, 959.0, 916.0 ],
+		"bglocked" : 0,
+		"openinpresentation" : 0,
+		"default_fontsize" : 12.0,
+		"default_fontface" : 0,
+		"default_fontname" : "Arial",
+		"gridonopen" : 1,
+		"gridsize" : [ 15.0, 15.0 ],
+		"gridsnaponopen" : 1,
+		"objectsnaponopen" : 1,
+		"statusbarvisible" : 2,
+		"toolbarvisible" : 1,
+		"lefttoolbarpinned" : 0,
+		"toptoolbarpinned" : 0,
+		"righttoolbarpinned" : 0,
+		"bottomtoolbarpinned" : 0,
+		"toolbars_unpinned_last_save" : 0,
+		"tallnewobj" : 0,
+		"boxanimatetime" : 200,
+		"enablehscroll" : 1,
+		"enablevscroll" : 1,
+		"devicewidth" : 0.0,
+		"description" : "",
+		"digest" : "",
+		"tags" : "",
+		"style" : "",
+		"subpatcher_template" : "",
+		"assistshowspatchername" : 0,
+		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-4",
+					"linecount" : 32,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 675.0, 132.0, 207.0, 435.0 ],
+					"text" : "Comment out any MIDI handling in here that you don't need, to save on processor cycles. \n\nVelocity, pressure, and CC values are expected in 0..1 ranges. Bend is expected in -1..1 range. \nAll other inputs are expected as integers (midi note numbers, program/cc numbers, etc.\n\nTrig inputs should be single-sample duration to avoid spamming the midi buffers with too much data. \n\nThe channel input value is used by whichever event is being triggered. \n\nNote that this implementation will handle at most 1 note event per sample -- this is more than most hardware can respond to, but it does mean you may need to think about how to distribute chords over successive samples.  Similar for CC values etc. \n\n\nThis is good enough for testing, but you might want to consider a different way of handling MIDI according to your needs. "
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-1",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 643.410256410256693, 48.0, 80.0, 22.0 ],
+					"text" : "in 15 channel"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-35",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 574.410256410256693, 73.0, 65.0, 22.0 ],
+					"text" : "in 14 bend"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-36",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 558.410256410256579, 48.0, 81.0, 22.0 ],
+					"text" : "in 13 bendtrig"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-32",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 469.571428571428669, 73.0, 83.0, 22.0 ],
+					"text" : "in 12 program"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-34",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 454.571428571428555, 48.0, 98.0, 22.0 ],
+					"text" : "in 11 programtrig"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-29",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 369.857142857142833, 97.0, 66.0, 22.0 ],
+					"text" : "in 10 ccval"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-30",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 367.857142857142833, 73.0, 68.0, 22.0 ],
+					"text" : "in 9 ccnum"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-31",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 367.857142857142833, 48.0, 61.0, 22.0 ],
+					"text" : "in 8 cctrig"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-28",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 257.404761904761983, 73.0, 101.0, 22.0 ],
+					"text" : "in 7 pressurenote"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-20",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 249.404761904761983, 48.0, 109.0, 22.0 ],
+					"text" : "in 6 pressureispoly"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-21",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 163.071428571428584, 73.0, 78.0, 22.0 ],
+					"text" : "in 5 pressure"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-22",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 151.071428571428584, 48.0, 95.0, 22.0 ],
+					"text" : "in 4 pressuretrig"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-17",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 44.333333333333371, 97.0, 70.0, 22.0 ],
+					"text" : "in 3 notevel"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-16",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 36.333333333333371, 73.0, 78.0, 22.0 ],
+					"text" : "in 2 notenum"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-15",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 21.0, 48.0, 71.0, 22.0 ],
+					"text" : "in 1 notetrig"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"code" : "History written, read;\r\nData midioutbuf(2048);\r\nchannel = in15;\r\nnotetrig, notenum, notevel = in1, in2, in3;\r\nif (notetrig) {\r\n\tpoke(midioutbuf, (144+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (notenum)/256, written+2, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (notevel*127)/256, written+3, boundmode=\"wrap\");\r\n\twritten += 3;\r\n}\r\npressuretrig, pressure, pressureispoly, pressurenote = in4, in5, in6, in7;\r\nif (pressuretrig && pressureispoly) {\r\n\tpoke(midioutbuf, (160+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (pressurenote)/256, written+2, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (pressure*127)/256, written+3, boundmode=\"wrap\");\r\n\twritten += 3;\r\n} else if (pressuretrig) {\r\n\tpoke(midioutbuf, (208+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (pressure*127)/256, written+2, boundmode=\"wrap\");\r\n\twritten += 2;\r\n}\r\ncctrig, ccnum, ccval = in8, in9, in10;\r\nif (cctrig) {\r\n\tpoke(midioutbuf, (176+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (ccnum)/256, written+2, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (ccval*127)/256, written+3, boundmode=\"wrap\");\r\n\twritten += 3;\r\n}\r\nprogramtrig, program = in11, in12;\r\nif (programtrig) {\r\n\tpoke(midioutbuf, (192+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (program)/256, written+2, boundmode=\"wrap\");\r\n\twritten += 2;\r\n}\r\nbendtrig, bend = in13, in14;\r\nif (bendtrig) {\r\n\tc = int(bend*8192)-8192;\r\n\tpoke(midioutbuf, (224+wrap(channel, 0, 16))/256, written+1, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (floor(c/128))/256, written+2, boundmode=\"wrap\");\r\n\tpoke(midioutbuf, (wrap(c, 0, 128))/256, written+3, boundmode=\"wrap\");\r\n\twritten += 3;\r\n}\r\n// TODO: sysex, clock, etc.\r\n\r\nwritten = wrap(written, 0, dim(midioutbuf));\r\nnewdata = (read != written);\r\nread = wrap(read + newdata, 0, dim(midioutbuf));\r\nout1 = newdata ? peek(midioutbuf, read) : -1;",
+					"fontface" : 0,
+					"fontname" : "<Monospaced>",
+					"fontsize" : 12.0,
+					"id" : "obj-3",
+					"maxclass" : "codebox",
+					"numinlets" : 15,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 21.0, 132.0, 626.0, 726.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-13",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 21.0, 863.0, 89.0, 22.0 ],
+					"text" : "out 1 midibytes"
+				}
+
+			}
+ ],
+		"lines" : [ 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 14 ],
+					"source" : [ "obj-1", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 0 ],
+					"source" : [ "obj-15", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 1 ],
+					"source" : [ "obj-16", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 2 ],
+					"source" : [ "obj-17", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 5 ],
+					"source" : [ "obj-20", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 4 ],
+					"source" : [ "obj-21", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 3 ],
+					"source" : [ "obj-22", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 6 ],
+					"source" : [ "obj-28", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 9 ],
+					"source" : [ "obj-29", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-13", 0 ],
+					"source" : [ "obj-3", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 8 ],
+					"source" : [ "obj-30", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 7 ],
+					"source" : [ "obj-31", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 11 ],
+					"source" : [ "obj-32", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 10 ],
+					"source" : [ "obj-34", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 13 ],
+					"source" : [ "obj-35", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 12 ],
+					"source" : [ "obj-36", 0 ]
+				}
+
+			}
+ ]
+	}
+
+}
