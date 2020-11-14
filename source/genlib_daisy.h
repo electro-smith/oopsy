@@ -76,7 +76,7 @@ struct MidiUart {
 
 	void preperform(size_t size) {
 		// fill remainder of midi buffer with non-data:
-		for (size_t i=in_written; i<size; i++) in_data[i] = -1.f;
+		for (size_t i=in_written; i<size; i++) in_data[i] = -0.1f;
 		// done with midi input:
 		in_written = 0;
 	}
@@ -328,10 +328,10 @@ struct GenDaisy {
 			if (displaytimer.ready(dt)) {
 
 				// displaying app menu?
-				#if (GEN_DAISY_TARGET_PATCH)
-				if (hardware.encoder.TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
-				#elif (GEN_DAISY_TARGET_FIELD)
+				if (GEN_DAISY_TARGET_FIELD)
 				if (hardware.GetSwitch(0)->TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
+				#else
+				if (hardware.encoder.TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
 				#endif
 					mode = MODE_MENU;
 				} else if (mode == MODE_MENU) {
@@ -411,10 +411,10 @@ struct GenDaisy {
 		hardware.UpdateAnalogControls();
 		#endif
 
-		#if (GEN_DAISY_TARGET_PATCH || GEN_DAISY_TARGET_PETAL)
-		int incr =  hardware.encoder.Increment();
-		#elif (GEN_DAISY_TARGET_FIELD || GEN_DAISY_TARGET_POD)
+		if (GEN_DAISY_TARGET_FIELD)
 		int incr = hardware.GetSwitch(1)->FallingEdge();
+		#else
+		int incr =  hardware.encoder.Increment();
 		#endif
 		switch (mode) {
 			case MODE_MENU: {

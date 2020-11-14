@@ -96,6 +96,7 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-1",
@@ -331,11 +332,12 @@
 , 											{
 												"box" : 												{
 													"id" : "obj-21",
+													"linecount" : 2,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 161.666666666666657, 296.0, 150.0, 20.0 ],
-													"text" : "-1 means don't write"
+													"patching_rect" : [ 168.666666666666657, 291.0, 150.0, 33.0 ],
+													"text" : "negative means don't write"
 												}
 
 											}
@@ -346,8 +348,8 @@
 													"numinlets" : 0,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 128.666666666666657, 291.0, 19.0, 22.0 ],
-													"text" : "-1"
+													"patching_rect" : [ 128.666666666666657, 291.0, 29.0, 22.0 ],
+													"text" : "-0.1"
 												}
 
 											}

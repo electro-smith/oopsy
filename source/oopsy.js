@@ -166,6 +166,7 @@ target=="pod" ? "#define GEN_DAISY_TARGET_POD 1" :
 ${gloos.map(gloo => `#include "${gloo.relative_path}"`).join("\n")}
 ${gloos.map(gloo => gloo.cpp.struct).join("\n")}
 
+// store apps in a union to re-use memory, since only one app is active at once:
 union {
 	${gloos.map(gloo => gloo.cpp.union).join("\n\t")}
 } apps;

@@ -648,6 +648,7 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-1",
@@ -783,7 +784,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 82.5, 276.0, 150.0, 47.0 ],
+													"patching_rect" : [ 111.0, 270.0, 150.0, 47.0 ],
 													"text" : "absence of midi data marked by negative values"
 												}
 
@@ -795,8 +796,8 @@
 													"numinlets" : 0,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 56.0, 270.0, 19.0, 22.0 ],
-													"text" : "-1"
+													"patching_rect" : [ 56.0, 270.0, 29.0, 22.0 ],
+													"text" : "-0.1"
 												}
 
 											}
