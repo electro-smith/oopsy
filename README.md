@@ -34,6 +34,38 @@ Hardware voltages are mapped to gen~ -1..1
 - `out <n> midi` will let you fill a signal with MIDI data to send to the device MIDI output (see examples on formatting the signal). `<n>` just needs to be an output channel number that isn't being used for anything else.
 
 
+## Using from within Max
+
+Drop a new `oopsy` object into a Max patch that contains one or more `gen~` objects. Make sure the Max patch is saved. 
+
+- Every time the Max patch is saved, it will trigger code generation and compilation, and will try to upload to a Daisy device if one is attached.
+- You can also send `bang` to the `oopsy` object to manually trigger this.
+- All the gen~ objects in the patcher will be uploaded to the device as "apps" which you can switch between via long hold on the encoder (long hold SW1 on the Field)
+- You can configure the export target with `oopsy @target field` etc; the default is "patch".
+
+Currently the progress is spewed to the Max console -- hopefully we can replace this with a nice bpatcher view at some point.
+
+If you see "Error 74" you can ignore it.
+
+## Using from the command line via Node.js
+
+If you want to use Oopsy without having Max open, you'll also want to have [Node.js](https://nodejs.org/en/) installed. 
+
+From the /source folder, run oopsy.js, telling it what hardware platform to build for, and pointing it to one or more cpp files that have been exported from gen~:
+
+```
+# for DaisyPatch:
+node oopsy.js patch ../examples/simple.cpp
+# for DaisyField:
+node oopsy.js field ../examples/simple.cpp
+# etc.
+```
+
+- If the Daisy is plugged in via USB and ready to accept firmware (the two tact switches on the Daisy Seed have been pressed) then the oopsy script will upload the binary to the hardware (otherwise you'll get the harmless "Error '74") 
+- Up to eight cpp files can be mentioned in the arguments; they will all be loaded onto the Daisy, with a simple menu system to switch between them. Use long encoder press then rotate to select (on Patch: long hold SW1 and press SW2 to select).
+- If the `watch` keyword is added to the oopsy.js arguments, it will re-run the process every time any of the cpp files change -- which is handy since gen~ will re-export on every edit.
+- For a custom hardware configuration (other than Patch/Field/Petal/Pod) you can specify a JSON file in the arguments.
+
 
 ## Installing
 
@@ -57,34 +89,3 @@ cd source/DaisyExamples
 ./rebuild_libs.sh
 cd ..
 ```
-
-If you want to use Oopsy without having Max open, you'll also want to have [Node.js](https://nodejs.org/en/) installed. From within Max you'll need the Node4Max package instead.
-
-## Using from the command line via Node.js
-
-From the /source folder, run oopsy.js, telling it what hardware platform to build for, and pointing it to one or more cpp files that have been exported from gen~:
-
-```
-# for DaisyPatch:
-node oopsy.js patch ../examples/simple.cpp
-# for DaisyField:
-node oopsy.js field ../examples/simple.cpp
-# etc.
-```
-
-- If the Daisy is plugged in via USB and ready to accept firmware (the two tact switches on the Daisy Seed have been pressed) then the oopsy script will upload the binary to the hardware (otherwise you'll get the harmless "Error '74") 
-- Up to eight cpp files can be mentioned in the arguments; they will all be loaded onto the Daisy, with a simple menu system to switch between them. Use long encoder press then rotate to select (on Patch: long hold SW1 and press SW2 to select).
-- If the `watch` keyword is added to the oopsy.js arguments, it will re-run the process every time any of the cpp files change -- which is handy since gen~ will re-export on every edit.
-- For a custom hardware configuration (other than Patch/Field/Petal/Pod) you can specify a JSON file in the arguments.
-
-## Using from within Max
-
-Drop a new `oopsy` object into a Max patch that contains one or more `gen~` objects. Make sure the Max patch is saved. 
-
-- Every time the Max patch is saved, it will trigger code generation and compilation, and will try to upload to a Daisy device if one is attached.
-- You can also send `bang` to the `oopsy` object to manually trigger this.
-- You can configure the export target with `oopsy @target field` etc.
-
-Currently the progress is spewed to the Max console -- hopefully we can replace this with a nice bpatcher view at some point.
-
-If you see "Error 74" you can ignore it.
