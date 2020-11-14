@@ -79,5 +79,12 @@ node oopsy.js field ../examples/simple.cpp
 
 ## Using from within Max
 
-*Coming soon*
+Drop a new `oopsy` object into a Max patch that contains one or more `gen~` objects. Make sure the Max patch is saved. 
 
+- Every time the Max patch is saved, it will trigger code generation and compilation, and will try to upload to a Daisy device if one is attached.
+- You can also send `bang` to the `oopsy` object to manually trigger this.
+- You can configure the export target with `oopsy @target field` etc.
+
+Currently the progress is spewed to the Max console -- hopefully we can replace this with a nice bpatcher view at some point.
+
+If you see "Error 74" you can ignore it.

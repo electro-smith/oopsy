@@ -354,8 +354,10 @@ struct GenDaisy {
 								hardware.display.SetCursor(0, font.FontHeight * i);
 								hardware.display.WriteString((char *)">", font, true);
 							}
-							hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-							hardware.display.WriteString((char *)((i < app_count) ? appdefs[i].name : "-"), font, true);
+							if (i < app_count) {
+								hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
+								hardware.display.WriteString((char *)appdefs[i].name, font, true);
+							}
 						}
 						hardware.display.Update();
 					} break;
