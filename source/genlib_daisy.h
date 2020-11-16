@@ -42,6 +42,9 @@ typedef daisy::DaisySeed Daisy;
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
+void genlib_init();
+void genlib_info();
+
 #define GEN_DAISY_BUFFER_SIZE 48
 #define GEN_DAISY_MIDI_BUFFER_SIZE 64
 #define GEN_DAISY_LONG_PRESS_MS 250
@@ -146,7 +149,7 @@ struct Scope {
 	} 
 
 	void store(float ** inputs, size_t size, float samplerate) {
-		int samples = zoomSamples();
+		size_t samples = zoomSamples();
 		// each pixel is zoom samples; zoom/samplerate seconds
 		duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
 		float * buf0 = inputs[0];
