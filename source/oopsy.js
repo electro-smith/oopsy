@@ -185,17 +185,22 @@ int main(void) {
 
 	// now try to make:
 	try {
+
 		console.log(execSync("make clean", { cwd: build_path }).toString())
 		// TODO: make this cross-platform:
-		console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
+		if (os.platform() == "win32") {
+			console.log(execSync("set PATH=%PATH%;/usr/local/bin && make", { cwd: build_path }).toString())
+		} else {
+			console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
+		}
 		// if successful, try to upload to hardware:
 		if (fs.existsSync(bin_path) && action=="upload") {
 			console.log("uploading", bin_path)
-			//try {
+			if (os.platform() == "win32") {
+				console.log(execSync("set PATH=%PATH%;/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
+			} else {
 				console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' }).toString())
-			//} catch (e) {
-				//console.error("Failed to program Daisy -- is device attached and ready to be flashed?")
-			//}
+			}
 		}
 	} catch (e) {
 		// errors from make here
