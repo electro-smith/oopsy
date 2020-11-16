@@ -33,14 +33,16 @@ static const int GENLIB_LOOPCOUNT_BAIL = 100000;
 // The State struct contains all the state and procedures for the gendsp kernel
 typedef struct State {
 	CommonState __commonstate;
-	int __exception;
+	Data m_foo_1;
 	int vectorsize;
+	int __exception;
 	t_sample samplerate;
 	// re-initialize all member variables;
 	inline void reset(t_param __sr, int __vs) {
 		__exception = 0;
 		vectorsize = __vs;
 		samplerate = __sr;
+		m_foo_1.reset("foo", ((int)100), ((int)2));
 		genlib_reset_complete(this);
 		
 	};
@@ -71,6 +73,9 @@ typedef struct State {
 		return __exception;
 		
 	};
+	inline void set_foo(void * _value) {
+		m_foo_1.setbuffer(_value);
+	};
 	
 } State;
 
@@ -86,7 +91,7 @@ int gen_kernel_numouts = 1;
 
 int num_inputs() { return gen_kernel_numins; }
 int num_outputs() { return gen_kernel_numouts; }
-int num_params() { return 0; }
+int num_params() { return 1; }
 
 /// Assistive lables for the signal inputs and outputs
 
@@ -112,6 +117,7 @@ void reset(CommonState *cself) {
 void setparameter(CommonState *cself, long index, t_param value, void *ref) {
 	State *self = (State *)cself;
 	switch (index) {
+		case 0: self->set_foo(ref); break;
 		
 		default: break;
 	}
@@ -122,6 +128,7 @@ void setparameter(CommonState *cself, long index, t_param value, void *ref) {
 void getparameter(CommonState *cself, long index, t_param *value) {
 	State *self = (State *)cself;
 	switch (index) {
+		
 		
 		default: break;
 	}
@@ -202,8 +209,22 @@ void *create(t_param sr, long vs) {
 	self->__commonstate.numouts = gen_kernel_numouts;
 	self->__commonstate.sr = sr;
 	self->__commonstate.vs = vs;
-	self->__commonstate.params = 0;
-	self->__commonstate.numparams = 0;
+	self->__commonstate.params = (ParamInfo *)genlib_sysmem_newptr(1 * sizeof(ParamInfo));
+	self->__commonstate.numparams = 1;
+	// initialize parameter 0 ("m_foo_1")
+	pi = self->__commonstate.params + 0;
+	pi->name = "foo";
+	pi->paramtype = GENLIB_PARAMTYPE_SYM;
+	pi->defaultvalue = 0.;
+	pi->defaultref = 0;
+	pi->hasinputminmax = false;
+	pi->inputmin = 0;
+	pi->inputmax = 1;
+	pi->hasminmax = false;
+	pi->outputmin = 0;
+	pi->outputmax = 1;
+	pi->exp = 0;
+	pi->units = "";		// no units defined
 	
 	return self;
 }
@@ -212,7 +233,8 @@ void *create(t_param sr, long vs) {
 
 void destroy(CommonState *cself) {
 	State *self = (State *)cself;
-	
+	genlib_sysmem_freeptr(cself->params);
+		
 	delete self;
 }
 

@@ -392,6 +392,7 @@ struct GenDaisy {
 							app_selected = app_selecting;
 							console.log("load %s", appdefs[app_selected].name);
 							appdefs[app_selected].load();
+							mode = mode_default;
 						}
 					}
 				} 

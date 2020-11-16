@@ -191,7 +191,16 @@ int main(void) {
 		console.log(execSync("make clean", { cwd: build_path }).toString())
 		// TODO: make this cross-platform:
 		if (os.platform() == "win32") {
-			console.log(execSync("set PATH=%PATH%;/usr/local/bin && make", { cwd: build_path }).toString())
+			//console.log(execSync("set PATH=%PATH%;/usr/local/bin && make", { cwd: build_path }).toString())
+
+			// Gather up make output to run command per line as child process
+			// TODO: fix the awful output..
+			let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
+			build_cmd.forEach(line => {
+				if (line.length > 0)
+					console.log(execSync(line, { cwd: build_path }).toString())
+			})
+		
 		} else {
 			console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
 		}
