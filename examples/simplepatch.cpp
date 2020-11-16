@@ -66,9 +66,9 @@ typedef struct State {
 			const t_sample in1 = (*(__in1++));
 			const t_sample in2 = (*(__in2++));
 			__m_cycle_1.freq(((int)440));
-			t_sample cycle_2 = __m_cycle_1(__sinedata);
-			t_sample cycleindex_3 = __m_cycle_1.phase();
-			t_sample out1 = (cycle_2 + in1);
+			t_sample cycle_5 = __m_cycle_1(__sinedata);
+			t_sample cycleindex_6 = __m_cycle_1.phase();
+			t_sample out1 = (cycle_5 + in1);
 			// assign results to output buffer;
 			(*(__out1++)) = out1;
 			

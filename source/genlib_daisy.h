@@ -13,14 +13,12 @@
 #if defined(GEN_DAISY_TARGET_PATCH)
 #include "daisy_patch.h"
 #define GEN_DAISY_TARGET_HAS_OLED 1
-#define GEN_DAISY_TARGET_USES_MIDI_UART 1
 #define GEN_DAISY_IO_COUNT (4)
 typedef daisy::DaisyPatch Daisy;
 
 #elif defined(GEN_DAISY_TARGET_FIELD)
 #include "daisy_field.h"
 #define GEN_DAISY_TARGET_HAS_OLED 1
-#define GEN_DAISY_TARGET_USES_MIDI_UART 1
 #define GEN_DAISY_IO_COUNT (2)
 typedef daisy::DaisyField Daisy;
 
@@ -189,13 +187,15 @@ struct Scope {
 struct Console {
 	FontDef& font = Font_6x8;
 	uint16_t console_cols, console_rows, console_line;
+	char * console_stats;
 	char * console_memory;
 	char ** console_lines;
 
 	Console& init() {
 		console_cols = SSD1309_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
-		console_rows = SSD1309_HEIGHT / font.FontHeight;
+		console_rows = SSD1309_HEIGHT / font.FontHeight - 1; // leave one row free for stats
 		console_memory = (char *)calloc(console_cols, console_rows);
+		console_stats = (char *)calloc(console_cols, 1);
 		for (int i=0; i<console_rows; i++) {
 			console_lines[i] = &console_memory[i*console_cols];
 		}
@@ -223,6 +223,9 @@ struct Console {
 			oled.SetCursor(0, font.FontHeight * i);
  			oled.WriteString(console_lines[(i+console_line) % console_rows], font, true);
 		}
+		// stats:
+		oled.SetCursor(0, font.FontHeight * console_rows);
+		oled.WriteString(console_stats, font, true);
 		oled.Update();
 		return *this;
 	}
@@ -443,6 +446,9 @@ struct GenDaisy {
 					case MODE_SCOPE: scope.display(hardware.display); break;
 					case MODE_CONSOLE: 
 					{
+						// fraction of audio time used:
+						float percent = audioCpuUs*(1e-6*samplerate)/blocksize;
+						snprintf(console.console_stats, console.console_cols, "%02d%%", int(100.f*percent));
 						console.display(hardware.display); 
 						break;
 					}

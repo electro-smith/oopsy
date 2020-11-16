@@ -163,6 +163,8 @@ target=="field" ? "#define GEN_DAISY_TARGET_FIELD 1" :
 target=="petal" ? "#define GEN_DAISY_TARGET_PETAL 1" :
 target=="pod" ? "#define GEN_DAISY_TARGET_POD 1" :
 ""}
+${gloos.some(g => g.has_midi_in || g.has_midi_out) ? "#define GEN_DAISY_TARGET_USES_MIDI_UART 1" : "// no midi"}
+
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
 ${gloos.map(gloo => `#include "${posixify_path(gloo.relative_path)}"`).join("\n")}
