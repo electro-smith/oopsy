@@ -133,8 +133,9 @@ TARGET = ${build_name}
 # Sources -- note, won't work with paths with spaces
 CPP_SOURCES = ${path.relative(build_path, maincpp_path).replace(" ", "\\ ")}
 # Library Locations
-LIBDAISY_DIR = ${(path.relative(build_path, path.join(daisy_path, "libdaisy")).replace(" ", "\\ "))}
-DAISYSP_DIR = ${(path.relative(build_path, path.join(daisy_path, "DaisySP")).replace(" ", "\\ "))}
+LIBDAISY_DIR = ${(path.relative(build_path, path.join(__dirname, "libdaisy")).replace(" ", "\\ "))}
+# LIBDAISY_DIR = ${(path.relative(build_path, path.join(daisy_path, "libdaisy")).replace(" ", "\\ "))}
+# DAISYSP_DIR = ${(path.relative(build_path, path.join(daisy_path, "DaisySP")).replace(" ", "\\ "))}
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile

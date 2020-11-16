@@ -1,7 +1,6 @@
 #ifndef GENLIB_DAISY_H
 #define GENLIB_DAISY_H
 
-#include "daisysp.h"
 #include "genlib.h"
 #include "genlib_exportfunctions.h"
 #include <math.h>
@@ -112,32 +111,50 @@ struct MidiUart {
 
 
 #if defined(GEN_DAISY_TARGET_HAS_OLED)
+#define GEN_DAISY_SCOPE_MAX_ZOOM (10)
 struct Scope {
+	// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24, 48
+
+
 	float data0[SSD1309_WIDTH*2]; // 128 pixels
 	float data1[SSD1309_WIDTH*2]; // 128 pixels
 	uint_fast8_t zoom = 8; 
 	uint_fast8_t step = 0;
+	float duration = 1.f;
+	FontDef& font = Font_6x8;
 
-	void increment(int32_t incr) {
+	int zoomSamples() {
+		switch(zoom) {
+			case 1: case 2: case 3: case 4: return zoom; break;
+			case 5: return 6; break;
+			case 6: return 8; break;
+			case 7: return 12; break;
+			case 8: return 16; break;
+			case 9: return 24; break;
+			default: return 48; break;
+		}
+	}
+
+	void increment(int incr) {
 		if (incr > 0) {
-			zoom = zoom * 2;
-			if (zoom >= 16) zoom = 1;
+			zoom = zoom + 1;
+			if (zoom > GEN_DAISY_SCOPE_MAX_ZOOM) zoom = 1;
 		} else if (incr < 0) {
-			if (zoom < 2) {
-				zoom = 32;
-			} else {
-				zoom /= 2;
-			}
+			zoom = zoom - 1;
+			if (zoom < 1) zoom = GEN_DAISY_SCOPE_MAX_ZOOM;
 		}
 	} 
 
-	void store(float ** inputs, size_t size) {
+	void store(float ** inputs, size_t size, float samplerate) {
+		int samples = zoomSamples();
+		// each pixel is zoom samples; zoom/samplerate seconds
+		duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
 		float * buf0 = inputs[0];
 		float * buf1 = inputs[1];
-		for (uint_fast8_t i=0; i<zoom; i++) {
+		for (uint_fast8_t i=0; i<size/samples; i++) {
 			float min0 = 1.f, max0 = -1.f;
 			float min1 = 1.f, max1 = -1.f;
-			for (size_t j=0; j<size/zoom; j++) {
+			for (size_t j=0; j<samples; j++) {
 				float pt0 = *buf0++;
 				float pt1 = *buf1++;
 				// if (pt > 0.f && last < 0.f && step >= SSD1309_WIDTH) {
@@ -173,6 +190,13 @@ struct Scope {
 			
 			//oled.DrawPixel(i, (data[i]+1.f)*(SSD1309_HEIGHT/2), 1);
 			//oled.DrawPixel(i, i, 1);
+
+
+			oled.SetCursor(0, font.FontHeight * 0);
+			int len = SSD1309_WIDTH / font.FontWidth;
+			char label[len+1];
+			snprintf(label, len, "%dx = %dms", zoomSamples(), (int)ceilf(duration));
+ 			oled.WriteString(label, font, true);
 		}
 		oled.Update();
 	}
@@ -238,8 +262,8 @@ struct GenDaisy {
 		MODE_MENU,
 
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
-		MODE_CONSOLE,
 		MODE_SCOPE,
+		MODE_CONSOLE,
 		#endif
 
 		MODE_COUNT
@@ -252,10 +276,15 @@ struct GenDaisy {
 
 	Daisy hardware;
 
-	Mode mode, mode_default;
+	int mode, mode_default;
 
 	int app_count = 1;
 	int app_selected = 0, app_selecting = 0;
+
+	int encoder_held = 0, encoder_held_ms = 0, encoder_released = 0, encoder_incr = 0;
+
+	int is_mode_selecting = 0;
+
 
 	uint32_t t = 0, dt = 10;
 	Timer displaytimer;
@@ -280,6 +309,24 @@ struct GenDaisy {
 	void * gen = nullptr;
 	bool nullAudioCallbackRunning = false;
 
+	template<typename A>
+	void reset(A& newapp) {
+		// first, remove callbacks:
+		mainloopCallback = nullMainloopCallback;
+		nullAudioCallbackRunning = false;
+		hardware.ChangeAudioCallback(nullAudioCallback);
+		while (!nullAudioCallbackRunning) dsy_system_delay(10);
+		// reset memory
+		genlib_init();
+		// install new app:
+		app = &newapp;
+		newapp.init(*this);
+		// install new callbacks:
+		mainloopCallback = newapp.staticMainloopCallback;
+		hardware.ChangeAudioCallback(newapp.staticAudioCallback);
+		//console.log("app loaded");
+		genlib_info();
+	}
 
 	int run(AppDef * appdefs, int count) {
 
@@ -324,28 +371,69 @@ struct GenDaisy {
 			// handle app-level code (e.g. for LED/CV/gate outs)
 			mainloopCallback(t, dt);
 			
-			#if GEN_DAISY_TARGET_HAS_OLED
 			if (displaytimer.ready(dt)) {
 
-				// displaying app menu?
-				#ifdef GEN_DAISY_TARGET_FIELD
-				if (hardware.GetSwitch(0)->TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
-				#else
-				if (hardware.encoder.TimeHeldMs() > GEN_DAISY_LONG_PRESS_MS) {
-				#endif
-					mode = MODE_MENU;
-				} else if (mode == MODE_MENU) {
-					// just released:
-					mode = mode_default;
-					if (app_selected != app_selecting) {
-						app_selected = app_selecting;
-						console.log("load %s", appdefs[app_selected].name);
-						appdefs[app_selected].load();
-					}
+				// Handle encoder press/longpress actions:
+				if (encoder_held_ms > GEN_DAISY_LONG_PRESS_MS) {
+					// LONG PRESS
+					is_mode_selecting = 1;
 				} 
+				if (encoder_released) {
+					// SHORT PRESS
+					if (is_mode_selecting) {
+						is_mode_selecting = 0;
+					} 
+				} 
+		
+				// Handle encoder increment actions:
+				if (is_mode_selecting) {
+					//if (encoder_incr) console.log("mode %d %d %d", encoder_incr, mode, MODE_COUNT);
+					mode += encoder_incr;
+					if (mode >= MODE_COUNT) mode = 0;
+					if (mode < 0) mode = MODE_COUNT-1;	
+				} else if (mode == MODE_MENU) {
+					app_selecting += encoder_incr;
+					if (app_selecting >= app_count) app_selecting -= app_count;
+					if (app_selecting < 0) app_selecting += app_count;
+				#ifdef GEN_DAISY_TARGET_HAS_OLED
+				} else if (mode == MODE_SCOPE) {
+					scope.increment(encoder_incr);
+				#endif
+				}
+				encoder_incr = 0;
+
+				
+				// if (encoder_held_ms > GEN_DAISY_LONG_PRESS_MS) {
+				// 	mode = MODE_MENU;
+				// } else if (mode == MODE_MENU) {
+				// 	// just released:
+				// 	mode = mode_default;
+				// 	if (app_selected != app_selecting) {
+				// 		app_selected = app_selecting;
+				// 		console.log("load %s", appdefs[app_selected].name);
+				// 		appdefs[app_selected].load();
+				// 	}
+				// } 
+
+				// switch (mode) {
+				// 	case MODE_MENU: {
+				// 		app_selecting += encoder_incr;
+				// 		if (app_selecting >= app_count) app_selecting -= app_count;
+				// 		if (app_selecting < 0) app_selecting += app_count;
+
+				// 	} break;
+				// 	#ifdef GEN_DAISY_TARGET_HAS_OLED
+				// 	case MODE_SCOPE: scope.increment(encoder_incr); break;
+				// 	#endif
+				// 	default: break;
+				// }
 
 				switch(mode) {
 					#ifdef GEN_DAISY_TARGET_HAS_OLED
+					case MODE_NONE: {
+						hardware.display.Fill(false);
+						hardware.display.Update();
+					} break;
 					case MODE_MENU: {
 						FontDef& font = console.font;
 						hardware.display.Fill(false);
@@ -374,29 +462,19 @@ struct GenDaisy {
 					#endif
 					default: break;
 				}
+
+				if (is_mode_selecting) {
+					#ifdef GEN_DAISY_TARGET_HAS_OLED
+					hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
+					hardware.display.Update();
+					#endif
+				}
+
+				// done with UI	
+				encoder_released = 0;
 			}
-			#endif
 		}
 		return 0;
-	}
-
-	template<typename A>
-	void reset(A& newapp) {
-		// first, remove callbacks:
-		mainloopCallback = nullMainloopCallback;
-		nullAudioCallbackRunning = false;
-		hardware.ChangeAudioCallback(nullAudioCallback);
-		while (!nullAudioCallbackRunning) dsy_system_delay(10);
-		// reset memory
-		genlib_init();
-		// install new app:
-		app = &newapp;
-		newapp.init(*this);
-		// install new callbacks:
-		mainloopCallback = newapp.staticMainloopCallback;
-		hardware.ChangeAudioCallback(newapp.staticAudioCallback);
-		//console.log("app loaded");
-		genlib_info();
 	}
 
 	void audio_preperform(size_t size) {
@@ -414,30 +492,24 @@ struct GenDaisy {
 		#endif
 
 		#ifdef GEN_DAISY_TARGET_FIELD
-		int incr = hardware.GetSwitch(1)->FallingEdge();
+		encoder_held = hardware.GetSwitch(0)->Pressed();
+		encoder_incr += hardware.GetSwitch(1)->FallingEdge();
+		encoder_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
+		if (hardware.GetSwitch(0)->FallingEdge()) encoder_released = 1;
 		#else
-		int incr =  hardware.encoder.Increment();
+		encoder_held = hardware.encoder.Pressed();
+		encoder_incr += hardware.encoder.Increment();
+		encoder_held_ms = hardware.encoder.TimeHeldMs();
+		if (hardware.encoder.FallingEdge()) encoder_released = 1;
 		#endif
 
-		switch (mode) {
-			case MODE_MENU: {
-				app_selecting += incr;
-				if (app_selecting >= app_count) app_selecting -= app_count;
-				if (app_selecting < 0) app_selecting += app_count;
-
-			} break;
-			#ifdef GEN_DAISY_TARGET_HAS_OLED
-			case MODE_SCOPE: scope.increment(incr); break;
-			#endif
-			default: break;
-		}
 	}
 
 	void audio_postperform(float **hardware_ins, float **hardware_outs, size_t size) {
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
 		if (mode == MODE_SCOPE) {
-			//scope.store(hardware_ins, size);
-			scope.store(hardware_outs, size);
+			//scope.store(hardware_ins, size, samplerate);
+			scope.store(hardware_outs, size, samplerate);
 		}
 		#endif
 	}
