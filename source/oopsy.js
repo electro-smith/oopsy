@@ -9,6 +9,11 @@ const fs = require("fs"),
 	assert = require("assert");
 const {exec, execSync, spawn} = require("child_process");
 
+
+function posixify_path(str) {
+	return str.split(path.sep).join(path.posix.sep);
+}
+
 const help = `
 <[cmds]> <[target]> <[cpps]> <watch>
 
@@ -129,14 +134,14 @@ function run() {
 # Project Name
 TARGET = ${build_name}
 # Sources -- note, won't work with paths with spaces
-CPP_SOURCES = ${path.relative(build_path, maincpp_path).replace(" ", "\\ ")}
+CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))}
 # Library Locations
-LIBDAISY_DIR = ${(path.relative(build_path, path.join(__dirname, "libdaisy")).replace(" ", "\\ "))}
+LIBDAISY_DIR = ${(posixify_path(path.relative(build_path, path.join(__dirname, "libdaisy"))).replace(" ", "\\ "))}
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
 # Include the gen_dsp files
-CFLAGS+=-I"${path.relative(build_path, path.join(__dirname, "gen_dsp"))}"
+CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}"
 CFLAGS+=-Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
 # Enable printing of floats (for OLED display)
 LDFLAGS+=-u _printf_float
@@ -160,7 +165,7 @@ target=="pod" ? "#define GEN_DAISY_TARGET_POD 1" :
 ""}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
-${gloos.map(gloo => `#include "${gloo.relative_path}"`).join("\n")}
+${gloos.map(gloo => `#include "${posixify_path(gloo.relative_path)}"`).join("\n")}
 ${gloos.map(gloo => gloo.cpp.struct).join("\n")}
 
 // store apps in a union to re-use memory, since only one app is active at once:
