@@ -1,6 +1,3 @@
-[submodule "source/DaisyExamples"]
-	path = source/DaisyExamples
-	url = git@github.com:electro-smith/DaisyExamples.git
-[submodule "source/llibdaisy"]
-	path = source/llibdaisy
+[submodule "source/libdaisy"]
+	path = source/libdaisy
 	url = https://github.com/electro-smith/libDaisy.git
