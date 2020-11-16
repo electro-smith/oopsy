@@ -1,12 +1,14 @@
 #ifndef GENLIB_DAISY_H
 #define GENLIB_DAISY_H
 
+#include "daisy.h"
 #include "genlib.h"
 #include "genlib_exportfunctions.h"
 #include <math.h>
 #include <string>
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
+
 
 #if defined(GEN_DAISY_TARGET_PATCH)
 #include "daisy_patch.h"
@@ -120,8 +122,7 @@ struct Scope {
 
 
 	float data0[SSD1309_WIDTH*2]; // 128 pixels
-	float data1[SSD1309_WIDTH*2]; // 128 pixels
-	uint_fast8_t zoom = 8; 
+	uint_fast8_t zoom = 1; 
 	uint_fast8_t step = 0;
 	float duration = 1.f;
 	FontDef& font = Font_6x8;
@@ -148,34 +149,23 @@ struct Scope {
 		}
 	} 
 
-	void store(float ** inputs, size_t size, float samplerate) {
+	void store(float * buf, size_t size, float samplerate) {
 		size_t samples = zoomSamples();
 		// each pixel is zoom samples; zoom/samplerate seconds
 		duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
-		float * buf0 = inputs[0];
-		float * buf1 = inputs[1];
-		for (uint_fast8_t i=0; i<size/samples; i++) {
+		for (int i=0; i<size/samples; i++) {
 			float min0 = 1.f, max0 = -1.f;
 			float min1 = 1.f, max1 = -1.f;
 			for (size_t j=0; j<samples; j++) {
-				float pt0 = *buf0++;
-				float pt1 = *buf1++;
-				// if (pt > 0.f && last < 0.f && step >= SSD1309_WIDTH) {
-				// 	sync = step/2;
-				// 	step = 0;
-				// }
+				float pt0 = *buf++;
 				min0 = min0 > pt0 ? pt0 : min0;
 				max0 = max0 < pt0 ? pt0 : max0;
-				min1 = min1 > pt1 ? pt1 : min1;
-				max1 = max1 < pt1 ? pt1 : max1;
-				//last = pt;
 			}
 			data0[step] = (min0);
-			data1[step] = (min1);
 			step++;
 			data0[step] = (max0); 
-			data1[step] = (max1);
 			step++;
+			//console.log("m1 %d %d", int(min1 * 10), int(max1 * 10));
 			if (step >= SSD1309_WIDTH*2) step = 0;
 		}
 	}
@@ -183,24 +173,15 @@ struct Scope {
 	void display(daisy::OledDisplay& oled) {
 		oled.Fill(false);
 		for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-			//int j = ((sync + i) % SSD1309_WIDTH)*2;
-			int j = i*2;
-			
-			oled.DrawLine(i, (1.f-data0[j])*(SSD1309_HEIGHT/4), i, (1.f-data0[j+1])*(SSD1309_HEIGHT/4), 1);
-			oled.DrawLine(i, (3.f-data1[j])*(SSD1309_HEIGHT/4), i, (3.f-data1[j+1])*(SSD1309_HEIGHT/4), 1);
-
-			//oled.DrawLine(data0[j], data1[j], data0[j+1], data1[j+1], 1);
-			
-			//oled.DrawPixel(i, (data[i]+1.f)*(SSD1309_HEIGHT/2), 1);
-			//oled.DrawPixel(i, i, 1);
-
-
-			oled.SetCursor(0, font.FontHeight * 0);
-			int len = SSD1309_WIDTH / font.FontWidth;
-			char label[len+1];
-			snprintf(label, len, "%dx = %dms", zoomSamples(), (int)ceilf(duration));
- 			oled.WriteString(label, font, true);
+		 	int j = i*2;
+			oled.DrawLine(i, (1.f-data0[j])*(SSD1309_HEIGHT/2), i, (1.f-data0[j+1])*(SSD1309_HEIGHT/2), 1);
 		}
+
+		oled.SetCursor(0, font.FontHeight * 0);
+		int len = SSD1309_WIDTH / font.FontWidth;
+		char label[len+1];
+		snprintf(label, len, "%dx = %dms", zoomSamples(), (int)ceilf(duration));
+		oled.WriteString(label, font, true);
 		oled.Update();
 	}
 };
@@ -265,8 +246,8 @@ struct GenDaisy {
 		MODE_MENU,
 
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
-		MODE_SCOPE,
 		MODE_CONSOLE,
+		MODE_SCOPE,
 		#endif
 
 		MODE_COUNT
@@ -381,12 +362,6 @@ struct GenDaisy {
 					// LONG PRESS
 					is_mode_selecting = 1;
 				} 
-				if (encoder_released) {
-					// SHORT PRESS
-					if (is_mode_selecting) {
-						is_mode_selecting = 0;
-					} 
-				} 
 		
 				// Handle encoder increment actions:
 				if (is_mode_selecting) {
@@ -405,6 +380,19 @@ struct GenDaisy {
 				}
 				encoder_incr = 0;
 
+				// SHORT PRESS	
+				if (encoder_released) {
+					if (is_mode_selecting) {
+						is_mode_selecting = 0;
+					} else if (mode == MODE_MENU) {
+						if (app_selected != app_selecting) {
+							app_selected = app_selecting;
+							console.log("load %s", appdefs[app_selected].name);
+							appdefs[app_selected].load();
+						}
+					}
+				} 
+				encoder_released = 0;
 				
 				// if (encoder_held_ms > GEN_DAISY_LONG_PRESS_MS) {
 				// 	mode = MODE_MENU;
@@ -472,9 +460,6 @@ struct GenDaisy {
 					hardware.display.Update();
 					#endif
 				}
-
-				// done with UI	
-				encoder_released = 0;
 			}
 		}
 		return 0;
@@ -512,7 +497,7 @@ struct GenDaisy {
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
 		if (mode == MODE_SCOPE) {
 			//scope.store(hardware_ins, size, samplerate);
-			scope.store(hardware_outs, size, samplerate);
+			scope.store(hardware_outs[0], size, samplerate);
 		}
 		#endif
 	}

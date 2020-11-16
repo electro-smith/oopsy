@@ -40,7 +40,7 @@ Drop a new `oopsy` object into a Max patch that contains one or more `gen~` obje
 
 - Every time the Max patch is saved, it will trigger code generation and compilation, and will try to upload to a Daisy device if one is attached.
 - You can also send `bang` to the `oopsy` object to manually trigger this.
-- All the gen~ objects in the patcher will be uploaded to the device as "apps" which you can switch between via long hold on the encoder (long hold SW1 on the Field)
+- All the gen~ objects in the patcher will be uploaded to the device as "apps" which you can switch between via long hold on the encoder to get to the app menu (long hold SW1 on the Field)
 - You can configure the export target with `oopsy @target field` etc; the default is "patch".
 
 Currently the progress is spewed to the Max console -- hopefully we can replace this with a nice bpatcher view at some point.
@@ -62,10 +62,9 @@ node oopsy.js field ../examples/simple.cpp
 ```
 
 - If the Daisy is plugged in via USB and ready to accept firmware (the two tact switches on the Daisy Seed have been pressed) then the oopsy script will upload the binary to the hardware (otherwise you'll get the harmless "Error '74") 
-- Up to eight cpp files can be mentioned in the arguments; they will all be loaded onto the Daisy, with a simple menu system to switch between them. Use long encoder press then rotate to select (on Patch: long hold SW1 and press SW2 to select).
+- Up to eight cpp files can be mentioned in the arguments; they will all be loaded onto the Daisy, with a simple menu system to switch between them. Use long encoder press to go into mode selection, rotate until you get the app menu, and release. Now rotate the encoder to select the app, and short press the encoder to load it. (On the Patch, use SW1 long press to go into mode selection, SW2 to swich mode until you get the app menu, release SW1; then press SW2 to select app, and SW1 to load it.)
 - If the `watch` keyword is added to the oopsy.js arguments, it will re-run the process every time any of the cpp files change -- which is handy since gen~ will re-export on every edit.
 - For a custom hardware configuration (other than Patch/Field/Petal/Pod) you can specify a JSON file in the arguments.
-
 
 ## Installing
 
@@ -77,15 +76,11 @@ On OSX you can simply run:
 brew install make armmbed/formulae/arm-none-eabi-gcc dfu-util
 ```
 
-Second, install Oopsy and build the Daisy library dependencies:
+Second, install Oopsy and build the libDaisy dependency:
 
 ```
 # first open a console in your Documents/Max 8/Packages folder, then:
 git clone https://github.com/grrrwaaa/oopsy.git
 cd oopsy
-git submodule update --init
-git pull --recurse-submodules
-cd source/DaisyExamples
-./rebuild_libs.sh
-cd ..
+./install.sh
 ```
