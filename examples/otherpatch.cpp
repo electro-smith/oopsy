@@ -55,21 +55,30 @@ typedef struct State {
 		vectorsize = __n;
 		const t_sample * __in1 = __ins[0];
 		t_sample * __out1 = __outs[0];
+		t_sample * __out2 = __outs[1];
+		t_sample * __out3 = __outs[2];
 		if (__exception) {
 			return __exception;
 			
-		} else if (( (__in1 == 0) || (__out1 == 0) )) {
+		} else if (( (__in1 == 0) || (__out1 == 0) || (__out2 == 0) || (__out3 == 0) )) {
 			__exception = GENLIB_ERR_NULL_BUFFER;
 			return __exception;
 			
 		};
+		int foodat_dim = m_foodat_1.dim;
+		int foodat_channels = m_foodat_1.channels;
+		int foodat_dim_10 = foodat_dim;
 		// the main sample loop;
 		while ((__n--)) {
 			const t_sample in1 = (*(__in1++));
+			t_sample out2 = foodat_dim_10;
+			t_sample out3 = foodat_dim_10;
 			t_sample noise_7 = noise();
 			t_sample out1 = (((m_cv_3 + m_cv1_foo_2) + noise_7) + in1);
 			// assign results to output buffer;
 			(*(__out1++)) = out1;
+			(*(__out2++)) = out2;
+			(*(__out3++)) = out3;
 			
 		};
 		return __exception;
@@ -95,7 +104,7 @@ typedef struct State {
 /// Number of signal inputs and outputs
 
 int gen_kernel_numins = 1;
-int gen_kernel_numouts = 1;
+int gen_kernel_numouts = 3;
 
 int num_inputs() { return gen_kernel_numins; }
 int num_outputs() { return gen_kernel_numouts; }
@@ -104,7 +113,7 @@ int num_params() { return 3; }
 /// Assistive lables for the signal inputs and outputs
 
 const char *gen_kernel_innames[] = { "offset" };
-const char *gen_kernel_outnames[] = { "sum" };
+const char *gen_kernel_outnames[] = { "sum", "gate1", "cv1" };
 
 /// Invoke the signal process of a State object
 

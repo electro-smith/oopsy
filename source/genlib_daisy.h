@@ -151,7 +151,7 @@ struct Scope {
 		size_t samples = zoomSamples();
 		// each pixel is zoom samples; zoom/samplerate seconds
 		duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
-		for (int i=0; i<size/samples; i++) {
+		for (size_t i=0; i<size/samples; i++) {
 			float min0 = 1.f, max0 = -1.f;
 			float min1 = 1.f, max1 = -1.f;
 			for (size_t j=0; j<samples; j++) {
@@ -246,7 +246,9 @@ struct GenDaisy {
 
 	typedef enum {
 		MODE_NONE = 0,
+		#ifdef GEN_DAISY_MULTI_APP
 		MODE_MENU,
+		#endif
 
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
 		MODE_CONSOLE,
@@ -266,7 +268,9 @@ struct GenDaisy {
 	int mode, mode_default;
 
 	int app_count = 1;
+	#ifdef GEN_DAISY_MULTI_APP
 	int app_selected = 0, app_selecting = 0;
+	#endif
 
 	int encoder_held = 0, encoder_held_ms = 0, encoder_released = 0, encoder_incr = 0;
 
@@ -372,10 +376,12 @@ struct GenDaisy {
 					mode += encoder_incr;
 					if (mode >= MODE_COUNT) mode = 0;
 					if (mode < 0) mode = MODE_COUNT-1;	
+				#ifdef GEN_DAISY_MULTI_APP
 				} else if (mode == MODE_MENU) {
 					app_selecting += encoder_incr;
 					if (app_selecting >= app_count) app_selecting -= app_count;
 					if (app_selecting < 0) app_selecting += app_count;
+				#endif
 				#ifdef GEN_DAISY_TARGET_HAS_OLED
 				} else if (mode == MODE_SCOPE) {
 					scope.increment(encoder_incr);
@@ -387,6 +393,7 @@ struct GenDaisy {
 				if (encoder_released) {
 					if (is_mode_selecting) {
 						is_mode_selecting = 0;
+					#ifdef GEN_DAISY_MULTI_APP
 					} else if (mode == MODE_MENU) {
 						if (app_selected != app_selecting) {
 							app_selected = app_selecting;
@@ -394,6 +401,7 @@ struct GenDaisy {
 							appdefs[app_selected].load();
 							mode = mode_default;
 						}
+					#endif
 					}
 				} 
 				encoder_released = 0;
@@ -429,6 +437,7 @@ struct GenDaisy {
 						hardware.display.Fill(false);
 						hardware.display.Update();
 					} break;
+					#ifdef GEN_DAISY_MULTI_APP
 					case MODE_MENU: {
 						FontDef& font = console.font;
 						hardware.display.Fill(false);
@@ -444,6 +453,7 @@ struct GenDaisy {
 						}
 						hardware.display.Update();
 					} break;
+					#endif
 					case MODE_SCOPE: scope.display(hardware.display); break;
 					case MODE_CONSOLE: 
 					{
