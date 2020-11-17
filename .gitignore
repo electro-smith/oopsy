@@ -3,3 +3,5 @@ gen_dsp/
 build/
 source/build*
 notes/
+examples/*.cpp
+examples/*.h
