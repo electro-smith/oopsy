@@ -225,7 +225,7 @@ struct Console {
 		return *this;
 	}
 
-	Console& displayStats(daisy::OledDisplay& oled) {
+	Console& status_display(daisy::OledDisplay& oled) {
 		// stats:
 		oled.SetCursor(0, font.FontHeight * console_rows);
 		oled.WriteString(console_stats, font, true);
@@ -289,7 +289,6 @@ struct Console {
 		snprintf(scope_label, 10, "%dx=%dms", samples, (int)ceilf(scope_duration));
 		oled.SetCursor(SSD1309_WIDTH - font.FontWidth*strlen(scope_label), h);
 		oled.WriteString(scope_label, font, true);
-		oled.Update();
 		return *this;
 	}
 };
@@ -529,7 +528,6 @@ struct GenDaisy {
 				if (is_mode_selecting) {
 					#ifdef GEN_DAISY_TARGET_HAS_OLED
 					hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
-					hardware.display.Update();
 					#endif
 				} 
 				#ifdef GEN_DAISY_TARGET_HAS_OLED
@@ -537,11 +535,14 @@ struct GenDaisy {
 				if (mode != MODE_MENU) 
 				#endif //GEN_DAISY_MULTI_APP
 				{
-					// fraction of audio time used:
-					float percent = 0.0001f*audioCpuUs*(samplerate)/blocksize;
-					snprintf(console.console_stats, console.console_cols, "%02d%%", int(percent));
-					//snprintf(console.console_stats, console.console_cols, "%f%%", (100.f*percent));
-					console.displayStats(hardware.display);
+					// status bar
+					int offset = 0;
+					offset += snprintf(console.console_stats+offset, console.console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
+					#ifdef GEN_DAISY_TARGET_USES_MIDI_UART
+					offset += snprintf(console.console_stats+offset, console.console_cols-offset, " %cM%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
+					midi.in_active = midi.out_active = 0;
+					#endif
+					console.status_display(hardware.display);
 				}
 				hardware.display.Update();
 				#endif //GEN_DAISY_TARGET_HAS_OLED
