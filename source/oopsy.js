@@ -592,7 +592,7 @@ struct App_${name} : public StaticApp<App_${name}> {
 		
 		${daisy.cv_outs.map((name, i)=>{
 			const node = nodes[name];
-			return (node.src || node.from.length) ? node.set : `// ${name} not mapped`
+			return (node.src || node.from.length) ? node.set : ``
 		}).join("\n\t\t")}
 		${daisy.gate_outs.map((name, i)=>{
 			const node = nodes[name];
