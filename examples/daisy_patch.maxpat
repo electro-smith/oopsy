@@ -54,7 +54,7 @@
 				"box" : 				{
 					"id" : "obj-13",
 					"maxclass" : "newobj",
-					"numinlets" : 2,
+					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
 					"patcher" : 					{
@@ -98,13 +98,25 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-7",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 332.0, 227.0, 65.0, 22.0 ],
+									"text" : "param cv2"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-5",
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 2,
 									"outlettype" : [ "", "" ],
-									"patching_rect" : [ 315.0, 138.0, 85.0, 22.0 ],
-									"text" : "data foo 100 2"
+									"patching_rect" : [ 315.0, 138.0, 102.0, 22.0 ],
+									"text" : "data foodat 100 2"
 								}
 
 							}
@@ -115,8 +127,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 50.0, 14.0, 28.0, 22.0 ],
-									"text" : "in 1"
+									"patching_rect" : [ 50.0, 14.0, 60.0, 22.0 ],
+									"text" : "in 1 offset"
 								}
 
 							}
@@ -127,8 +139,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 305.0, 14.0, 28.0, 22.0 ],
-									"text" : "in 2"
+									"patching_rect" : [ 305.0, 14.0, 88.0, 22.0 ],
+									"text" : "param cv1_foo"
 								}
 
 							}
@@ -150,8 +162,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 176.0, 418.0, 35.0, 22.0 ],
-									"text" : "out 1"
+									"patching_rect" : [ 176.0, 418.0, 61.0, 22.0 ],
+									"text" : "out 1 sum"
 								}
 
 							}
@@ -174,6 +186,13 @@
 								"patchline" : 								{
 									"destination" : [ "obj-4", 0 ],
 									"source" : [ "obj-3", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-4", 0 ],
+									"source" : [ "obj-7", 0 ]
 								}
 
 							}

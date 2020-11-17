@@ -33,16 +33,20 @@ static const int GENLIB_LOOPCOUNT_BAIL = 100000;
 // The State struct contains all the state and procedures for the gendsp kernel
 typedef struct State {
 	CommonState __commonstate;
-	Data m_foo_1;
+	Data m_foodat_1;
 	int vectorsize;
 	int __exception;
 	t_sample samplerate;
+	t_sample m_cv1_foo_2;
+	t_sample m_cv_3;
 	// re-initialize all member variables;
 	inline void reset(t_param __sr, int __vs) {
 		__exception = 0;
 		vectorsize = __vs;
 		samplerate = __sr;
-		m_foo_1.reset("foo", ((int)100), ((int)2));
+		m_foodat_1.reset("foodat", ((int)100), ((int)2));
+		m_cv1_foo_2 = ((int)0);
+		m_cv_3 = ((int)0);
 		genlib_reset_complete(this);
 		
 	};
@@ -50,12 +54,11 @@ typedef struct State {
 	inline int perform(t_sample ** __ins, t_sample ** __outs, int __n) {
 		vectorsize = __n;
 		const t_sample * __in1 = __ins[0];
-		const t_sample * __in2 = __ins[1];
 		t_sample * __out1 = __outs[0];
 		if (__exception) {
 			return __exception;
 			
-		} else if (( (__in1 == 0) || (__in2 == 0) || (__out1 == 0) )) {
+		} else if (( (__in1 == 0) || (__out1 == 0) )) {
 			__exception = GENLIB_ERR_NULL_BUFFER;
 			return __exception;
 			
@@ -63,9 +66,8 @@ typedef struct State {
 		// the main sample loop;
 		while ((__n--)) {
 			const t_sample in1 = (*(__in1++));
-			const t_sample in2 = (*(__in2++));
 			t_sample noise_7 = noise();
-			t_sample out1 = ((in1 + in2) + noise_7);
+			t_sample out1 = (((m_cv_3 + m_cv1_foo_2) + noise_7) + in1);
 			// assign results to output buffer;
 			(*(__out1++)) = out1;
 			
@@ -73,8 +75,14 @@ typedef struct State {
 		return __exception;
 		
 	};
-	inline void set_foo(void * _value) {
-		m_foo_1.setbuffer(_value);
+	inline void set_foodat(void * _value) {
+		m_foodat_1.setbuffer(_value);
+	};
+	inline void set_cv1_foo(t_param _value) {
+		m_cv1_foo_2 = (_value < 0 ? 0 : (_value > 1 ? 1 : _value));
+	};
+	inline void set_cv2(t_param _value) {
+		m_cv_3 = (_value < 0 ? 0 : (_value > 1 ? 1 : _value));
 	};
 	
 } State;
@@ -86,17 +94,17 @@ typedef struct State {
 
 /// Number of signal inputs and outputs
 
-int gen_kernel_numins = 2;
+int gen_kernel_numins = 1;
 int gen_kernel_numouts = 1;
 
 int num_inputs() { return gen_kernel_numins; }
 int num_outputs() { return gen_kernel_numouts; }
-int num_params() { return 1; }
+int num_params() { return 3; }
 
 /// Assistive lables for the signal inputs and outputs
 
-const char *gen_kernel_innames[] = { "in1", "in2" };
-const char *gen_kernel_outnames[] = { "out1" };
+const char *gen_kernel_innames[] = { "offset" };
+const char *gen_kernel_outnames[] = { "sum" };
 
 /// Invoke the signal process of a State object
 
@@ -117,7 +125,9 @@ void reset(CommonState *cself) {
 void setparameter(CommonState *cself, long index, t_param value, void *ref) {
 	State *self = (State *)cself;
 	switch (index) {
-		case 0: self->set_foo(ref); break;
+		case 0: self->set_cv1_foo(value); break;
+		case 1: self->set_cv2(value); break;
+		case 2: self->set_foodat(ref); break;
 		
 		default: break;
 	}
@@ -128,6 +138,8 @@ void setparameter(CommonState *cself, long index, t_param value, void *ref) {
 void getparameter(CommonState *cself, long index, t_param *value) {
 	State *self = (State *)cself;
 	switch (index) {
+		case 0: *value = self->m_cv1_foo_2; break;
+		case 1: *value = self->m_cv_3; break;
 		
 		
 		default: break;
@@ -209,11 +221,39 @@ void *create(t_param sr, long vs) {
 	self->__commonstate.numouts = gen_kernel_numouts;
 	self->__commonstate.sr = sr;
 	self->__commonstate.vs = vs;
-	self->__commonstate.params = (ParamInfo *)genlib_sysmem_newptr(1 * sizeof(ParamInfo));
-	self->__commonstate.numparams = 1;
-	// initialize parameter 0 ("m_foo_1")
+	self->__commonstate.params = (ParamInfo *)genlib_sysmem_newptr(3 * sizeof(ParamInfo));
+	self->__commonstate.numparams = 3;
+	// initialize parameter 0 ("m_cv1_foo_2")
 	pi = self->__commonstate.params + 0;
-	pi->name = "foo";
+	pi->name = "cv1_foo";
+	pi->paramtype = GENLIB_PARAMTYPE_FLOAT;
+	pi->defaultvalue = self->m_cv1_foo_2;
+	pi->defaultref = 0;
+	pi->hasinputminmax = false;
+	pi->inputmin = 0;
+	pi->inputmax = 1;
+	pi->hasminmax = true;
+	pi->outputmin = 0;
+	pi->outputmax = 1;
+	pi->exp = 0;
+	pi->units = "";		// no units defined
+	// initialize parameter 1 ("m_cv_3")
+	pi = self->__commonstate.params + 1;
+	pi->name = "cv2";
+	pi->paramtype = GENLIB_PARAMTYPE_FLOAT;
+	pi->defaultvalue = self->m_cv_3;
+	pi->defaultref = 0;
+	pi->hasinputminmax = false;
+	pi->inputmin = 0;
+	pi->inputmax = 1;
+	pi->hasminmax = true;
+	pi->outputmin = 0;
+	pi->outputmax = 1;
+	pi->exp = 0;
+	pi->units = "";		// no units defined
+	// initialize parameter 2 ("m_foodat_1")
+	pi = self->__commonstate.params + 2;
+	pi->name = "foodat";
 	pi->paramtype = GENLIB_PARAMTYPE_SYM;
 	pi->defaultvalue = 0.;
 	pi->defaultref = 0;

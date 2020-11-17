@@ -157,6 +157,9 @@ LDFLAGS+=-u _printf_float
 		return gloo;
 	})
 
+	// store for debugging:
+	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(gloos,null,"  "),"utf8");
+
 	const cppcode = `${
 target=="patch" ? "#define GEN_DAISY_TARGET_PATCH 1" :
 target=="field" ? "#define GEN_DAISY_TARGET_FIELD 1" : 
@@ -259,11 +262,6 @@ function generate_gloo(gloo) {
 	gloo.audio_outs = []
 	gloo.has_midi_in = false
 	gloo.has_midi_out = false
-	gloo.global_lines = []
-	gloo.boot_lines = []
-	gloo.mainloop_lines = []
-	gloo.preperform_lines = []
-	gloo.postperform_lines = []
 
 	gloo.nodes = nodes;
 	gloo.daisy = daisy;
@@ -396,7 +394,7 @@ function generate_gloo(gloo) {
 		}
 		nodes[name] = {
 			// name: name,
-			//label: s,
+			label: label,
 			// index: i,
 			src: src,
 		}
@@ -439,15 +437,18 @@ function generate_gloo(gloo) {
 		// cv/ctrl[n]
 		if (match = label.match(/^(cv|ctrl)(\d*)$/)) {
 			map = daisy.cv_outs[(match[2] || 1) - 1]
+			label = match[3] || label
 		} else 
 		// gate[n]
 		if (match = label.match(/^(gate)(\d*)$/)) {
 			map = daisy.gate_outs[(match[2] || 1) - 1]
+			label = match[3] || label
 		} else 
 		// else it is audio data
 		{			
 			nodes[src].src = src;
 		}
+		nodes[name].label = label
 		// was this out mapped to something?
 		if (map) {
 			nodes[map].from.push(src);
@@ -458,64 +459,47 @@ function generate_gloo(gloo) {
 
 	gen.params = gloo.params.map((param, i)=>{
 		const varname = "gen_param_"+param.name;
-		/*
-		{ name: 'cv1',
-		cindex: '0',
-		cname: 'm_cv_6',
-		min: 0,
-		max: 0.5,
-		default: 0,
-			x: 0,
-			y: 0 },
-		*/
-		let node = Object.assign({
-			varname: varname,
-		}, param);
-		nodes[varname] = node;
-		return varname;
-	})
-	// sort params by X position in patcher
-	gen.params.sort((a, b)=>nodes[a].x-nodes[b].x)
 
-	gen.params.forEach(name=> {
-		const node = nodes[name]
 		let src;
+		let label;
 		let match;
-		// TODO: also consider @comment?
 		// cv/ctrl[n]
-		if (match = node.name.match(/^(cv|ctrl)(\d*)$/)) {
+		if (match = param.name.match(/^(cv|ctrl)(\d*)_?(.+)?/)) {
 			src = daisy.cv_ins[(match[2] || 1) - 1]
+			label = match[3] || param.name
 		}
 		// gate[1-2]
-		else if (match = node.name.match(/^(gate)(\d*)$/)) {
+		else if (match = param.name.match(/^(gate)(\d*)_?(.+)?/)) {
 			src = daisy.gate_ins[(match[2] || 1) - 1]
+			label = match[3] || param.name
 		} 
-		else if (match = node.name.match(/^(knob)(\d*)$/)) {
+		else if (match = param.name.match(/^(knob)(\d*)_?(.+)?/)) {
 			src = daisy.knobs[(match[2] || 1) - 1]
+			label = match[3] || param.name
 		}
-		else if (match = node.name.match(/^(key)(\d*)$/)) {
+		else if (match = param.name.match(/^(key)(\d*)_?(.+)?/)) {
 			src = daisy.keys[(match[2] || 1) - 1]
+			label = match[3] || param.name
 		}
+
+		let node = Object.assign({
+			varname: varname,
+			label: label,
+			src: src,
+		}, param);
+		
+		nodes[varname] = node;
 		if (src) {
-			nodes[src].to.push(name)
+			nodes[src].to.push(varname)
 		}
-		node.src = src;
+		return varname;
 	})
 
 	gen.datas = gloo.datas.map((param, i)=>{
 		const varname = "gen_data_"+param.name;
-		/*
-		{ name: 'cv1',
-		cindex: '0',
-		cname: 'm_cv_6',
-		min: 0,
-		max: 0.5,
-		default: 0,
-			x: 0,
-			y: 0 },
-		*/
 		let node = Object.assign({
 			varname: varname,
+			label: param.name,
 		}, param);
 		nodes[varname] = node;
 		return varname;
@@ -591,10 +575,6 @@ struct App_${name} : public StaticApp<App_${name}> {
 		return `float ${name}[GEN_DAISY_BUFFER_SIZE];`;
 	}).join("\n\t")}
 	
-	/*
-	${gloo.global_lines.join("\n")}
-	*/
-
 	void init(GenDaisy& gendaisy) {
 		gendaisy.gen = ${name}::create(gendaisy.samplerate, gendaisy.blocksize);
 
@@ -604,8 +584,6 @@ struct App_${name} : public StaticApp<App_${name}> {
 		}).join("\n\t\t")}
 		${daisy.cv_outs.map(name=>`${name} = 0.f;`).join("\n\t\t")}
 		${daisy.gate_outs.map(name=>`${name} = 0.f;`).join("\n\t\t")}
-
-		${gloo.boot_lines.join("\n\t\t")}
 	}	
 
 	void mainloopCallback(GenDaisy& gendaisy, uint32_t t, uint32_t dt) {
@@ -620,7 +598,6 @@ struct App_${name} : public StaticApp<App_${name}> {
 			const node = nodes[name];
 			return (node.src || node.from.length) ? node.set : `// ${name} not mapped`
 		}).join("\n\t\t")}
-		${gloo.mainloop_lines.join("\n\t\t")}
 	}
 
 	void audioCallback(GenDaisy& gendaisy, float **hardware_ins, float **hardware_outs, size_t size) {
@@ -647,8 +624,6 @@ struct App_${name} : public StaticApp<App_${name}> {
 		gen.set_${node.name}(${name});` : `
 		// ${name} not mapped`;
 		}).join("")}
-
-		${gloo.preperform_lines.join("\n\t")}
 		${gen.params.filter(param=>param.isMapped).map(param=>`
 		gen->set_${param.param}( ${param.source} );`).join("")}
 		// map gen~ audio IO & perform:
@@ -656,7 +631,6 @@ struct App_${name} : public StaticApp<App_${name}> {
 		float * outputs[] = { ${gen.audio_outs.map((name, i)=>nodes[name].src).join(", ")} };
 	
 		gen.perform(inputs, outputs, size);
-		${gloo.postperform_lines.join("\n\t")}
 		${gloo.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`gendaisy.midi.postperform(${name}, size);`).join("\n\t")).join("\n\t") : ''}
 		${daisy.cv_outs.map((name, i)=>{
 			const node = nodes[name];
