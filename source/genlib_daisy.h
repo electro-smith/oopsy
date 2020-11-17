@@ -42,13 +42,78 @@ typedef daisy::DaisySeed Daisy;
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
-void genlib_init();
-void genlib_info();
-
 #define GEN_DAISY_BUFFER_SIZE 48
 #define GEN_DAISY_MIDI_BUFFER_SIZE 64
 #define GEN_DAISY_LONG_PRESS_MS 250
 #define GEN_DAISY_DISPLAY_PERIOD_MS 20
+static const uint32_t GEN_DAISY_SRAM_SIZE = 512 * 1024; 
+static const uint32_t GEN_DAISY_SDRAM_SIZE = 64 * 1024 * 1024;
+
+
+namespace gendaisylib {
+
+	char * sram_pool = nullptr;
+	char DSY_SDRAM_BSS sdram_pool[GEN_DAISY_SDRAM_SIZE];
+
+	uint32_t sram_used = 0, sram_usable = 0;
+	uint32_t sdram_used = 0, sdram_usable = 0;
+
+	void init() {
+		if (!sram_pool) sram_pool = (char *)malloc(GEN_DAISY_SRAM_SIZE);
+		sram_usable = GEN_DAISY_SRAM_SIZE;
+		sram_used = 0;
+		sdram_usable = GEN_DAISY_SDRAM_SIZE;
+		sdram_used = 0;
+	}
+
+	void * allocate(uint32_t size) {
+		//console.log("alloc %d/%d", size, sram_usable);
+		if (size < sram_usable) {
+			void * p = sram_pool + sram_used;
+			sram_used += size;
+			sram_usable -= size;
+			return p;
+		} else if (size < sdram_usable) {
+			void * p = sdram_pool + sdram_used;
+			sdram_used += size;
+			sdram_usable -= size;
+			return p;
+		}
+		return nullptr;
+	}	
+
+	void memset(void *p, int c, long size) {
+		char *p2 = (char *)p;
+		int i;
+		for (i = 0; i < size; i++, p2++)
+			*p2 = char(c);
+	}
+
+	// void genlib_memcpy(void *dst, const void *src, long size) {
+	// 	char *s2 = (char *)src;
+	// 	char *d2 = (char *)dst;
+	// 	int i;
+	// 	for (i = 0; i < size; i++, s2++, d2++)
+	// 		*d2 = *s2;
+	// }
+
+	// void test() {
+	// 	// memory test:
+	// 	size_t allocated = 0;
+	// 	size_t sz = 256;
+	// 	int i;
+	// 	while (sz < 515) {
+	// 		sz++;
+	// 		void * m = malloc(sz * 1024);
+	// 		if (!m) break;
+	// 		free(m);
+	// 		console.log("%d: malloced %dk", i, sz);
+	// 		i++;
+	// 	}
+	// 	console.log("all OK");
+	// }
+};
+
 
 struct Timer {
 	int32_t period = GEN_DAISY_DISPLAY_PERIOD_MS, t=0;
@@ -114,82 +179,17 @@ struct MidiUart {
 
 
 #if defined(GEN_DAISY_TARGET_HAS_OLED)
-#define GEN_DAISY_SCOPE_MAX_ZOOM (10)
-struct Scope {
-	// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24, 48
-
-
-	float data0[SSD1309_WIDTH*2]; // 128 pixels
-	uint_fast8_t zoom = 1; 
-	uint_fast8_t step = 0;
-	float duration = 1.f;
-	FontDef& font = Font_6x8;
-
-	int zoomSamples() {
-		switch(zoom) {
-			case 1: case 2: case 3: case 4: return zoom; break;
-			case 5: return 6; break;
-			case 6: return 8; break;
-			case 7: return 12; break;
-			case 8: return 16; break;
-			case 9: return 24; break;
-			default: return 48; break;
-		}
-	}
-
-	void increment(int incr) {
-		if (incr > 0) {
-			zoom = zoom + 1;
-			if (zoom > GEN_DAISY_SCOPE_MAX_ZOOM) zoom = 1;
-		} else if (incr < 0) {
-			zoom = zoom - 1;
-			if (zoom < 1) zoom = GEN_DAISY_SCOPE_MAX_ZOOM;
-		}
-	} 
-
-	void store(float * buf, size_t size, float samplerate) {
-		size_t samples = zoomSamples();
-		// each pixel is zoom samples; zoom/samplerate seconds
-		duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
-		for (size_t i=0; i<size/samples; i++) {
-			float min0 = 1.f, max0 = -1.f;
-			float min1 = 1.f, max1 = -1.f;
-			for (size_t j=0; j<samples; j++) {
-				float pt0 = *buf++;
-				min0 = min0 > pt0 ? pt0 : min0;
-				max0 = max0 < pt0 ? pt0 : max0;
-			}
-			data0[step] = (min0);
-			step++;
-			data0[step] = (max0); 
-			step++;
-			//console.log("m1 %d %d", int(min1 * 10), int(max1 * 10));
-			if (step >= SSD1309_WIDTH*2) step = 0;
-		}
-	}
-
-	void display(daisy::OledDisplay& oled) {
-		oled.Fill(false);
-		for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-		 	int j = i*2;
-			oled.DrawLine(i, (1.f-data0[j])*(SSD1309_HEIGHT/2), i, (1.f-data0[j+1])*(SSD1309_HEIGHT/2), 1);
-		}
-
-		oled.SetCursor(0, font.FontHeight * 0);
-		int len = SSD1309_WIDTH / font.FontWidth;
-		char label[len+1];
-		snprintf(label, len, "%dx = %dms", zoomSamples(), (int)ceilf(duration));
-		oled.WriteString(label, font, true);
-		oled.Update();
-	}
-};
-
+#define GEN_DAISY_SCOPE_MAX_ZOOM (9)
 struct Console {
 	FontDef& font = Font_6x8;
+	uint_fast8_t scope_zoom = 5; 
+	uint_fast8_t scope_step = 0;
 	uint16_t console_cols, console_rows, console_line;
 	char * console_stats;
 	char * console_memory;
 	char ** console_lines;
+	float scope_data[SSD1309_WIDTH*2]; // 128 pixels
+	char scope_label[11];
 
 	Console& init() {
 		console_cols = SSD1309_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
@@ -218,14 +218,77 @@ struct Console {
 	}
 
 	Console& display(daisy::OledDisplay& oled) {
-		oled.Fill(false);
 		for (int i=0; i<console_rows; i++) {
 			oled.SetCursor(0, font.FontHeight * i);
  			oled.WriteString(console_lines[(i+console_line) % console_rows], font, true);
 		}
+		return *this;
+	}
+
+	Console& displayStats(daisy::OledDisplay& oled) {
 		// stats:
 		oled.SetCursor(0, font.FontHeight * console_rows);
 		oled.WriteString(console_stats, font, true);
+		return *this;
+	}
+
+	int scope_samples() {
+		// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24
+		switch(scope_zoom) {
+			case 1: case 2: case 3: case 4: return scope_zoom; break;
+			case 5: return 6; break;
+			case 6: return 8; break;
+			case 7: return 12; break;
+			case 8: return 16; break;
+			default: return 24; break;
+		}
+	}
+
+	Console&  scope_increment(int incr) {
+		if (incr > 0) {
+			scope_zoom = scope_zoom + 1;
+			if (scope_zoom > GEN_DAISY_SCOPE_MAX_ZOOM) scope_zoom = 1;
+		} else if (incr < 0) {
+			scope_zoom = scope_zoom - 1;
+			if (scope_zoom < 1) scope_zoom = GEN_DAISY_SCOPE_MAX_ZOOM;
+		}
+		return *this;
+	} 
+
+	Console&  scope_store(float * buf, size_t size, float samplerate) {
+		size_t samples = scope_samples();
+		for (size_t i=0; i<size/samples; i++) {
+			float min0 = 1.f, max0 = -1.f;
+			float min1 = 1.f, max1 = -1.f;
+			for (size_t j=0; j<samples; j++) {
+				float pt0 = *buf++;
+				min0 = min0 > pt0 ? pt0 : min0;
+				max0 = max0 < pt0 ? pt0 : max0;
+			}
+			scope_data[scope_step] = (min0);
+			scope_step++;
+			scope_data[scope_step] = (max0); 
+			scope_step++;
+			//console.log("m1 %d %d", int(min1 * 10), int(max1 * 10));
+			if (scope_step >= SSD1309_WIDTH*2) scope_step = 0;
+		}
+		return *this;
+	}
+
+	Console&  scope_display(daisy::OledDisplay& oled, float samplerate) {
+		uint8_t h = SSD1309_HEIGHT - font.FontHeight;
+		oled.Fill(false);
+		for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+		 	int j = i*2;
+			oled.DrawLine(i, (1.f-scope_data[j])*(h/2), i, (1.f-scope_data[j+1])*(h/2), 1);
+		}
+		size_t samples = scope_samples();
+		// each pixel is zoom samples; zoom/samplerate seconds
+		float scope_duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
+		
+		snprintf(scope_label, 10, "%dx=%dms", samples, (int)ceilf(scope_duration));
+		oled.SetCursor(SSD1309_WIDTH - font.FontWidth*strlen(scope_label), h);
+		oled.WriteString(scope_label, font, true);
 		oled.Update();
 		return *this;
 	}
@@ -264,21 +327,20 @@ struct GenDaisy {
 	};
 
 	Daisy hardware;
+	AppDef * appdefs = nullptr;
 
 	int mode, mode_default;
 
 	int app_count = 1;
-	#ifdef GEN_DAISY_MULTI_APP
 	int app_selected = 0, app_selecting = 0;
-	#endif
-
+	
 	int encoder_held = 0, encoder_held_ms = 0, encoder_released = 0, encoder_incr = 0;
 
 	int is_mode_selecting = 0;
 
 
 	uint32_t t = 0, dt = 10;
-	Timer displaytimer;
+	Timer uitimer;
 
 	// microseconds spent in audio callback
 	uint32_t audioCpuUs = 0; 
@@ -291,9 +353,6 @@ struct GenDaisy {
 	#endif
 	
 	Console console;
-	#ifdef GEN_DAISY_TARGET_HAS_OLED
-	Scope scope;
-	#endif
 
 	void (*mainloopCallback)(uint32_t t, uint32_t dt);
 	void * app = nullptr;
@@ -308,7 +367,7 @@ struct GenDaisy {
 		hardware.ChangeAudioCallback(nullAudioCallback);
 		while (!nullAudioCallbackRunning) dsy_system_delay(10);
 		// reset memory
-		genlib_init();
+		gendaisylib::init();
 		// install new app:
 		app = &newapp;
 		newapp.init(*this);
@@ -316,10 +375,13 @@ struct GenDaisy {
 		mainloopCallback = newapp.staticMainloopCallback;
 		hardware.ChangeAudioCallback(newapp.staticAudioCallback);
 		//console.log("app loaded");
-		genlib_info();
+		
+		console.log("loaded %s", appdefs[app_selected].name);
+		console.log("%d/%dK+%d/%dM", gendaisylib::sram_used/1024, GEN_DAISY_SRAM_SIZE/1024, gendaisylib::sdram_used/1048576, GEN_DAISY_SDRAM_SIZE/1048576);
 	}
 
 	int run(AppDef * appdefs, int count) {
+		this->appdefs = appdefs;
 
 		mode_default = (Mode)(MODE_COUNT-1);
 		mode = mode_default;
@@ -333,20 +395,18 @@ struct GenDaisy {
 		blocksize = hardware.AudioBlockSize();  // default 48
 		#endif
 		app_count = count;
-		console.init().log("gen~ with %d apps", app_count);
+		console.init();
 
 		hardware.StartAdc();
 		hardware.StartAudio(nullAudioCallback);
-		console.log("started audio");
 		mainloopCallback = nullMainloopCallback;
 
 		#ifdef GEN_DAISY_TARGET_USES_MIDI_UART
 		midi.init(); 
-		console.log("uart midi started");
 		#endif
 
-		appdefs[0].load();
-		console.log("loaded %s", appdefs[0].name);
+		app_selected = 0;
+		appdefs[app_selected].load();
 
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
 		console.display(hardware.display);
@@ -362,8 +422,7 @@ struct GenDaisy {
 			// handle app-level code (e.g. for LED/CV/gate outs)
 			mainloopCallback(t, dt);
 			
-			if (displaytimer.ready(dt)) {
-
+			if (uitimer.ready(dt)) {
 				// Handle encoder press/longpress actions:
 				if (encoder_held_ms > GEN_DAISY_LONG_PRESS_MS) {
 					// LONG PRESS
@@ -374,8 +433,8 @@ struct GenDaisy {
 				if (is_mode_selecting) {
 					//if (encoder_incr) console.log("mode %d %d %d", encoder_incr, mode, MODE_COUNT);
 					mode += encoder_incr;
-					if (mode >= MODE_COUNT) mode = 0;
-					if (mode < 0) mode = MODE_COUNT-1;	
+					if (mode >= MODE_COUNT) mode = 1;
+					if (mode < 1) mode = MODE_COUNT-1;	
 				#ifdef GEN_DAISY_MULTI_APP
 				} else if (mode == MODE_MENU) {
 					app_selecting += encoder_incr;
@@ -384,7 +443,7 @@ struct GenDaisy {
 				#endif
 				#ifdef GEN_DAISY_TARGET_HAS_OLED
 				} else if (mode == MODE_SCOPE) {
-					scope.increment(encoder_incr);
+					console.scope_increment(encoder_incr);
 				#endif
 				}
 				encoder_incr = 0;
@@ -397,7 +456,6 @@ struct GenDaisy {
 					} else if (mode == MODE_MENU) {
 						if (app_selected != app_selecting) {
 							app_selected = app_selecting;
-							console.log("load %s", appdefs[app_selected].name);
 							appdefs[app_selected].load();
 							mode = mode_default;
 						}
@@ -431,16 +489,15 @@ struct GenDaisy {
 				// 	default: break;
 				// }
 
+
+				#ifdef GEN_DAISY_TARGET_HAS_OLED
+				hardware.display.Fill(false);
+				#endif
 				switch(mode) {
 					#ifdef GEN_DAISY_TARGET_HAS_OLED
-					case MODE_NONE: {
-						hardware.display.Fill(false);
-						hardware.display.Update();
-					} break;
 					#ifdef GEN_DAISY_MULTI_APP
 					case MODE_MENU: {
 						FontDef& font = console.font;
-						hardware.display.Fill(false);
 						for (int i=0; i<8; i++) {
 							if (i == app_selecting) {
 								hardware.display.SetCursor(0, font.FontHeight * i);
@@ -451,24 +508,22 @@ struct GenDaisy {
 								hardware.display.WriteString((char *)appdefs[i].name, font, true);
 							}
 						}
-						hardware.display.Update();
 					} break;
-					#endif
-					case MODE_SCOPE: scope.display(hardware.display); break;
+					#endif //GEN_DAISY_MULTI_APP
+					case MODE_SCOPE: console.scope_display(hardware.display, samplerate); break;
 					case MODE_CONSOLE: 
 					{
-						// fraction of audio time used:
-						float percent = audioCpuUs*(1e-6*samplerate)/blocksize;
-						snprintf(console.console_stats, console.console_cols, "%02d%%", int(100.f*percent));
 						console.display(hardware.display); 
 						break;
 					}
-					#else 
+					
+					#else  //GEN_DAISY_TARGET_HAS_OLED
 					case MODE_MENU: {
 						// TODO show menu selection via LEDs
 					} break;
-					#endif
-					default: break;
+					#endif //GEN_DAISY_TARGET_HAS_OLED
+					default: {
+					}
 				}
 
 				if (is_mode_selecting) {
@@ -476,8 +531,21 @@ struct GenDaisy {
 					hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
 					hardware.display.Update();
 					#endif
+				} 
+				#ifdef GEN_DAISY_TARGET_HAS_OLED
+				#ifdef GEN_DAISY_MULTI_APP
+				if (mode != MODE_MENU) 
+				#endif //GEN_DAISY_MULTI_APP
+				{
+					// fraction of audio time used:
+					float percent = 0.0001f*audioCpuUs*(samplerate)/blocksize;
+					snprintf(console.console_stats, console.console_cols, "%02d%%", int(percent));
+					//snprintf(console.console_stats, console.console_cols, "%f%%", (100.f*percent));
+					console.displayStats(hardware.display);
 				}
-			}
+				hardware.display.Update();
+				#endif //GEN_DAISY_TARGET_HAS_OLED
+			} // uitimer.ready
 		}
 		return 0;
 	}
@@ -514,7 +582,7 @@ struct GenDaisy {
 		#ifdef GEN_DAISY_TARGET_HAS_OLED
 		if (mode == MODE_SCOPE) {
 			//scope.store(hardware_ins, size, samplerate);
-			scope.store(hardware_outs[0], size, samplerate);
+			console.scope_store(hardware_outs[0], size, samplerate);
 		}
 		#endif
 	}
@@ -549,90 +617,9 @@ struct StaticApp {
 
 ////////////////////////// BINDING DAISY TO GENLIB //////////////////////////
 
-namespace gendaisylib {
-
-	static const uint32_t SRAM_SIZE = 512 * 1024; 
-	static const uint32_t SDRAM_SIZE = 64 * 1024 * 1024;
-
-	char * sram_pool = nullptr;
-	char DSY_SDRAM_BSS sdram_pool[SDRAM_SIZE];
-
-	uint32_t sram_used = 0, sram_usable = 0;
-	uint32_t sdram_used = 0, sdram_usable = 0;
-
-	void info() {
-		gendaisy.console.log("sr %d/%d of %d", sram_used/1024, sram_usable/1024, SRAM_SIZE/1024);
-		gendaisy.console.log("sd %d/%d of %d", sdram_used/1024, sdram_usable/1024, SDRAM_SIZE/1024);
-	}
-
-	void init() {
-		if (!sram_pool) sram_pool = (char *)malloc(SRAM_SIZE);
-		sram_usable = SRAM_SIZE;
-		sram_used = 0;
-		sdram_usable = SDRAM_SIZE;
-		sdram_used = 0;
-	}
-
-	void * allocate(uint32_t size) {
-		//console.log("alloc %d/%d", size, sram_usable);
-		if (size < sram_usable) {
-			void * p = sram_pool + sram_used;
-			sram_used += size;
-			sram_usable -= size;
-			return p;
-		} else if (size < sdram_usable) {
-			void * p = sdram_pool + sdram_used;
-			sdram_used += size;
-			sdram_usable -= size;
-			return p;
-		}
-		gendaisy.console.log("memerror %d", size);
-		return nullptr;
-	}	
-
-	void memset(void *p, int c, long size) {
-		char *p2 = (char *)p;
-		int i;
-		for (i = 0; i < size; i++, p2++)
-			*p2 = char(c);
-	}
-
-	// void genlib_memcpy(void *dst, const void *src, long size) {
-	// 	char *s2 = (char *)src;
-	// 	char *d2 = (char *)dst;
-	// 	int i;
-	// 	for (i = 0; i < size; i++, s2++, d2++)
-	// 		*d2 = *s2;
-	// }
-
-	// void test() {
-	// 	// memory test:
-	// 	size_t allocated = 0;
-	// 	size_t sz = 256;
-	// 	int i;
-	// 	while (sz < 515) {
-	// 		sz++;
-	// 		void * m = malloc(sz * 1024);
-	// 		if (!m) break;
-	// 		free(m);
-	// 		console.log("%d: malloced %dk", i, sz);
-	// 		i++;
-	// 	}
-	// 	console.log("all OK");
-	// }
-};
-
 void genlib_report_error(const char *s) { gendaisy.console.log(s); }
 void genlib_report_message(const char *s) { gendaisy.console.log(s); }
 unsigned long genlib_ticks() { return dsy_system_getnow(); }
-
-void genlib_init() {
-	gendaisylib::init();
-}
-
-void genlib_info() {
-	gendaisylib::info();
-}
 
 t_ptr genlib_sysmem_newptr(t_ptr_size size) {
 	return (t_ptr)gendaisylib::allocate(size);
