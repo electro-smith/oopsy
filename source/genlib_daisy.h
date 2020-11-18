@@ -386,13 +386,8 @@ struct GenDaisy {
 		mode = mode_default;
 
 		hardware.Init(); 
-		#ifdef GEN_DAISY_TARGET_FIELD
-		samplerate = hardware.SampleRate(); // default 48014
-		blocksize = hardware.BlockSize();  // default 48
-		#else
 		samplerate = hardware.AudioSampleRate(); // default 48014
 		blocksize = hardware.AudioBlockSize();  // default 48
-		#endif
 		app_count = count;
 		console.init();
 
