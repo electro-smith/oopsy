@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 477.0, 107.0, 674.0, 467.0 ],
+		"rect" : [ 477.0, 107.0, 749.0, 548.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -45,7 +45,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 430.0, 16.0, 168.0, 33.0 ],
+					"patching_rect" : [ 20.0, 61.0, 168.0, 33.0 ],
 					"text" : "bang (or save patcher) to trigger the oopsy workflow"
 				}
 
@@ -57,7 +57,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 367.0, 24.0, 61.0, 22.0 ],
+					"patching_rect" : [ 159.5, 109.0, 61.0, 22.0 ],
 					"text" : "savebang"
 				}
 
@@ -69,7 +69,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 23.0, 89.0, 67.0, 60.0 ],
+					"patching_rect" : [ 20.0, 174.0, 67.0, 60.0 ],
 					"text" : "choose device target to compile for"
 				}
 
@@ -81,7 +81,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 40.5, 264.0, 224.0, 74.0 ],
+					"patching_rect" : [ 37.5, 378.0, 224.0, 74.0 ],
 					"text" : "the node.js script is a thin wrapper around oopsy.js, which will generate the glue code between gen~ export and the Daisy APIs, compile it, and try to upload it to a device."
 				}
 
@@ -93,7 +93,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 40.5, 199.500003099441528, 223.5, 60.0 ],
+					"patching_rect" : [ 37.5, 288.000003099441528, 223.5, 60.0 ],
 					"text" : "oopsy.snoop will find all the gen~ objects in the parent patcher, configure them for export, trigger the export, then notify the node.js script"
 				}
 
@@ -105,7 +105,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 457.0, 203.000003099441528, 114.0, 33.0 ],
+					"patching_rect" : [ 454.0, 288.000003099441528, 114.0, 33.0 ],
 					"text" : "turn Max-style path into OS path"
 				}
 
@@ -117,7 +117,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "bang", "" ],
-					"patching_rect" : [ 296.5, 89.0, 54.0, 22.0 ],
+					"patching_rect" : [ 309.5, 174.0, 54.0, 22.0 ],
 					"text" : "sel bang"
 				}
 
@@ -129,7 +129,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 351.0, 89.0, 94.0, 74.0 ],
+					"patching_rect" : [ 364.0, 174.0, 94.0, 74.0 ],
 					"text" : "audio must be on for the exportcode message to work"
 				}
 
@@ -140,7 +140,7 @@
 					"maxclass" : "ezdac~",
 					"numinlets" : 2,
 					"numoutlets" : 0,
-					"patching_rect" : [ 296.5, 137.0, 31.0, 31.0 ]
+					"patching_rect" : [ 309.5, 231.0, 31.0, 31.0 ]
 				}
 
 			}
@@ -151,7 +151,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
-					"patching_rect" : [ 296.5, 113.0, 22.0, 22.0 ],
+					"patching_rect" : [ 309.5, 207.0, 22.0, 22.0 ],
 					"text" : "t 1"
 				}
 
@@ -163,7 +163,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 4,
 					"outlettype" : [ "dictionary", "", "", "" ],
-					"patching_rect" : [ 340.0, 394.0, 50.5, 22.0 ],
+					"patching_rect" : [ 480.0, 497.0, 50.5, 22.0 ],
 					"saved_object_attributes" : 					{
 						"embed" : 0,
 						"parameter_enable" : 0,
@@ -180,7 +180,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 487.0, 357.0, 66.0, 22.0 ],
+					"patching_rect" : [ 627.0, 460.0, 66.0, 22.0 ],
 					"text" : "print stderr"
 				}
 
@@ -191,7 +191,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 412.0, 357.0, 68.0, 22.0 ],
+					"patching_rect" : [ 552.0, 460.0, 68.0, 22.0 ],
 					"text" : "print stdout"
 				}
 
@@ -203,7 +203,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 340.0, 357.0, 65.0, 22.0 ],
+					"patching_rect" : [ 480.0, 460.0, 65.0, 22.0 ],
 					"text" : "route error"
 				}
 
@@ -215,7 +215,7 @@
 					"numinlets" : 6,
 					"numoutlets" : 6,
 					"outlettype" : [ "", "", "", "", "", "" ],
-					"patching_rect" : [ 340.0, 310.0, 219.0, 22.0 ],
+					"patching_rect" : [ 480.0, 413.0, 219.0, 22.0 ],
 					"text" : "route terminated stdout stderr stop start"
 				}
 
@@ -228,7 +228,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 333.0, 16.0, 30.0, 30.0 ],
+					"patching_rect" : [ 123.5, 101.0, 30.0, 30.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 333.0, 16.0, 30.0, 30.0 ]
 				}
@@ -243,10 +243,12 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 274.0, 264.0, 228.0, 26.0 ],
+					"patching_rect" : [ 271.0, 378.0, 228.0, 26.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -261,7 +263,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 274.0, 235.0, 111.0, 22.0 ],
+					"patching_rect" : [ 271.0, 320.0, 111.0, 22.0 ],
 					"text" : "prepend script start"
 				}
 
@@ -273,8 +275,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 93.5, 89.0, 72.0, 22.0 ],
-					"text" : "prepend set"
+					"patching_rect" : [ 90.5, 174.0, 94.0, 22.0 ],
+					"text" : "prepend symbol"
 				}
 
 			}
@@ -285,7 +287,7 @@
 					"numinlets" : 3,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 93.5, 59.0, 199.0, 22.0 ],
+					"patching_rect" : [ 90.5, 144.0, 199.0, 22.0 ],
 					"text" : "route target done"
 				}
 
@@ -297,7 +299,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 40.5, 24.0, 72.0, 22.0 ],
+					"patching_rect" : [ 223.0, 109.0, 72.0, 22.0 ],
 					"text" : "patcherargs"
 				}
 
@@ -311,7 +313,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "int", "", "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 93.5, 118.0, 100.0, 22.0 ],
+					"patching_rect" : [ 90.5, 203.0, 100.0, 22.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 93.5, 118.0, 100.0, 22.0 ]
 				}
@@ -324,7 +326,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 134.0, 147.000003099441528, 130.0, 22.0 ],
+					"patching_rect" : [ 90.5, 235.5, 130.0, 22.0 ],
 					"text" : "prepend setprop target"
 				}
 
@@ -469,7 +471,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 398.0, 203.000003099441528, 54.0, 22.0 ],
+					"patching_rect" : [ 395.0, 288.000003099441528, 54.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -490,7 +492,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 117.5, 16.0, 30.0, 30.0 ]
+					"patching_rect" : [ 90.5, 101.0, 30.0, 30.0 ]
 				}
 
 			}
@@ -503,9 +505,9 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 274.0, 203.000003099441528, 114.0, 26.0 ],
+					"patching_rect" : [ 271.0, 288.000003099441528, 114.0, 26.0 ],
 					"saved_object_attributes" : 					{
-						"filename" : "oopsy.snoop.js",
+						"filename" : "oopsy.snoop",
 						"parameter_enable" : 0
 					}
 ,
@@ -517,6 +519,7 @@
 		"lines" : [ 			{
 				"patchline" : 				{
 					"destination" : [ "obj-17", 0 ],
+					"midpoints" : [ 100.0, 137.0, 100.0, 137.0 ],
 					"source" : [ "obj-1", 0 ]
 				}
 
@@ -538,6 +541,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-14", 0 ],
+					"midpoints" : [ 140.5, 232.0, 100.0, 232.0 ],
 					"source" : [ "obj-15", 1 ]
 				}
 
@@ -545,6 +549,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-17", 0 ],
+					"midpoints" : [ 285.5, 137.0, 100.0, 137.0 ],
 					"source" : [ "obj-16", 1 ]
 				}
 
@@ -595,7 +600,17 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-16", 0 ],
+					"midpoints" : [ 319.0, 202.0, 299.0, 202.0, 299.0, 93.0, 232.5, 93.0 ],
+					"order" : 1,
+					"source" : [ "obj-25", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-19", 0 ],
+					"order" : 0,
 					"source" : [ "obj-25", 0 ]
 				}
 
