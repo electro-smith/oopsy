@@ -244,40 +244,9 @@ struct GenDaisy {
 	char ** console_lines;
 	float scope_data[SSD1309_WIDTH*2]; // 128 pixels
 	char scope_label[11];
-
-	int scope_samples() {
-		// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24
-		switch(scope_zoom) {
-			case 1: case 2: case 3: case 4: return scope_zoom; break;
-			case 5: return 6; break;
-			case 6: return 8; break;
-			case 7: return 12; break;
-			case 8: return 16; break;
-			default: return 24; break;
-		}
-	}
-
-	GenDaisy& console_display() {
-		for (int i=0; i<console_rows; i++) {
-			hardware.display.SetCursor(0, font.FontHeight * i);
-			hardware.display.WriteString(console_lines[(i+console_line) % console_rows], font, true);
-		}
-		return *this;
-	}
-
 	#endif // GEN_DAISY_TARGET_HAS_OLED
 
-	GenDaisy& log(const char * fmt, ...) {
-		#ifdef GEN_DAISY_TARGET_HAS_OLED
-		va_list argptr;
-		va_start(argptr, fmt);
-		vsnprintf(console_lines[console_line], console_cols, fmt, argptr);
-		va_end(argptr);
-		console_line = (console_line + 1) % console_rows;
-		#endif
-		return *this;
-	}
-
+	
 	template<typename A>
 	void reset(A& newapp) {
 		// first, remove callbacks:
@@ -525,6 +494,39 @@ struct GenDaisy {
 			}
 		}
 		#endif
+	}
+
+	#ifdef GEN_DAISY_TARGET_HAS_OLED
+	int scope_samples() {
+		// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24
+		switch(scope_zoom) {
+			case 1: case 2: case 3: case 4: return scope_zoom; break;
+			case 5: return 6; break;
+			case 6: return 8; break;
+			case 7: return 12; break;
+			case 8: return 16; break;
+			default: return 24; break;
+		}
+	}
+
+	GenDaisy& console_display() {
+		for (int i=0; i<console_rows; i++) {
+			hardware.display.SetCursor(0, font.FontHeight * i);
+			hardware.display.WriteString(console_lines[(i+console_line) % console_rows], font, true);
+		}
+		return *this;
+	}
+	#endif // GEN_DAISY_TARGET_HAS_OLED
+
+	GenDaisy& log(const char * fmt, ...) {
+		#ifdef GEN_DAISY_TARGET_HAS_OLED
+		va_list argptr;
+		va_start(argptr, fmt);
+		vsnprintf(console_lines[console_line], console_cols, fmt, argptr);
+		va_end(argptr);
+		console_line = (console_line + 1) % console_rows;
+		#endif
+		return *this;
 	}
 
 	static void nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size);
