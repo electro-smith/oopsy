@@ -2,11 +2,26 @@
     "defines": {
 		"OOPSY_TARGET_POD": 1
 	},
+	"labels": {
+		"params": {
+			"knob": "dsy_knob1",
+			"knob1": "dsy_knob1",
+			"knob2": "dsy_knob2",
+			"switch": "dsy_switch1",
+			"switch1": "dsy_switch1",
+			"switch2": "dsy_switch2",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2"
+		},
+		"outs": {
+
+		}
+	},
 	"getters": {
-		"knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"switch1": "(hardware.button1.Pressed()?1.f:0.f)",
-		"switch2": "(hardware.button2.Pressed()?1.f:0.f)"
+		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
+		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)"
 	},
 	"setters": {
 	},
@@ -21,24 +36,5 @@
     "midi_ins": [
       "dsy_midi_in1"
     ],
-    "midi_outs": [],
-	"switches": [
-		"switch1",
-		"switch2"
-	],
-	"cv_ins": [],
-	"cv_outs": [],
-	"gate_ins": [],
-	"gate_outs": [],
-	"knobs": [
-		"knob1",
-		"knob2"
-	],
-	"encoder": [
-		"encoder1"
-	],
-	"leds": [
-		"led1",
-		"led2"
-	]
+    "midi_outs": []
 }

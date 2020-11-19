@@ -3,6 +3,15 @@
       "OOPSY_TARGET_PATCH": 1
     },
     "labels": {
+      "params": {
+        "cv": "dsy_cv_in1",
+        "cv1": "dsy_cv_in1",
+        "cv2": "dsy_cv_in2",
+        "cv3": "dsy_cv_in3",
+        "cv4": "dsy_cv_in4",
+        "gate": "dsy_gate_in1",
+        "gate1": "dsy_gate_in1"
+      },
       "outs": {
         "cv": "dsy_cv_out1",
         "cv1": "dsy_cv_out1",
@@ -12,12 +21,12 @@
       }
     },
     "getters": {
-      "cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
-      "cv_in2": "hardware.GetCtrlValue(hardware.CTRL_2)",
-      "cv_in3": "hardware.GetCtrlValue(hardware.CTRL_3)",
-      "cv_in4": "hardware.GetCtrlValue(hardware.CTRL_4)",
-      "gate_in1": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)",
-      "gate_in2": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
+      "dsy_cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
+      "dsy_cv_in2": "hardware.GetCtrlValue(hardware.CTRL_2)",
+      "dsy_cv_in3": "hardware.GetCtrlValue(hardware.CTRL_3)",
+      "dsy_cv_in4": "hardware.GetCtrlValue(hardware.CTRL_4)",
+      "dsy_gate_in1": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)",
+      "dsy_gate_in2": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
     },
     "setters": {
       "dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
@@ -41,23 +50,6 @@
     ],
     "midi_outs": [
       "dsy_midi_out1"
-    ],
-    "cv_ins": [
-      "cv_in1",
-      "cv_in2",
-      "cv_in3",
-      "cv_in4"
-    ],
-    "cv_outs": [
-      "cv_out1",
-      "cv_out2"
-    ],
-    "gate_ins": [
-      "gate_in1",
-      "gate_in2"
-    ],
-    "gate_outs": [
-      "gate_out1"
     ],
     "oled": true
 }

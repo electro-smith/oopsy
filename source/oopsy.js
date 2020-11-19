@@ -459,7 +459,7 @@ function generate_app(app, hardware, target) {
 				label = match[1] || param.name
 			}
 		})
-
+		
 		let node = Object.assign({
 			varname: varname,
 			label: label || param.name,

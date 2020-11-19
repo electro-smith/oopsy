@@ -11,7 +11,7 @@
 			"cv4": "dsy_cv_in4",
 			"gate": "dsy_gate_in1",
 			"gate1": "dsy_gate_in1",
-			"knob": "dsy_knob",
+			"knob": "dsy_knob1",
 			"knob1": "dsy_knob1",
 			"knob2": "dsy_knob2",
 			"knob3": "dsy_knob3",
@@ -20,7 +20,7 @@
 			"knob6": "dsy_knob6",
 			"knob7": "dsy_knob7",
 			"knob8": "dsy_knob8",
-			"key": "dsy_key",
+			"key": "dsy_key1",
 			"key1": "dsy_key1",
 			"key2": "dsy_key2",
 			"key3": "dsy_key3",
@@ -119,73 +119,5 @@
     "midi_outs": [
       "dsy_midi_out1"
     ],
-    "cv_ins": [
-      "cv_in1",
-      "cv_in2",
-      "cv_in3",
-      "cv_in4"
-    ],
-    "cv_outs": [
-      "dsy_cv_out1",
-      "dsy_cv_out2"
-	],
-	"knobs": [
-		"knob1",
-		"knob2",
-		"knob3",
-		"knob4",
-		"knob5",
-		"knob6",
-		"knob7",
-		"knob8"
-	],
-	"leds": [
-		"led1",
-		"led2",
-		"led3",
-		"led4",
-		"led5",
-		"led6",
-		"led7",
-    	"led8",
-		"ledA1",
-		"ledA2",
-		"ledA3",
-		"ledA4",
-		"ledA5",
-		"ledA6",
-		"ledA7",
-    	"ledA8",
-		"ledB1",
-		"ledB2",
-		"ledB3",
-		"ledB4",
-		"ledB5",
-		"ledB6",
-		"ledB7",
-    	"ledB8"
-	],
-	"switches": [
-		"switch1",
-		"switch2"
-	],
-	"keys": [
-		"key1",
-		"key2",
-		"key3",
-		"key4",
-		"key5",
-		"key6",
-		"key7",
-		"key8",
-		"key9",
-		"key10",
-		"key11",
-		"key12",
-		"key13",
-		"key14",
-		"key15",
-		"key16"
-	],
 	"oled": true
 }

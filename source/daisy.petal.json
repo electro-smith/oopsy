@@ -2,22 +2,52 @@
     "defines": {
 		"OOPSY_TARGET_PETAL": 1
 	},
+	"labels": {
+		"params": {
+			"knob": "dsy_knob1",
+			"knob1": "dsy_knob1",
+			"knob2": "dsy_knob2",
+			"knob3": "dsy_knob3",
+			"knob4": "dsy_knob4",
+			"knob5": "dsy_knob5",
+			"knob6": "dsy_knob6",
+			"switch": "dsy_switch1",
+			"switch1": "dsy_switch1",
+			"switch2": "dsy_switch2",
+			"switch3": "dsy_switch3",
+			"switch4": "dsy_switch4",
+			"switch5": "dsy_switch5",
+			"switch6": "dsy_switch6",
+			"switch7": "dsy_switch7",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2",
+			"sw3": "dsy_switch3",
+			"sw4": "dsy_switch4",
+			"sw5": "dsy_switch5",
+			"sw6": "dsy_switch6",
+			"sw7": "dsy_switch7"
+		},
+		"outs": {
+
+		}
+	},
 	"getters": {
-		"knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
-		"knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
-		"knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
-		"knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
-		"switch1": "(hardware.switches[0].Pressed()?1.f:0.f)",
-		"switch2": "(hardware.switches[1].Pressed()?1.f:0.f)",
-		"switch3": "(hardware.switches[2].Pressed()?1.f:0.f)",
-		"switch4": "(hardware.switches[3].Pressed()?1.f:0.f)",
-		"switch5": "(hardware.switches[4].Pressed()?1.f:0.f)",
-		"switch6": "(hardware.switches[5].Pressed()?1.f:0.f)",
-		"switch7": "(hardware.switches[6].Pressed()?1.f:0.f)"
+		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
+		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
+		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
+		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
+		"dsy_switch1": "(hardware.switches[0].Pressed()?1.f:0.f)",
+		"dsy_switch2": "(hardware.switches[1].Pressed()?1.f:0.f)",
+		"dsy_switch3": "(hardware.switches[2].Pressed()?1.f:0.f)",
+		"dsy_switch4": "(hardware.switches[3].Pressed()?1.f:0.f)",
+		"dsy_switch5": "(hardware.switches[4].Pressed()?1.f:0.f)",
+		"dsy_switch6": "(hardware.switches[5].Pressed()?1.f:0.f)",
+		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)"
 	},
 	"setters": {
+
 	},
 	"audio_ins": [
       "dsy_in1",
@@ -28,39 +58,5 @@
       "dsy_out2"
     ],
     "midi_ins": [],
-    "midi_outs": [],
-    "cv_ins": [],
-    "cv_outs": [],
-    "gate_ins": [],
-    "gate_outs": [],
-	"knobs": [
-		"knob1",
-		"knob2",
-		"knob3",
-		"knob4",
-		"knob5",
-		"knob6"
-	],
-	"switches": [
-		"switch1",
-		"switch2",
-		"switch3",
-		"switch4",
-		"switch5",
-		"switch6",
-		"switch7"
-	],
-	"expression": [
-		"exp1"
-	],
-	"leds": [
-		"led1",
-		"led2",
-		"led3",
-		"led4",
-		"led5",
-		"led6",
-		"led7",
-		"led8"
-	]
+    "midi_outs": []
 }
