@@ -538,6 +538,9 @@ void GenDaisy::nullAudioCallback(float **hardware_ins, float **hardware_outs, si
 	gendaisy.nullAudioCallbackRunning = true;
 }
 
+void genlib_report_error(const char *s) { gendaisy.log(s); }
+void genlib_report_message(const char *s) { gendaisy.log(s); }
+
 // Curiously-recurring template to make App definitions simpler:
 template<typename T>
 struct StaticApp {
@@ -556,9 +559,5 @@ struct StaticApp {
 		gendaisy.audioCpuUs = (dsy_tim_get_tick() - start) / 200;
 	}
 };
-
-void genlib_report_error(const char *s) { gendaisy.log(s); }
-void genlib_report_message(const char *s) { gendaisy.log(s); }
-
 
 #endif //GENLIB_DAISY_H
