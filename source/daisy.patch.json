@@ -1,4 +1,29 @@
 {
+    "defines": {
+      "OOPSY_TARGET_PATCH": 1
+    },
+    "labels": {
+      "outs": {
+        "cv": "dsy_cv_out1",
+        "cv1": "dsy_cv_out1",
+        "cv2": "dsy_cv_out2",
+        "gate": "dsy_gate_out1",
+        "gate1": "dsy_gate_out1"
+      }
+    },
+    "getters": {
+      "cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
+      "cv_in2": "hardware.GetCtrlValue(hardware.CTRL_2)",
+      "cv_in3": "hardware.GetCtrlValue(hardware.CTRL_3)",
+      "cv_in4": "hardware.GetCtrlValue(hardware.CTRL_4)",
+      "gate_in1": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)",
+      "gate_in2": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
+    },
+    "setters": {
+      "cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
+      "cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
+      "gate_out1": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
+    },
     "audio_ins": [
       "dsy_in1",
       "dsy_in2",
@@ -33,9 +58,6 @@
     ],
     "gate_outs": [
       "gate_out1"
-    ],
-    "encoder": [
-      "encoder1"
     ],
     "oled": true
 }

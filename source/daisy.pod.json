@@ -1,5 +1,16 @@
 {
-    "audio_ins": [
+    "defines": {
+		"OOPSY_TARGET_POD": 1
+	},
+	"getters": {
+		"knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"switch1": "(hardware.button1.Pressed()?1.f:0.f)",
+		"switch2": "(hardware.button2.Pressed()?1.f:0.f)"
+	},
+	"setters": {
+	},
+	"audio_ins": [
       "dsy_in1",
       "dsy_in2"
     ],

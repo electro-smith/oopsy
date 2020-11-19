@@ -1,5 +1,25 @@
 {
-    "audio_ins": [
+    "defines": {
+		"OOPSY_TARGET_PETAL": 1
+	},
+	"getters": {
+		"knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
+		"knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
+		"knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
+		"knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
+		"switch1": "(hardware.switches[0].Pressed()?1.f:0.f)",
+		"switch2": "(hardware.switches[1].Pressed()?1.f:0.f)",
+		"switch3": "(hardware.switches[2].Pressed()?1.f:0.f)",
+		"switch4": "(hardware.switches[3].Pressed()?1.f:0.f)",
+		"switch5": "(hardware.switches[4].Pressed()?1.f:0.f)",
+		"switch6": "(hardware.switches[5].Pressed()?1.f:0.f)",
+		"switch7": "(hardware.switches[6].Pressed()?1.f:0.f)"
+	},
+	"setters": {
+	},
+	"audio_ins": [
       "dsy_in1",
       "dsy_in2"
     ],
@@ -32,9 +52,6 @@
 	],
 	"expression": [
 		"exp1"
-	],
-	"encoder": [
-		"encoder1"
 	],
 	"leds": [
 		"led1",

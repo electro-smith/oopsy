@@ -1,5 +1,55 @@
 {
-    "audio_ins": [
+    "defines": {
+		"OOPSY_TARGET_FIELD": 1
+	},
+	"labels": {
+		"outs": {
+			"cv": "dsy_cv_out1",
+			"cv1": "dsy_cv_out1",
+			"cv2": "dsy_cv_out2",
+			"gate": "dsy_gate_out1",
+			"gate1": "dsy_gate_out1"
+		}
+	},
+	"getters": {
+		"knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
+		"knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
+		"knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
+		"knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
+		"knob7": "hardware.GetKnobValue(hardware.KNOB_7)",
+		"knob8": "hardware.GetKnobValue(hardware.KNOB_8)",
+		"key1": "(hardware.KeyboardState(0)?1.f:0.f)",
+		"key2": "(hardware.KeyboardState(1)?1.f:0.f)",
+		"key3": "(hardware.KeyboardState(2)?1.f:0.f)",
+		"key4": "(hardware.KeyboardState(3)?1.f:0.f)",
+		"key5": "(hardware.KeyboardState(4)?1.f:0.f)",
+		"key6": "(hardware.KeyboardState(5)?1.f:0.f)",
+		"key7": "(hardware.KeyboardState(6)?1.f:0.f)",
+		"key8": "(hardware.KeyboardState(7)?1.f:0.f)",
+		"key9": "(hardware.KeyboardState(8)?1.f:0.f)",
+		"key10": "(hardware.KeyboardState(9)?1.f:0.f)",
+		"key11": "(hardware.KeyboardState(10)?1.f:0.f)",
+		"key12": "(hardware.KeyboardState(11)?1.f:0.f)",
+		"key13": "(hardware.KeyboardState(12)?1.f:0.f)",
+		"key14": "(hardware.KeyboardState(13)?1.f:0.f)",
+		"key15": "(hardware.KeyboardState(14)?1.f:0.f)",
+		"key16": "(hardware.KeyboardState(15)?1.f:0.f)",
+		"switch1": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f)",
+		"switch2": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)",
+		"cv_in1": "hardware.GetCvValue(0)",
+		"cv_in2": "hardware.GetCvValue(1)",
+		"cv_in3": "hardware.GetCvValue(2)",
+		"cv_in4": "hardware.GetCvValue(3)",
+		"gate_in1": "(hardware.gate_in_.State()?1.f:0.f)"
+	},
+	"setters": {
+		"dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
+		"dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
+		"dsy_gate_out1": "dsy_gpio_write(&hardware.gate_out_, $<name> > 0.f)"
+	},
+	"audio_ins": [
       "dsy_in1",
       "dsy_in2"
     ],
@@ -20,8 +70,8 @@
       "cv_in4"
     ],
     "cv_outs": [
-      "cv_out1",
-      "cv_out2"
+      "dsy_cv_out1",
+      "dsy_cv_out2"
 	],
 	"knobs": [
 		"knob1",

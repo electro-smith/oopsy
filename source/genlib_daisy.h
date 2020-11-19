@@ -350,7 +350,6 @@ namespace oopsy {
 						#ifdef OOPSY_TARGET_HAS_OLED
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
-							FontDef& font = font;
 							for (int i=0; i<8; i++) {
 								if (i == app_selecting) {
 									hardware.display.SetCursor(0, font.FontHeight * i);

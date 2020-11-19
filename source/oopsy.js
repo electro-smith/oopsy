@@ -107,15 +107,15 @@ function run() {
 		console.log("maximum 8 apps supported currently")
 		cpps.length = 8;
 	}
-	let gloos = cpps.map(cpp_path => {
+	let apps = cpps.map(cpp_path => {
 		assert(fs.existsSync(cpp_path), `couldn't find source C++ file ${cpp_path}`);
-		let gloo = analyze_cpp(fs.readFileSync(cpp_path, "utf8"));
-		gloo.hardware = hardware;
-		gloo.target = target;
-		gloo.path = cpp_path;
-		return gloo;
+		return {
+			path: cpp_path,
+			patch: analyze_cpp(fs.readFileSync(cpp_path, "utf8"))
+		}
 	})
-	let build_name = gloos.map(v=>v.name).join("_")
+	let build_name = apps.map(v=>v.patch.name).join("_")
+
 
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
@@ -123,6 +123,13 @@ function run() {
 	// ensure build path exists:
 	fs.mkdirSync(build_path, {recursive: true});
 
+	let config = {
+		build_name: build_name,
+		build_path: build_path,
+		target: target,
+		hardware: hardware,
+		apps: apps,
+	}
 	
 	// add watcher
 	if (watch && watchers.length < 1) {
@@ -130,7 +137,6 @@ function run() {
 			run(...args);
 		}))
 	}
-
 
 	const makefile_path = path.join(build_path, `Makefile`)
 	const bin_path = path.join(build_path, "build", build_name+".bin");
@@ -156,40 +162,37 @@ LDFLAGS+=-u _printf_float
 	console.log(`\t${makefile_path}`)
 	console.log(`\t${bin_path}`)
 
-	gloos.map(gloo => {
-		gloo.relative_path = path.relative(build_path, gloo.path);
-		generate_gloo(gloo);
-		return gloo;
+	apps.map(app => {
+		generate_app(app, hardware, target);
+		return app;
 	})
 
+	let defines = Object.assign({}, hardware.defines);
+	if (apps.some(g => g.has_midi_in || g.has_midi_out)) defines.OOPSY_TARGET_USES_MIDI_UART = 1
+	if (apps.length) defines.OOPSY_MULTI_APP = 1
+
+
 	// store for debugging:
-	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(gloos,null,"  "),"utf8");
+	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
 
-	const cppcode = `${
-target=="patch" ? "#define OOPSY_TARGET_PATCH 1" :
-target=="field" ? "#define OOPSY_TARGET_FIELD 1" : 
-target=="petal" ? "#define OOPSY_TARGET_PETAL 1" :
-target=="pod" ? "#define OOPSY_TARGET_POD 1" :
-""}
-${gloos.some(g => g.has_midi_in || g.has_midi_out) ? "#define OOPSY_TARGET_USES_MIDI_UART 1" : "// no midi"}
-${(gloos.length > 1) ? "#define OOPSY_MULTI_APP 1" : "// single app"}
-
+	const cppcode = `${Object.keys(defines).map(k => `
+#define ${k} (${defines[k]})`).join("")}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
-${gloos.map(gloo => `#include "${posixify_path(gloo.relative_path)}"`).join("\n")}
-${gloos.map(gloo => gloo.cpp.struct).join("\n")}
+${apps.map(app => `#include "${posixify_path(path.relative(build_path, app.path))}"`).join("\n")}
+${apps.map(app => app.cpp.struct).join("\n")}
 
 // store apps in a union to re-use memory, since only one app is active at once:
 union {
-	${gloos.map(gloo => gloo.cpp.union).join("\n\t")}
+	${apps.map(app => app.cpp.union).join("\n\t")}
 } apps;
 
 oopsy::AppDef appdefs[] = {
-	${gloos.map(gloo => gloo.cpp.appdef).join("\n\t")}
+	${apps.map(app => app.cpp.appdef).join("\n\t")}
 };
 
 int main(void) {
-	return oopsy::daisy.run(appdefs, ${gloos.length});
+	return oopsy::daisy.run(appdefs, ${apps.length});
 }
 `
 	fs.writeFileSync(maincpp_path, cppcode, "utf-8");	
@@ -224,7 +227,7 @@ int main(void) {
 		// if successful, try to upload to hardware:
 		if (fs.existsSync(bin_path) && action=="upload") {
 			
-			console.log("oopsy uploading", bin_path)
+			console.log("oopsy flashing...")
 			
 			if (os.platform() == "win32") {
 				console.log(execSync("set PATH=%PATH%;/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
@@ -234,7 +237,7 @@ int main(void) {
 				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' })
 			}
 
-			console.log("oopsy uploaded")
+			console.log("oopsy flashed")
 		}
 	} catch (e) {
 		// errors from make here
@@ -275,7 +278,7 @@ function analyze_cpp(cpp) {
 }
 
 function generate_daisy(hardware, nodes, target) {
-	return {
+	let daisy = {
 		audio_ins: hardware.audio_ins.map((v, i)=>{
 			let name = `dsy_in${i+1}`
 			nodes[name] = {
@@ -316,98 +319,110 @@ function generate_daisy(hardware, nodes, target) {
 			return name;
 		}),
 
+		// DEVICE INPUTS:
+		// gpio_ins: Object.keys(hardware.getters).map(v => {
+		// 	let name = `dsy_${v}`
+		// 	nodes[name] = {
+		// 		to: [],
+		// 		get: hardware.getters[v],
+		// 	}
+		// 	return name;
+		// }),
 		keys: hardware.keys.map((v, i)=>{
-			let name = `dsy_key_in${i+1}`
+			let name = `dsy_${v}`
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				to: [],
-				get: `(hardware.KeyboardState(${i})?1.f:0.f)`,
+				get: hardware.getters[v],
 			}
 			return name;
 		}),
 		switches: hardware.switches.map((v, i)=>{
-			let name = `dsy_sw_in${i+1}`
+			let name = `dsy_${v}`
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				to: [],
-				get: (target=="pod") ? `(hardware.button${i+1}.Pressed()?1.f:0.f)` : (target=="petal") ? `(hardware.switches[${i}].Pressed()?1.f:0.f)` : `(hardware.GetSwitch(${i})->Pressed()?1.f:0.f)`,
+				get: hardware.getters[v],
 			}
 			return name;
 		}),
 		knobs: hardware.knobs.map((v, i)=>{
-			let name = `dsy_knob_in${i+1}`
+			let name = `dsy_${v}`
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				to: [],
-				get: `hardware.GetKnobValue(hardware.KNOB_${i+1})`,
+				get: hardware.getters[v],
 			}
 			return name;
 		}),
 		cv_ins: hardware.cv_ins.map((v, i)=>{
-			let name = `dsy_cv_in${i+1}`
+			let name = `dsy_${v}`
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				to: [],
-				get: (target == "field") ? `hardware.GetCvValue(${i})` : `hardware.GetCtrlValue(hardware.CTRL_${i+1})`,
-			}
-			return name;
-		}),
-		cv_outs: hardware.cv_outs.map((v, i)=>{
-			let name = `dsy_cv_out${i+1}`
-			nodes[name] = {
-				// buffername: name,
-				// index: i,
-				from: [],
-				set: `dsy_dac_write(DSY_DAC_CHN${i+1}, ${name} * 4095);`
+				get: hardware.getters[v],
 			}
 			return name;
 		}),
 		gate_ins: hardware.gate_ins.map((v, i)=>{
-			let name = `dsy_gate_in${i+1}`
+			let name = `dsy_${v}`
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				to: [],
-				get: (target == "field") ? `(hardware.gate_in_.State()?1.f:0.f)` : `(hardware.gate_input[hardware.GATE_IN_${i+1}].State()?1.f:0.f)`
+				get: hardware.getters[v],
 			}
 			return name;
 		}),
-		gate_outs: hardware.gate_outs.map((v, i)=>{
-			let name = `dsy_gate_out${i+1}`
+
+		// DEVICE OUTPUTS:
+		gpio_outs: Object.keys(hardware.setters).map(v => {
+			let name = v
 			nodes[name] = {
-				// buffername: name,
-				// index: i,
 				from: [],
-				set: (target == "field") ? `dsy_gpio_write(&hardware.gate_out_, ${name} > 0.f);` : `dsy_gpio_write(&hardware.gate_output, ${name} > 0.f);`
+				set: interpolate(hardware.setters[v], {name: name})
 			}
 			return name;
-		})	
+		}),
+		// cv_outs: hardware.cv_outs.map((v, i)=>{
+		// 	let name = `dsy_${v}`
+		// 	nodes[name] = {
+		// 		// buffername: name,
+		// 		// index: i,
+		// 		from: [],
+		// 		//set: `dsy_dac_write(DSY_DAC_CHN${i+1}, ${name} * 4095);`
+		// 		set: interpolate(hardware.setters[v], {name: name})
+		// 	}
+		// 	return name;
+		// }),
+		// gate_outs: hardware.gate_outs.map((v, i)=>{
+		// 	let name = `dsy_${v}`
+		// 	nodes[name] = {
+		// 		// buffername: name,
+		// 		// index: i,
+		// 		from: [],
+		// 		//set: (target == "field") ? `dsy_gpio_write(&hardware.gate_out_, ${name} > 0.f);` : `dsy_gpio_write(&hardware.gate_output, ${name} > 0.f);`
+		// 		set: interpolate(hardware.setters[v], {name: name})
+		// 	}
+		// 	return name;
+		// })
 	}
+	
+	daisy.gpio_ins = daisy.cv_ins.concat(daisy.gate_ins, daisy.switches, daisy.knobs, daisy.keys)
+	//daisy.gpio_outs = daisy.cv_outs.concat(daisy.gate_outs)
+
+	return daisy
 }
 
-function generate_gloo(gloo) {
-	const {hardware, target} = gloo;
-
+function generate_app(app, hardware, target) {
 	const nodes = {}
 	const daisy = generate_daisy(hardware, nodes, target);
 	const gen = {}
 
-	gloo.audio_outs = []
-	gloo.has_midi_in = false
-	gloo.has_midi_out = false
+	app.audio_outs = []
+	app.has_midi_in = false
+	app.has_midi_out = false
 
-	gloo.nodes = nodes;
-	gloo.daisy = daisy;
-	gloo.gen = gen;
-	gloo.nodes = nodes;
+	app.nodes = nodes;
+	app.daisy = daisy;
+	app.gen = gen;
+	app.nodes = nodes;
 
-
-	
-	gen.audio_ins = gloo.ins.map((s, i)=>{
+	gen.audio_ins = app.patch.ins.map((s, i)=>{
 		let name = "gen_in"+(i+1)
 		let label = s.replace(/"/g, "").trim();
 		let src = null;
@@ -415,7 +430,7 @@ function generate_gloo(gloo) {
 		if (label == "midi") {
 			if (daisy.midi_ins.length) {
 				src = daisy.midi_ins[0]
-				gloo.has_midi_in = true;
+				app.has_midi_in = true;
 			}
 		} else if (daisy.audio_ins.length > 0) {
 			src = daisy.audio_ins[i % daisy.audio_ins.length];
@@ -432,7 +447,7 @@ function generate_gloo(gloo) {
 		return name;
 	})
 
-	gen.audio_outs = gloo.outs.map((s, i)=>{
+	gen.audio_outs = app.patch.outs.map((s, i)=>{
 		let name = "gen_out"+(i+1)
 		let label = s.replace(/"/g, "").trim();
 		let src = daisy.audio_outs[i];
@@ -446,7 +461,7 @@ function generate_gloo(gloo) {
 				//label: s,
 				to: [],
 			}
-			gloo.audio_outs.push(src);
+			app.audio_outs.push(src);
 		}
 		nodes[name] = {
 			// name: name,
@@ -456,24 +471,26 @@ function generate_gloo(gloo) {
 		}
 
 		// figure out if the out buffer maps to anything:
-		let map
-		let match
+
+		// TODO: do search-by-prefix:
+		let map  //= hardware.labels.outs[label]
+		let maplabel
+
+		Object.keys(hardware.labels.outs).sort().forEach(k => {
+			let match
+			if (match = new RegExp(`^${k}_?(.+)?`).exec(label)) {
+				map = hardware.labels.outs[k];
+				maplabel = match[1] || label
+			}
+		})
+
 		if (label == "midi") {
 			map = daisy.midi_outs[0]
-			gloo.has_midi_out = true;
-		} else 
-		// cv/ctrl[n]
-		if (match = label.match(/^(cv|ctrl)(\d*)$/)) {
-			map = daisy.cv_outs[(match[2] || 1) - 1]
-			label = match[3] || label
-		} else 
-		// gate[n]
-		if (match = label.match(/^(gate)(\d*)$/)) {
-			map = daisy.gate_outs[(match[2] || 1) - 1]
-			label = match[3] || label
-		} else 
-		// else it is audio data
-		{			
+			app.has_midi_out = true;
+		} else if (map) {
+			label = maplabel
+		} else {
+			// else it is audio data			
 			nodes[src].src = src;
 		}
 		nodes[name].label = label
@@ -485,7 +502,7 @@ function generate_gloo(gloo) {
 		return name;
 	})
 
-	gen.params = gloo.params.map((param, i)=>{
+	gen.params = app.patch.params.map((param, i)=>{
 		const varname = "gen_param_"+param.name;
 
 		let src;
@@ -521,7 +538,7 @@ function generate_gloo(gloo) {
 		return varname;
 	})
 
-	gen.datas = gloo.datas.map((param, i)=>{
+	gen.datas = app.patch.datas.map((param, i)=>{
 		const varname = "gen_data_"+param.name;
 		let node = Object.assign({
 			varname: varname,
@@ -574,35 +591,35 @@ function generate_gloo(gloo) {
 	// normal cv outs etc. in the same way
 	{
 		let available = []
-		daisy.cv_outs.forEach((name, i)=>{
+		let i=0
+		daisy.gpio_outs.forEach(name => {
 			const node = nodes[name];
 			// does this output have an audio source?
 			if (node.from.length) {
 				available.push(name);
 			} else if (available.length) {
-				//node.from.push( available[i % available.length] );
-				node.src = available[i % available.length];
+				node.src = available[i++ % available.length];
 			}
-		});
+		})
 	}
 
-	const name = gloo.name;
+	const name = app.patch.name;
 	const struct = `
 
 struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.filter(name => nodes[name].src)
-		.concat(daisy.cv_outs, daisy.gate_outs)
+		.concat(daisy.gpio_outs)
 		.map(name=>`
 	float ${name};`).join("")}
-	${gloo.audio_outs.map(name=>`
+	${app.audio_outs.map(name=>`
 	float ${name}[OOPSY_BUFFER_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		${gen.params
 			.filter(name => nodes[name].src)
-			.concat(daisy.cv_outs, daisy.gate_outs)
+			.concat(daisy.gpio_outs)
 			.map(name=>`
 		${name} = 0.f;`).join("")}
 	}	
@@ -610,17 +627,16 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		// whatever handling is needed here
 		Daisy& hardware = daisy.hardware;
-		${daisy.cv_outs.concat(daisy.gate_outs)
+		${daisy.gpio_outs
 			.filter(name => nodes[name].src || nodes[name].from.length)
 			.map((name, i)=>`
-		${nodes[name].set}`).join("")}
+		${nodes[name].set};`).join("")}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
-		${daisy.knobs
-			.concat(daisy.switches, daisy.keys, daisy.cv_ins, daisy.gate_ins)
+		${daisy.gpio_ins
 			.filter(name => nodes[name].to.length)
 			.map(name=>`
 		float ${name} = ${nodes[name].get};`).join("")}
@@ -632,24 +648,26 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		float * ${name} = hardware_ins[${i}];`).join("")}
 		${daisy.audio_outs.map((name, i)=>`
 		float * ${name} = hardware_outs[${i}];`).join("")}
-		${gloo.has_midi_in ? daisy.midi_ins.map(name=>`
+		${app.has_midi_in ? daisy.midi_ins.map(name=>`
 		float * ${name} = oopsy::midi.in_data;`).join("") : ''}
+		// ${gen.audio_ins.map(name=>nodes[name].label).join(", ")}:
 		float * inputs[] = { ${gen.audio_ins.map(name=>nodes[name].src).join(", ")} }; 
+		// ${gen.audio_outs.map(name=>nodes[name].label).join(", ")}:
 		float * outputs[] = { ${gen.audio_outs.map(name=>nodes[name].src).join(", ")} };
 		gen.perform(inputs, outputs, size);
-		${daisy.cv_outs.concat(daisy.gate_outs)
+		${daisy.gpio_outs
 			.filter(name => nodes[name].src || nodes[name].from.length > 0)
 			.map(name => nodes[name].src ? `
 		${name} = ${nodes[name].src};` : `
 		${name} = ${nodes[name].from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
-		${gloo.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
+		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
 	}
 };`
-	gloo.cpp = {
+	app.cpp = {
 		union: `App_${name} app_${name};`,
 		appdef: `{"${name}", []()->void { oopsy::daisy.reset(apps.app_${name}); } },`,
 		struct: struct,
 	}
-	return gloo
+	return app
 }
