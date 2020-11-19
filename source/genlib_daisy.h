@@ -108,7 +108,8 @@ namespace oopsy {
 	// }
 
 	struct Timer {
-		int32_t period = OOPSY_DISPLAY_PERIOD_MS, t=0;
+		int32_t period = OOPSY_DISPLAY_PERIOD_MS, 
+				t = OOPSY_DISPLAY_PERIOD_MS;
 
 		bool ready(int32_t dt) {
 			t += dt;
@@ -284,19 +285,57 @@ namespace oopsy {
 				uint32_t t1 = dsy_system_getnow();
 				dt = t1-t;
 				t = t1;
-
-				#ifdef OOPSY_TARGET_USES_MIDI_UART
-				midi.mainloop();
-				#endif
-				// handle app-level code (e.g. for LED/CV/gate outs)
-				mainloopCallback(t, dt);
 				
 				if (uitimer.ready(dt)) {
-					// Handle encoder press/longpress actions:
+
+					#ifdef OOPSY_TARGET_USES_MIDI_UART
+					midi.mainloop();
+					#endif
+
+					// CLEAR DISPLAY
+					#ifdef OOPSY_TARGET_HAS_OLED
+					hardware.display.Fill(false);
+					#endif
+					#ifdef OOPSY_TARGET_PETAL 
+					hardware.ClearLeds();
+					#endif
+					
+					// handle app-level code (e.g. for LED/CV/gate outs)
+					mainloopCallback(t, dt);
+
+					#ifdef OOPSY_TARGET_PETAL 
+					for(int i = 0; i < 8; i++) {
+						float selected = (i == app_selected) * 1.f;
+						float selecting = (i == app_selecting) * 1.f;
+						float selectable = (i < app_count) * 0.5f;
+						float menu = (mode == MODE_MENU) * 1.f;
+						float released = encoder_released * 1.f;
+						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
+							selected + menu * selecting + released,
+							menu * selecting + released,
+							menu * (selecting + selectable) + released
+						);
+					}
+					#endif //OOPSY_TARGET_PETAL
+
 					if (encoder_held_ms > OOPSY_LONG_PRESS_MS) {
 						// LONG PRESS
+						#if defined(OOPSY_TARGET_PETAL) 
+						#if defined(OOPSY_MULTI_APP)
+						mode = MODE_MENU;
+						is_mode_selecting = 0;
+						#endif // OOPSY_MULTI_APP
+						#else // !OOPSY_TARGET_PETAL
 						is_mode_selecting = 1;
-					} 
+						#endif
+					} else {
+						#if defined(OOPSY_TARGET_PETAL) 
+						#if defined(OOPSY_MULTI_APP)
+						mode = MODE_NONE;
+						is_mode_selecting = 0;
+						#endif // OOPSY_MULTI_APP
+						#endif // !OOPSY_TARGET_PETAL
+					}
 			
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {
@@ -308,7 +347,7 @@ namespace oopsy {
 						app_selecting += encoder_incr;
 						if (app_selecting >= app_count) app_selecting -= app_count;
 						if (app_selecting < 0) app_selecting += app_count;
-					#endif
+					#endif // OOPSY_MULTI_APP
 					#ifdef OOPSY_TARGET_HAS_OLED
 					} else if (mode == MODE_SCOPE) {
 						if (encoder_incr > 0) {
@@ -318,7 +357,7 @@ namespace oopsy {
 							scope_zoom = scope_zoom - 1;
 							if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
 						}
-					#endif
+					#endif //OOPSY_TARGET_HAS_OLED
 					}
 					encoder_incr = 0;
 
@@ -338,10 +377,6 @@ namespace oopsy {
 					} 
 					encoder_released = 0;
 
-					// DISPLAY
-					#ifdef OOPSY_TARGET_HAS_OLED
-					hardware.display.Fill(false);
-					#endif
 
 					switch(mode) {
 						#ifdef OOPSY_TARGET_HAS_OLED
@@ -380,10 +415,11 @@ namespace oopsy {
 							break;
 						}
 						
-						#else  //OOPSY_TARGET_HAS_OLED
+						#else  // !OOPSY_TARGET_HAS_OLED
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
 							// TODO show menu selection via LEDs
+							
 						} break;
 						#endif
 						#endif //OOPSY_TARGET_HAS_OLED
@@ -414,6 +450,12 @@ namespace oopsy {
 					}
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
+
+					#ifdef OOPSY_TARGET_PETAL
+					hardware.UpdateLeds();
+					#endif //OOPSY_TARGET_PETAL
+
+					
 				} // uitimer.ready
 			}
 			return 0;

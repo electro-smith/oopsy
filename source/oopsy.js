@@ -84,21 +84,39 @@ function run() {
 			case "petal":
 			case "patch": {target = arg;} break;
 			case "watch": watch=true; break;
+
 			default: {
-				let p = path.parse(arg);
-				switch(p.ext) {
-					case ".json": {target_path = arg; target = ""}; break;
-					case ".cpp": cpps.push(arg); break;
-					// case ".gendsp":
-					// case ".maxpat":
-					// case ".maxhelp": {pat_path = arg}; break;
-					default: {
-						console.warn("unexpected input", arg);
+
+				if (fs.existsSync(arg)) {
+					if (fs.lstatSync(arg).isDirectory()) {
+						// add a whole folder full of cpps:
+						cpps = cpps.concat(fs.readdirSync(arg)
+							.filter(s => path.parse(s).ext == ".cpp") 
+							.map(s => path.join(arg, s))
+						)
+					} else {	
+						let p = path.parse(arg);
+						switch(p.ext) {
+							case ".json": {target_path = arg; target = ""}; break;
+							case ".cpp": cpps.push(arg); break;
+							// case ".gendsp":
+							// case ".maxpat":
+							// case ".maxhelp": {pat_path = arg}; break;
+							default: {
+								console.warn("unexpected input", arg);
+							}
+						}
 					}
 				}
 			}
 		}
 	});
+
+	// remove duplicates:
+	cpps = cpps.reduce(function (acc, s) {
+		if (acc.indexOf(s) === -1) acc.push(s)
+		return acc
+	}, []);
 
 	// configure target:
 	if (!target && !target_path) target = "patch";
@@ -167,9 +185,11 @@ include $(SYSTEM_FILES_DIR)/Makefile
 # Include the gen_dsp files
 CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}"
 CFLAGS+=-Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
-# Enable printing of floats (for OLED display)
-LDFLAGS+=-u _printf_float
 `, "utf-8");
+
+	// didn't seem to be working:
+	//# Enable printing of floats (for OLED display)
+	//LDFLAGS+=-u _printf_float
 	console.log(`Will ${action} from ${cpps.join(", ")} by writing to:`)
 	console.log(`\t${maincpp_path}`)
 	console.log(`\t${makefile_path}`)
