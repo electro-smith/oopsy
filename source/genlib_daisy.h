@@ -281,6 +281,8 @@ namespace oopsy {
 			#ifdef OOPSY_TARGET_HAS_OLED
 			console_display();
 			#endif 
+
+			static bool blink;
 			while(1) {
 				uint32_t t1 = dsy_system_getnow();
 				dt = t1-t;
@@ -304,37 +306,30 @@ namespace oopsy {
 					mainloopCallback(t, dt);
 
 					#ifdef OOPSY_TARGET_PETAL 
+					// petal has no mode selection
+					is_mode_selecting = 0;
+					#if defined(OOPSY_MULTI_APP)
+					// multi-app petal is always in menu mode:
+					mode = MODE_MENU;
+					#endif
+					// blink = !blink;
+					// hardware.SetFootswitchLed((daisy::DaisyPetal::FootswitchLed)0, blink);
+
 					for(int i = 0; i < 8; i++) {
-						float selected = (i == app_selected) * 1.f;
-						float selecting = (i == app_selecting) * 1.f;
-						float selectable = (i < app_count) * 0.5f;
-						float menu = (mode == MODE_MENU) * 1.f;
-						float released = encoder_released * 1.f;
+						float white = (i == app_selecting || encoder_released);
 						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
-							selected + menu * selecting + released,
-							menu * selecting + released,
-							menu * (selecting + selectable) + released
+							(i == app_selected || white) * 1.f,
+							white * 1.f,
+							(i < app_count) * 0.3f + white * 1.f
 						);
 					}
 					#endif //OOPSY_TARGET_PETAL
 
 					if (encoder_held_ms > OOPSY_LONG_PRESS_MS) {
 						// LONG PRESS
-						#if defined(OOPSY_TARGET_PETAL) 
-						#if defined(OOPSY_MULTI_APP)
-						mode = MODE_MENU;
-						is_mode_selecting = 0;
-						#endif // OOPSY_MULTI_APP
-						#else // !OOPSY_TARGET_PETAL
+						#ifndef OOPSY_TARGET_PETAL
 						is_mode_selecting = 1;
 						#endif
-					} else {
-						#if defined(OOPSY_TARGET_PETAL) 
-						#if defined(OOPSY_MULTI_APP)
-						mode = MODE_NONE;
-						is_mode_selecting = 0;
-						#endif // OOPSY_MULTI_APP
-						#endif // !OOPSY_TARGET_PETAL
 					}
 			
 					// Handle encoder increment actions:
@@ -376,7 +371,6 @@ namespace oopsy {
 						}
 					} 
 					encoder_released = 0;
-
 
 					switch(mode) {
 						#ifdef OOPSY_TARGET_HAS_OLED

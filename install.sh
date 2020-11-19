@@ -15,5 +15,5 @@ echo "rebuilding libdaisy"
 cd source
 cd libdaisy
 make clean | grep "warningr:\|error:"
-make | grep "warning:r\|error:"
+make -j4 | grep "warning:r\|error:"
 echo "done building libdaisy"
