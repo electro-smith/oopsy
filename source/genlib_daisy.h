@@ -517,9 +517,11 @@ struct GenDaisy {
 					}
 					
 					#else  //GEN_DAISY_TARGET_HAS_OLED
+					#ifdef GEN_DAISY_MULTI_APP
 					case MODE_MENU: {
 						// TODO show menu selection via LEDs
 					} break;
+					#endif
 					#endif //GEN_DAISY_TARGET_HAS_OLED
 					default: {
 					}
