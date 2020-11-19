@@ -219,7 +219,7 @@ int main(void) {
 			console.log("oopsy compiled code")
 		} catch (e) {
 			// errors from make here
-			console.error(e);
+			console.error("make failed");
 		}
 		// if successful, try to upload to hardware:
 		if (fs.existsSync(bin_path) && action=="upload") {
@@ -238,7 +238,7 @@ int main(void) {
 		}
 	} catch (e) {
 		// errors from make here
-		console.log("upload failed", e);
+		console.log("upload failed");
 	}
 	console.log("oopsy done")
 }
