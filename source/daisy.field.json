@@ -139,12 +139,6 @@
 		"knob7",
 		"knob8"
 	],
-    "gate_ins": [
-      "gate_in1"
-    ],
-    "gate_outs": [
-      "gate_out1"
-	],
 	"leds": [
 		"led1",
 		"led2",
