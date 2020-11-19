@@ -19,6 +19,19 @@ function interpolate(str, data) {
 	return str.replace(/\$<([^>]+)>/gm, (s, key) => data[key])
 }
 
+// prints a number as a C-style float:
+function toCfloat(n) {
+	let s = (+n).toString();
+	// add point if needed:
+	if (s.includes("e")) {
+		return s;
+	} else if (s.includes(".")) {
+		return s + "f";
+	} else {
+		return s + ".f";
+	}
+}
+
 const help = `
 <[cmds]> <[target]> <[cpps]> <watch>
 
@@ -320,48 +333,8 @@ function generate_daisy(hardware, nodes, target) {
 		}),
 
 		// DEVICE INPUTS:
-		// gpio_ins: Object.keys(hardware.getters).map(v => {
-		// 	let name = `dsy_${v}`
-		// 	nodes[name] = {
-		// 		to: [],
-		// 		get: hardware.getters[v],
-		// 	}
-		// 	return name;
-		// }),
-		keys: hardware.keys.map((v, i)=>{
-			let name = `dsy_${v}`
-			nodes[name] = {
-				to: [],
-				get: hardware.getters[v],
-			}
-			return name;
-		}),
-		switches: hardware.switches.map((v, i)=>{
-			let name = `dsy_${v}`
-			nodes[name] = {
-				to: [],
-				get: hardware.getters[v],
-			}
-			return name;
-		}),
-		knobs: hardware.knobs.map((v, i)=>{
-			let name = `dsy_${v}`
-			nodes[name] = {
-				to: [],
-				get: hardware.getters[v],
-			}
-			return name;
-		}),
-		cv_ins: hardware.cv_ins.map((v, i)=>{
-			let name = `dsy_${v}`
-			nodes[name] = {
-				to: [],
-				get: hardware.getters[v],
-			}
-			return name;
-		}),
-		gate_ins: hardware.gate_ins.map((v, i)=>{
-			let name = `dsy_${v}`
+		gpio_ins: Object.keys(hardware.getters).map(v => {
+			let name = v
 			nodes[name] = {
 				to: [],
 				get: hardware.getters[v],
@@ -378,33 +351,7 @@ function generate_daisy(hardware, nodes, target) {
 			}
 			return name;
 		}),
-		// cv_outs: hardware.cv_outs.map((v, i)=>{
-		// 	let name = `dsy_${v}`
-		// 	nodes[name] = {
-		// 		// buffername: name,
-		// 		// index: i,
-		// 		from: [],
-		// 		//set: `dsy_dac_write(DSY_DAC_CHN${i+1}, ${name} * 4095);`
-		// 		set: interpolate(hardware.setters[v], {name: name})
-		// 	}
-		// 	return name;
-		// }),
-		// gate_outs: hardware.gate_outs.map((v, i)=>{
-		// 	let name = `dsy_${v}`
-		// 	nodes[name] = {
-		// 		// buffername: name,
-		// 		// index: i,
-		// 		from: [],
-		// 		//set: (target == "field") ? `dsy_gpio_write(&hardware.gate_out_, ${name} > 0.f);` : `dsy_gpio_write(&hardware.gate_output, ${name} > 0.f);`
-		// 		set: interpolate(hardware.setters[v], {name: name})
-		// 	}
-		// 	return name;
-		// })
 	}
-	
-	daisy.gpio_ins = daisy.cv_ins.concat(daisy.gate_ins, daisy.switches, daisy.knobs, daisy.keys)
-	//daisy.gpio_outs = daisy.cv_outs.concat(daisy.gate_outs)
-
 	return daisy
 }
 
@@ -472,10 +419,9 @@ function generate_app(app, hardware, target) {
 
 		// figure out if the out buffer maps to anything:
 
-		// TODO: do search-by-prefix:
-		let map  //= hardware.labels.outs[label]
+		// search for a matching [out] name / prefix:
+		let map
 		let maplabel
-
 		Object.keys(hardware.labels.outs).sort().forEach(k => {
 			let match
 			if (match = new RegExp(`^${k}_?(.+)?`).exec(label)) {
@@ -483,7 +429,6 @@ function generate_app(app, hardware, target) {
 				maplabel = match[1] || label
 			}
 		})
-
 		if (label == "midi") {
 			map = daisy.midi_outs[0]
 			app.has_midi_out = true;
@@ -504,34 +449,24 @@ function generate_app(app, hardware, target) {
 
 	gen.params = app.patch.params.map((param, i)=>{
 		const varname = "gen_param_"+param.name;
+		let src, label;
 
-		let src;
-		let label;
-		let match;
-		if (match = param.name.match(/^(cv|ctrl)(\d*)_?(.+)?/)) {
-			src = daisy.cv_ins[(match[2] || 1) - 1]
-			label = match[3] || param.name
-		}
-		else if (match = param.name.match(/^(gate)(\d*)_?(.+)?/)) {
-			src = daisy.gate_ins[(match[2] || 1) - 1]
-			label = match[3] || param.name
-		} 
-		else if (match = param.name.match(/^(knob)(\d*)_?(.+)?/)) {
-			src = daisy.knobs[(match[2] || 1) - 1]
-			label = match[3] || param.name
-		}
-		else if (match = param.name.match(/^(key)(\d*)_?(.+)?/)) {
-			src = daisy.keys[(match[2] || 1) - 1]
-			label = match[3] || param.name
-		}
+		// search for a matching [out] name / prefix:
+		Object.keys(hardware.labels.params).sort().forEach(k => {
+			let match
+			if (match = new RegExp(`^${k}_?(.+)?`).exec(param.name)) {
+				src = hardware.labels.params[k];
+				label = match[1] || param.name
+			}
+		})
 
 		let node = Object.assign({
 			varname: varname,
-			label: label,
+			label: label || param.name,
 			src: src,
 		}, param);
-		
 		nodes[varname] = node;
+
 		if (src) {
 			nodes[src].to.push(varname)
 		}
@@ -547,28 +482,20 @@ function generate_app(app, hardware, target) {
 		nodes[varname] = node;
 		return varname;
 	})
+	
 
 	// fill all my holes
 	// map unused cvs/knobs to unmapped params
 	let upi=0; // unused param index
 	let param = gen.params[upi];
-	daisy.knobs.forEach((name, i)=>{
+	Object.keys(hardware.getters).forEach(name => {
 		const node = nodes[name];
 		if (node.to.length == 0) {
+			//console.log(name, "not mapped")
 			// find next param without a src:
 			while (param && !!nodes[param].src) param = gen.params[++upi];
 			if (param) {
-				nodes[param].src = name;
-				node.to.push(param);
-			}
-		}
-	})
-	daisy.cv_ins.forEach((name, i)=>{
-		const node = nodes[name];
-		if (node.to.length == 0) {
-			// find next param without a src:
-			while (param && !!nodes[param].src) param = gen.params[++upi];
-			if (param) {
+				//console.log("map to", param)
 				nodes[param].src = name;
 				node.to.push(param);
 			}
@@ -642,7 +569,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		float ${name} = ${nodes[name].get};`).join("")}
 		${gen.params.filter(name => nodes[name].src).map(name=>`
 		// ${nodes[name].label}
-		${name} = ${nodes[name].src}*${nodes[name].max-nodes[name].min} + ${nodes[name].min};
+		${name} = ${nodes[name].src}*${toCfloat(nodes[name].max-nodes[name].min)} + ${toCfloat(nodes[name].min)};
 		gen.set_${nodes[name].name}(${name});`).join("")}
 		${daisy.audio_ins.map((name, i)=>`
 		float * ${name} = hardware_ins[${i}];`).join("")}
