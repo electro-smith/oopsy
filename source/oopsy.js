@@ -166,13 +166,13 @@ LDFLAGS+=-u _printf_float
 	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(gloos,null,"  "),"utf8");
 
 	const cppcode = `${
-target=="patch" ? "#define GEN_DAISY_TARGET_PATCH 1" :
-target=="field" ? "#define GEN_DAISY_TARGET_FIELD 1" : 
-target=="petal" ? "#define GEN_DAISY_TARGET_PETAL 1" :
-target=="pod" ? "#define GEN_DAISY_TARGET_POD 1" :
+target=="patch" ? "#define OOPSY_TARGET_PATCH 1" :
+target=="field" ? "#define OOPSY_TARGET_FIELD 1" : 
+target=="petal" ? "#define OOPSY_TARGET_PETAL 1" :
+target=="pod" ? "#define OOPSY_TARGET_POD 1" :
 ""}
-${gloos.some(g => g.has_midi_in || g.has_midi_out) ? "#define GEN_DAISY_TARGET_USES_MIDI_UART 1" : "// no midi"}
-${(gloos.length > 1) ? "#define GEN_DAISY_MULTI_APP 1" : "// single app"}
+${gloos.some(g => g.has_midi_in || g.has_midi_out) ? "#define OOPSY_TARGET_USES_MIDI_UART 1" : "// no midi"}
+${(gloos.length > 1) ? "#define OOPSY_MULTI_APP 1" : "// single app"}
 
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
@@ -184,12 +184,12 @@ union {
 	${gloos.map(gloo => gloo.cpp.union).join("\n\t")}
 } apps;
 
-GenDaisy::AppDef appdefs[] = {
+oopsy::AppDef appdefs[] = {
 	${gloos.map(gloo => gloo.cpp.appdef).join("\n\t")}
 };
 
 int main(void) {
-	return gendaisy.run(appdefs, sizeof(appdefs)/sizeof(GenDaisy::AppDef));
+	return oopsy::daisy.run(appdefs, ${gloos.length});
 }
 `
 	fs.writeFileSync(maincpp_path, cppcode, "utf-8");	
@@ -589,17 +589,17 @@ function generate_gloo(gloo) {
 	const name = gloo.name;
 	const struct = `
 
-struct App_${name} : public StaticApp<App_${name}> {
+struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.filter(name => nodes[name].src)
 		.concat(daisy.cv_outs, daisy.gate_outs)
 		.map(name=>`
 	float ${name};`).join("")}
 	${gloo.audio_outs.map(name=>`
-	float ${name}[GEN_DAISY_BUFFER_SIZE];`).join("")}
+	float ${name}[OOPSY_BUFFER_SIZE];`).join("")}
 	
-	void init(GenDaisy& gendaisy) {
-		gendaisy.gen = ${name}::create(gendaisy.samplerate, gendaisy.blocksize);
+	void init(oopsy::GenDaisy& daisy) {
+		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		${gen.params
 			.filter(name => nodes[name].src)
 			.concat(daisy.cv_outs, daisy.gate_outs)
@@ -607,18 +607,18 @@ struct App_${name} : public StaticApp<App_${name}> {
 		${name} = 0.f;`).join("")}
 	}	
 
-	void mainloopCallback(GenDaisy& gendaisy, uint32_t t, uint32_t dt) {
+	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		// whatever handling is needed here
-		Daisy& hardware = gendaisy.hardware;
+		Daisy& hardware = daisy.hardware;
 		${daisy.cv_outs.concat(daisy.gate_outs)
 			.filter(name => nodes[name].src || nodes[name].from.length)
 			.map((name, i)=>`
 		${nodes[name].set}`).join("")}
 	}
 
-	void audioCallback(GenDaisy& gendaisy, float **hardware_ins, float **hardware_outs, size_t size) {
-		Daisy& hardware = gendaisy.hardware;
-		${name}::State& gen = *(${name}::State *)gendaisy.gen;
+	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
+		Daisy& hardware = daisy.hardware;
+		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${daisy.knobs
 			.concat(daisy.switches, daisy.keys, daisy.cv_ins, daisy.gate_ins)
 			.filter(name => nodes[name].to.length)
@@ -633,7 +633,7 @@ struct App_${name} : public StaticApp<App_${name}> {
 		${daisy.audio_outs.map((name, i)=>`
 		float * ${name} = hardware_outs[${i}];`).join("")}
 		${gloo.has_midi_in ? daisy.midi_ins.map(name=>`
-		float * ${name} = gendaisy.midi.in_data;`).join("") : ''}
+		float * ${name} = oopsy::midi.in_data;`).join("") : ''}
 		float * inputs[] = { ${gen.audio_ins.map(name=>nodes[name].src).join(", ")} }; 
 		float * outputs[] = { ${gen.audio_outs.map(name=>nodes[name].src).join(", ")} };
 		gen.perform(inputs, outputs, size);
@@ -643,12 +643,12 @@ struct App_${name} : public StaticApp<App_${name}> {
 		${name} = ${nodes[name].src};` : `
 		${name} = ${nodes[name].from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
 		${gloo.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
-		gendaisy.midi.postperform(${name}, size);`).join("")).join("") : ''}
+		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
 	}
 };`
 	gloo.cpp = {
 		union: `App_${name} app_${name};`,
-		appdef: `{"${name}", []()->void { gendaisy.reset(apps.app_${name}); } },`,
+		appdef: `{"${name}", []()->void { oopsy::daisy.reset(apps.app_${name}); } },`,
 		struct: struct,
 	}
 	return gloo
