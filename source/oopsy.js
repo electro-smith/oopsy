@@ -194,39 +194,53 @@ int main(void) {
 `
 	fs.writeFileSync(maincpp_path, cppcode, "utf-8");	
 
+	console.log("oopsy generated code")
+
 	// now try to make:
 	try {
+		try {
+			console.log(execSync("make clean", { cwd: build_path }).toString())
+			// TODO: make this cross-platform:
+			if (os.platform() == "win32") {
+				//console.log(execSync("set PATH=%PATH%;/usr/local/bin && make", { cwd: build_path }).toString())
 
-		console.log(execSync("make clean", { cwd: build_path }).toString())
-		// TODO: make this cross-platform:
-		if (os.platform() == "win32") {
-			//console.log(execSync("set PATH=%PATH%;/usr/local/bin && make", { cwd: build_path }).toString())
+				// Gather up make output to run command per line as child process
+				// TODO: fix the awful output..
+				let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
+				build_cmd.forEach(line => {
+					if (line.length > 0)
+						console.log(execSync(line, { cwd: build_path }).toString())
+				})
+			
+			} else {
+				console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
+			}
 
-			// Gather up make output to run command per line as child process
-			// TODO: fix the awful output..
-			let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
-			build_cmd.forEach(line => {
-				if (line.length > 0)
-					console.log(execSync(line, { cwd: build_path }).toString())
-			})
-		
-		} else {
-			console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
+			console.log("oopsy compiled code")
+		} catch (e) {
+			// errors from make here
+			console.error(e);
 		}
 		// if successful, try to upload to hardware:
 		if (fs.existsSync(bin_path) && action=="upload") {
-			console.log("uploading", bin_path)
+			
+			console.log("oopsy uploading", bin_path)
+			
 			if (os.platform() == "win32") {
 				console.log(execSync("set PATH=%PATH%;/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
 			} else {
 				console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' }).toString())
+				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
+				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' })
 			}
+
+			console.log("oopsy uploaded")
 		}
 	} catch (e) {
 		// errors from make here
-		console.error("make failed");
+		console.log("upload failed", e);
 	}
-	console.log("done")
+	console.log("oopsy done")
 }
 
 function analyze_cpp(cpp) {
