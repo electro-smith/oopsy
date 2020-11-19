@@ -10,31 +10,29 @@
 #include <stdarg.h> // vprintf
 
 #if defined(OOPSY_TARGET_PATCH)
-#include "daisy_patch.h"
-#define OOPSY_TARGET_HAS_OLED 1
-#define OOPSY_IO_COUNT (4)
-typedef daisy::DaisyPatch Daisy;
+	#include "daisy_patch.h"
+	#define OOPSY_IO_COUNT (4)
+	typedef daisy::DaisyPatch Daisy;
 
 #elif defined(OOPSY_TARGET_FIELD)
-#include "daisy_field.h"
-#define OOPSY_TARGET_HAS_OLED 1
-#define OOPSY_IO_COUNT (2)
-typedef daisy::DaisyField Daisy;
+	#include "daisy_field.h"
+	#define OOPSY_IO_COUNT (2)
+	typedef daisy::DaisyField Daisy;
 
 #elif defined(OOPSY_TARGET_PETAL)
-#include "daisy_petal.h"
-#define OOPSY_IO_COUNT (2)
-typedef daisy::DaisyPetal Daisy;
+	#include "daisy_petal.h"
+	#define OOPSY_IO_COUNT (2)
+	typedef daisy::DaisyPetal Daisy;
 
 #elif defined(OOPSY_TARGET_POD)
-#include "daisy_pod.h"
-#define OOPSY_IO_COUNT (2)
-typedef daisy::DaisyPod Daisy;
+	#include "daisy_pod.h"
+	#define OOPSY_IO_COUNT (2)
+	typedef daisy::DaisyPod Daisy;
 
 #else 
-#include "daisy_seed.h"
-#define OOPSY_IO_COUNT (2)
-typedef daisy::DaisySeed Daisy;
+	#include "daisy_seed.h"
+	#define OOPSY_IO_COUNT (2)
+	typedef daisy::DaisySeed Daisy;
 
 #endif
 
@@ -215,7 +213,6 @@ namespace oopsy {
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
 		
-		//Console console;
 		#ifdef OOPSY_TARGET_HAS_OLED
 		FontDef& font = Font_6x8;
 		uint_fast8_t scope_zoom = 5; 

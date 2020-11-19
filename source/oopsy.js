@@ -181,9 +181,11 @@ LDFLAGS+=-u _printf_float
 	})
 
 	let defines = Object.assign({}, hardware.defines);
-	if (apps.some(g => g.has_midi_in || g.has_midi_out)) defines.OOPSY_TARGET_USES_MIDI_UART = 1
-	if (apps.length) defines.OOPSY_MULTI_APP = 1
-
+	if (apps.some(g => (g.has_midi_in && hardware.midi_ins.length) || (g.has_midi_out && hardware.midi_outs.length))) {
+		defines.OOPSY_TARGET_USES_MIDI_UART = 1
+	}
+	if (apps.length > 1) defines.OOPSY_MULTI_APP = 1
+	if (hardware.oled) defines.OOPSY_TARGET_HAS_OLED = 1
 
 	// store for debugging:
 	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
