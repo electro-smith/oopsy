@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 78.0, 431.0, 612.0 ],
+		"rect" : [ 1213.0, 82.0, 431.0, 612.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -113,7 +113,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 397.0, 78.0, 586.0, 703.0 ],
+						"rect" : [ 739.0, 102.0, 586.0, 703.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -1989,7 +1989,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 228.5, 441.666655999999989, 98.0, 22.0 ],
+									"patching_rect" : [ 372.5, 451.666655999999989, 98.0, 22.0 ],
 									"text" : "param decay 0.5"
 								}
 

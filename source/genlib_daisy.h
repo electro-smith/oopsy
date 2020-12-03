@@ -519,7 +519,7 @@ namespace oopsy {
 		}
 
 		#ifdef OOPSY_TARGET_HAS_OLED
-		int scope_samples() {
+		inline int scope_samples() {
 			// valid zoom sizes: 1, 2, 3, 4, 6, 8, 12, 16, 24
 			switch(scope_zoom) {
 				case 1: case 2: case 3: case 4: return scope_zoom; break;
