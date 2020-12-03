@@ -215,7 +215,7 @@ namespace oopsy {
 
 		int mode, mode_default;
 		int app_count = 1, app_selected = 0, app_selecting = 0;
-		int menu_button_held = 0, menu_button_held_ms = 0, menu_button_released = 0, menu_button_incr = 0;
+		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
 
 		uint32_t t = 0, dt = 10;
@@ -233,14 +233,31 @@ namespace oopsy {
 		bool nullAudioCallbackRunning = false;
 		
 		#ifdef OOPSY_TARGET_HAS_OLED
+
+		enum {
+			SCOPESTYLE_OVERLAY = 0,
+			SCOPESTYLE_TOPBOTTOM,
+			SCOPESTYLE_LEFTRIGHT,
+			SCOPESTYLE_LISSAJOUS,
+			SCOPESTYLE_COUNT
+		} ScopeStyles;
+
+		enum {
+			SCOPEOPTION_STYLE = 0,
+			SCOPEOPTION_SOURCE,
+			SCOPEOPTION_ZOOM,
+			SCOPEOPTION_COUNT
+		} ScopeOptions;
+		
 		FontDef& font = Font_6x8;
 		uint_fast8_t scope_zoom = 5; 
-		uint_fast8_t scope_step = 0;
+		uint_fast8_t scope_step = 0; 
+		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = 0;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
 		char * console_memory;
 		char ** console_lines;
-		float scope_data[SSD1309_WIDTH*2]; // 128 pixels
+		float scope_data[SSD1309_WIDTH*2][2]; // 128 pixels
 		char scope_label[11];
 		#endif // OOPSY_TARGET_HAS_OLED
 
@@ -383,12 +400,18 @@ namespace oopsy {
 					#endif // OOPSY_MULTI_APP
 					#ifdef OOPSY_TARGET_HAS_OLED
 					} else if (mode == MODE_SCOPE) {
-						if (menu_button_incr > 0) {
-							scope_zoom = scope_zoom + 1;
-							if (scope_zoom > OOPSY_SCOPE_MAX_ZOOM) scope_zoom = 1;
-						} else if (menu_button_incr < 0) {
-							scope_zoom = scope_zoom - 1;
-							if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
+						switch (scope_option) {
+							case SCOPEOPTION_STYLE: {
+								scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
+							} break;
+							case SCOPEOPTION_SOURCE: {
+								if (menu_button_incr) scope_source = !scope_source;
+							} break;
+							case SCOPEOPTION_ZOOM: {
+								scope_zoom = (scope_zoom + menu_button_incr);
+								if (scope_zoom > OOPSY_SCOPE_MAX_ZOOM) scope_zoom = 1;
+								if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
+							} break;
 						}
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
@@ -405,6 +428,10 @@ namespace oopsy {
 								appdefs[app_selected].load();
 								mode = mode_default;
 							}
+						#endif
+						#ifdef OOPSY_TARGET_HAS_OLED
+						} else if (mode == MODE_SCOPE) {
+							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
 						#endif
 						}
 					} 
@@ -427,19 +454,74 @@ namespace oopsy {
 						} break;
 						#endif //OOPSY_MULTI_APP
 						case MODE_SCOPE: {
-							uint8_t h = SSD1309_HEIGHT - font.FontHeight;
-							hardware.display.Fill(false);
-							for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-								int j = i*2;
-								hardware.display.DrawLine(i, (1.f-scope_data[j])*(h/2), i, (1.f-scope_data[j+1])*(h/2), 1);
-							}
+							uint8_t h = SSD1309_HEIGHT;
+							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
+							uint8_t h2 = h/2, h4 = h/4;
 							size_t samples = scope_samples();
-							// each pixel is zoom samples; zoom/samplerate seconds
-							float scope_duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
-							snprintf(scope_label, 10, "%dx=%dms", samples, (int)ceilf(scope_duration));
-							hardware.display.SetCursor(SSD1309_WIDTH - font.FontWidth*strlen(scope_label), h);
-							hardware.display.WriteString(scope_label, font, true);
+							hardware.display.Fill(false);
 
+							// stereo views:
+							switch (scope_style) {
+							case SCOPESTYLE_OVERLAY: {
+								// stereo overlay:
+								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
+								}
+							} break;
+							case SCOPESTYLE_TOPBOTTOM:
+							{
+								// stereo top-bottom
+								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
+									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
+								}
+							} break;
+							case SCOPESTYLE_LEFTRIGHT:
+							{
+								// stereo L/R:
+								samples /= 2;
+								for (uint_fast8_t i=0; i<w2; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+									hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
+								}
+							} break;
+							default:
+							{
+								// stereo lissajous:
+								samples /= 2;
+
+								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(
+										w2 + h2*scope_data[j][0],
+										h2 + h2*scope_data[j][1],
+										w2 + h2*scope_data[j+1][0],
+										h2 + h2*scope_data[j+1][1],
+										1
+									);
+								}
+							} break;
+							} // switch
+
+							// labelling:
+							switch (scope_option) {
+								case SCOPEOPTION_SOURCE: {
+									hardware.display.SetCursor(0, h - font.FontHeight);
+									hardware.display.WriteString(scope_source ? "inputs" : "outputs", font, true);
+								} break;
+								case SCOPEOPTION_ZOOM: {
+									// each pixel is zoom samples; zoom/samplerate seconds
+									float scope_duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
+									int offset = snprintf(scope_label, console_cols, "%dx %dms", samples, (int)ceilf(scope_duration));
+									hardware.display.SetCursor(0, h - font.FontHeight);
+									hardware.display.WriteString(scope_label, font, true);
+								} break;
+								// for view style, just leave it blank :-)
+							}
 						} break;
 						case MODE_CONSOLE: 
 						{
@@ -469,15 +551,14 @@ namespace oopsy {
 					if (mode != MODE_MENU) 
 					#endif //OOPSY_MULTI_APP
 					{
-						// status bar
 						int offset = 0;
-						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
-						offset += snprintf(console_stats+offset, console_cols-offset, " %cM%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
+						offset += snprintf(console_stats+offset, console_cols-offset, "%cM%c ", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
 						midi.in_active = midi.out_active = 0;
 						#endif
+						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
 						// stats:
-						hardware.display.SetCursor(0, font.FontHeight * console_rows);
+						hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 						hardware.display.WriteString(console_stats, font, true);
 					}
 					hardware.display.Update();
@@ -517,6 +598,7 @@ namespace oopsy {
 			menu_button_held = hardware.tap_.Pressed();
 			menu_button_incr += hardware.GetKnobValue(6) * app_count;
 			menu_button_held_ms = hardware.tap_.TimeHeldMs();
+			if (hardware.tap_.FallingEdge()) menu_button_released = 1;
 			#else
 			menu_button_held = hardware.encoder.Pressed();
 			menu_button_incr += hardware.encoder.Increment();
@@ -529,19 +611,25 @@ namespace oopsy {
 			#ifdef OOPSY_TARGET_HAS_OLED
 			if (mode == MODE_SCOPE) {
 				// TODO: add selector for scope storage source:
-				float * buf = hardware_outs[0];
+				float * buf0 = scope_source ? hardware_ins[0] : hardware_outs[0];
+				float * buf1 = scope_source ? hardware_ins[1] : hardware_outs[1];
 				size_t samples = scope_samples();
 				for (size_t i=0; i<size/samples; i++) {
-					float min0 = 1.f, max0 = -1.f;
-					float min1 = 1.f, max1 = -1.f;
+					float min0 = 10.f, max0 = -10.f;
+					float min1 = 10.f, max1 = -10.f;
 					for (size_t j=0; j<samples; j++) {
-						float pt0 = *buf++;
+						float pt0 = *buf0++;
+						float pt1 = *buf1++;
 						min0 = min0 > pt0 ? pt0 : min0;
 						max0 = max0 < pt0 ? pt0 : max0;
+						min1 = min1 > pt1 ? pt1 : min1;
+						max1 = max1 < pt1 ? pt1 : max1;
 					}
-					scope_data[scope_step] = (min0);
+					scope_data[scope_step][0] = (min0);
+					scope_data[scope_step][1] = (min1);
 					scope_step++;
-					scope_data[scope_step] = (max0); 
+					scope_data[scope_step][0] = (max0); 
+					scope_data[scope_step][1] = (min1);
 					scope_step++;
 					if (scope_step >= SSD1309_WIDTH*2) scope_step = 0;
 				}
