@@ -40,18 +40,6 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-1",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 2,
-					"outlettype" : [ "float", "bang" ],
-					"patching_rect" : [ 220.0, 360.0, 139.0, 22.0 ],
-					"text" : "buffer~ leds @samps 24"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"args" : [ "@target", "field" ],
 					"bgmode" : 0,
 					"border" : 0,
@@ -170,12 +158,12 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-40",
-									"linecount" : 2,
+									"linecount" : 4,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 876.0, 216.0, 182.0, 33.0 ],
-									"text" : "Quick demo of using [data leds] to update the LED buttons"
+									"patching_rect" : [ 876.0, 216.0, 194.0, 60.0 ],
+									"text" : "Quick demo of using [data leds] to update the LED buttons\n\nValues should be between 0 and 1"
 								}
 
 							}

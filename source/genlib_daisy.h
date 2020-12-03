@@ -170,6 +170,19 @@ namespace oopsy {
 			}
 		}
 
+		// void fromData(Data& data) {
+		// 	// this might need a reset:
+		// 	static long data_read = 0;
+		// 	while (out_written < OOPSY_MIDI_BUFFER_SIZE) {
+		// 		double b = data.mData[data_read];
+		// 		if (b < 0.) break;
+
+		// 		out_data[out_written++] = b * 256.0;
+		// 		out_active = 1;
+		// 		data_read++; if (data_read >= data.dim) data_read = 0;
+		// 	}
+		// }
+
 		void mainloop() {
 			// input:
 			while(uart.Readable()) {
@@ -541,7 +554,11 @@ namespace oopsy {
 		#if (OOPSY_TARGET_FIELD)
 		void setFieldLedsFromData(Data& data) {
 			for(long i = 0; i < daisy::DaisyField::LED_LAST && i < data.dim; i++) {
-				hardware.led_driver_.SetLed(i, data.mData[i]);
+				// LED indices run A1..8, B8..1, Knob1..8
+				// switch here to re-order the B8-1 to B1-8
+				long idx=i;
+				if (idx > 7 && idx < 16) idx = 23-i;
+				hardware.led_driver_.SetLed(idx, data.mData[i]);
 			}
 			hardware.led_driver_.SwapBuffersAndTransmit();
 		};
