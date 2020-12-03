@@ -365,11 +365,21 @@ function generate_daisy(hardware, nodes, target) {
 		}),
 
 		// DEVICE OUTPUTS:
-		gpio_outs: Object.keys(hardware.setters).map(v => {
-			let name = v
+		gpio_outs: Object.keys(hardware.setters).map(name => {
 			nodes[name] = {
+				name: name,
+				setter: hardware.setters[name],
 				from: [],
-				set: interpolate(hardware.setters[v], {name: name})
+			}
+			return name;
+		}),
+
+		// DEVICE OUTPUTS:
+		mainhandlers: Object.keys(hardware.mainhandlers).map(name => {
+			nodes[name] = {
+				name: name,
+				setter: hardware.mainhandlers[name],
+				data: null,
 			}
 			return name;
 		}),
@@ -381,6 +391,7 @@ function generate_app(app, hardware, target) {
 	const nodes = {}
 	const daisy = generate_daisy(hardware, nodes, target);
 	const gen = {}
+	const name = app.patch.name;
 
 	app.audio_outs = []
 	app.has_midi_in = false
@@ -497,14 +508,30 @@ function generate_app(app, hardware, target) {
 
 	gen.datas = app.patch.datas.map((param, i)=>{
 		const varname = "gen_data_"+param.name;
+		let src, label;
+		// search for a matching [out] name / prefix:
+		Object.keys(hardware.labels.datas).sort().forEach(k => {
+			let match
+			if (match = new RegExp(`^${k}_?(.+)?`).exec(param.name)) {
+				src = hardware.labels.datas[k];
+				label = match[1] || param.name
+			}
+		})
+
 		let node = Object.assign({
 			varname: varname,
 			label: param.name,
 		}, param);
 		nodes[varname] = node;
+
+		if (src) {
+			nodes[src].data = "gen." + param.cname;
+			//nodes[src].to.push(varname)
+			//nodes[src].from.push(src);
+		}
+
 		return varname;
 	})
-	
 
 	// fill all my holes
 	// map unused cvs/knobs to unmapped params
@@ -552,7 +579,6 @@ function generate_app(app, hardware, target) {
 		})
 	}
 
-	const name = app.patch.name;
 	const struct = `
 
 struct App_${name} : public oopsy::App<App_${name}> {
@@ -576,10 +602,15 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		// whatever handling is needed here
 		Daisy& hardware = daisy.hardware;
+		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${daisy.gpio_outs
 			.filter(name => nodes[name].src || nodes[name].from.length)
 			.map((name, i)=>`
-		${nodes[name].set};`).join("")}
+		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
+		${daisy.mainhandlers
+			.filter(name => nodes[name].data)
+			.map(name =>`
+		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {

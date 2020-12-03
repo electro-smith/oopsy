@@ -15,7 +15,8 @@
 		},
 		"outs": {
 
-		}
+		},
+		"datas": {}
 	},
 	"getters": {
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
@@ -23,8 +24,8 @@
 		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
 		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)"
 	},
-	"setters": {
-	},
+	"setters": {},
+    "mainhandlers": {},
 	"audio_ins": [
       "dsy_in1",
       "dsy_in2"

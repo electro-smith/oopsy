@@ -65,6 +65,9 @@
 			"cv2": "dsy_cv_out2",
 			"gate": "dsy_gate_out1",
 			"gate1": "dsy_gate_out1"
+		},
+		"datas": {
+			"leds": "dsy_leds"
 		}
 	},
 	"getters": {
@@ -104,6 +107,9 @@
 		"dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
 		"dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
 		"dsy_gate_out1": "dsy_gpio_write(&hardware.gate_out_, $<name> > 0.f)"
+	},
+	"mainhandlers": {
+		"dsy_leds": "daisy.setFieldLedsFromData($<data>)"
 	},
 	"audio_ins": [
       "dsy_in1",

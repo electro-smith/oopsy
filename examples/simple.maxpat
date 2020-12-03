@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 1837.0, 80.0, 640.0, 480.0 ],
+		"rect" : [ 1006.0, 80.0, 640.0, 480.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,24 +40,20 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-5",
-					"maxclass" : "comment",
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 125.0, 152.0, 186.0, 20.0 ],
-					"text" : "Audio must be enabled for export"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-3",
-					"maxclass" : "message",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 125.0, 193.0, 68.0, 22.0 ],
-					"text" : "exportcode"
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 108.5, 111.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
 				}
 
 			}
@@ -79,7 +75,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 2843.0, 312.0, 600.0, 450.0 ],
+						"rect" : [ 1046.0, 312.0, 600.0, 450.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -108,6 +104,18 @@
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-3",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 2,
+									"outlettype" : [ "", "" ],
+									"patching_rect" : [ 164.0, 51.0, 74.0, 22.0 ],
+									"text" : "data leds 24"
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"id" : "obj-13",
 									"maxclass" : "newobj",
@@ -341,27 +349,51 @@
  ]
 					}
 ,
-					"patching_rect" : [ 125.0, 233.0, 108.0, 22.0 ],
+					"patching_rect" : [ 24.0, 261.0, 39.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
 						"exportname" : "simple"
 					}
 ,
-					"text" : "gen~ @title simple",
+					"text" : "gen~",
 					"varname" : "simple"
 				}
 
 			}
  ],
-		"lines" : [ 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-3", 0 ]
-				}
+		"lines" : [  ],
+		"parameters" : 		{
+			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
+			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"parameterbanks" : 			{
 
 			}
+,
+			"inherited_shortname" : 1
+		}
+,
+		"dependency_cache" : [ 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
  ],
-		"dependency_cache" : [  ],
 		"autosave" : 0
 	}
 

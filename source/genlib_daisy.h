@@ -3,6 +3,7 @@
 
 #include "daisy.h"
 #include "genlib.h"
+#include "genlib_ops.h"
 #include "genlib_exportfunctions.h"
 #include <math.h>
 #include <string>
@@ -35,7 +36,6 @@
 	typedef daisy::DaisySeed Daisy;
 
 #endif
-
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
@@ -537,6 +537,15 @@ namespace oopsy {
 			#endif
 			return *this;
 		}
+
+		#if (OOPSY_TARGET_FIELD)
+		void setFieldLedsFromData(Data& data) {
+			for(long i = 0; i < daisy::DaisyField::LED_LAST && i < data.dim; i++) {
+				hardware.led_driver_.SetLed(i, data.mData[i]);
+			}
+			hardware.led_driver_.SwapBuffersAndTransmit();
+		};
+		#endif
 
 		static void nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size);
 		

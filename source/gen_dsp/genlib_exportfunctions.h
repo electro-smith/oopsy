@@ -34,7 +34,7 @@ void genlib_sysmem_copyptr(const void *src, void *dst, t_ptr_size bytes);
 void genlib_report_error(const char *s);
 void genlib_report_message(const char *s);
 void genlib_set_zero64(t_sample *mem, long size);
-
+unsigned long genlib_ticks();
 void genlib_init();
 void genlib_info();
 

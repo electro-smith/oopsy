@@ -18,7 +18,8 @@
         "cv2": "dsy_cv_out2",
         "gate": "dsy_gate_out1",
         "gate1": "dsy_gate_out1"
-      }
+      },
+      "datas": {}
     },
     "getters": {
       "dsy_cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
@@ -33,6 +34,7 @@
       "dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
       "dsy_gate_out1": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
     },
+    "mainhandlers": {},
     "audio_ins": [
       "dsy_in1",
       "dsy_in2",

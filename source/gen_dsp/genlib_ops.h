@@ -24,6 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #ifndef GENLIB_OPS_H
 #define GENLIB_OPS_H 1
 
+#include "genlib_exportfunctions.h"
+
 #ifndef MSP_ON_CLANG
 #	include <cmath>
 #endif
@@ -94,6 +96,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif // GENLIB_USE_FLOAT32
 
 #define GENLIB_QUANT(f1,f2)			t_sample(floor((f1)*(f2)+0.5)/(f2))
+
 
 inline t_sample genlib_isnan(t_sample v) { return GENLIB_IS_NAN(v); }
 inline t_sample fixnan(t_sample v) { return GENLIB_FIX_NAN(v); }
