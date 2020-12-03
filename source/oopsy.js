@@ -82,7 +82,8 @@ function run() {
 			case "pod":
 			case "field":
 			case "petal":
-			case "patch": {target = arg;} break;
+			case "patch": 
+			case "versio": {target = arg;} break;
 			case "watch": watch=true; break;
 
 			default: {
@@ -128,15 +129,12 @@ function run() {
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
-	if (!hardware.keys) hardware.keys = []
-	if (!hardware.knobs) hardware.knobs = []
-	if (!hardware.switches) hardware.switches = []
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
-	if (cpps.length > 8) {
-		console.log("maximum 8 apps supported currently")
-		cpps.length = 8;
+	if (hardware.max_apps && cpps.length > hardware.max_apps) {
+		console.log(`this target does not support more than ${hardwre.max_apps} apps`)
+		cpps.length = hardware.max_apps
 	}
 	let apps = cpps.map(cpp_path => {
 		assert(fs.existsSync(cpp_path), `couldn't find source C++ file ${cpp_path}`);

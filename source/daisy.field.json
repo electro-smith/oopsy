@@ -1,5 +1,6 @@
 {
-    "defines": {
+    "max_apps":8,
+	"defines": {
 		"OOPSY_TARGET_FIELD": 1
 	},
 	"labels": {

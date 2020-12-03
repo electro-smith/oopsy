@@ -20,8 +20,8 @@
 	#define OOPSY_IO_COUNT (2)
 	typedef daisy::DaisyField Daisy;
 
-#elif defined(OOPSY_TARGET_PETAL)
-	#include "daisy_petal.h"
+#elif defined(OOPSY_TARGET_menu_button_incr)
+	#include "daisy_menu_button_incr.h"
 	#define OOPSY_IO_COUNT (2)
 	typedef daisy::DaisyPetal Daisy;
 
@@ -29,6 +29,11 @@
 	#include "daisy_pod.h"
 	#define OOPSY_IO_COUNT (2)
 	typedef daisy::DaisyPod Daisy;
+
+#elif defined(OOPSY_TARGET_VERSIO)
+	#include "daisy_versio.h"
+	#define OOPSY_IO_COUNT (2)
+	typedef daisy::DaisyVersio Daisy;
 
 #else 
 	#include "daisy_seed.h"
@@ -210,7 +215,7 @@ namespace oopsy {
 
 		int mode, mode_default;
 		int app_count = 1, app_selected = 0, app_selecting = 0;
-		int encoder_held = 0, encoder_held_ms = 0, encoder_released = 0, encoder_incr = 0;
+		int menu_button_held = 0, menu_button_held_ms = 0, menu_button_released = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
 
 		uint32_t t = 0, dt = 10;
@@ -319,17 +324,15 @@ namespace oopsy {
 					mainloopCallback(t, dt);
 
 					#ifdef OOPSY_TARGET_PETAL 
-					// petal has no mode selection
+					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
 					// multi-app petal is always in menu mode:
 					mode = MODE_MENU;
 					#endif
-					// blink = !blink;
-					// hardware.SetFootswitchLed((daisy::DaisyPetal::FootswitchLed)0, blink);
-
+					
 					for(int i = 0; i < 8; i++) {
-						float white = (i == app_selecting || encoder_released);
+						float white = (i == app_selecting || menu_button_released);
 						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
 							(i == app_selected || white) * 1.f,
 							white * 1.f,
@@ -338,7 +341,25 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_PETAL
 
-					if (encoder_held_ms > OOPSY_LONG_PRESS_MS) {
+					#ifdef OOPSY_TARGET_VERSIO
+					// has no mode selection
+					is_mode_selecting = 0;
+					#if defined(OOPSY_MULTI_APP)
+					// multi-app petal is always in menu mode:
+					mode = MODE_MENU;
+					#endif
+					
+					for(int i = 0; i < 4; i++) {
+						float white = (i == app_selecting || menu_button_released);
+						hardware.SetLed(i, 
+							(i == app_selected || white) * 1.f,
+							white * 1.f,
+							(i < app_count) * 0.3f + white * 1.f
+						);
+					}
+					#endif //OOPSY_TARGET_VERSIO
+
+					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
 						// LONG PRESS
 						#ifndef OOPSY_TARGET_PETAL
 						is_mode_selecting = 1;
@@ -347,30 +368,34 @@ namespace oopsy {
 			
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {
-						mode += encoder_incr;
+						mode += menu_button_incr;
 						if (mode >= MODE_COUNT) mode = 1;
 						if (mode < 1) mode = MODE_COUNT-1;	
 					#ifdef OOPSY_MULTI_APP
 					} else if (mode == MODE_MENU) {
-						app_selecting += encoder_incr;
+						#ifdef OOPSY_TARGET_VERSIO
+						app_selecting = menu_button_incr;
+						#else
+						app_selecting += menu_button_incr;
+						#endif
 						if (app_selecting >= app_count) app_selecting -= app_count;
 						if (app_selecting < 0) app_selecting += app_count;
 					#endif // OOPSY_MULTI_APP
 					#ifdef OOPSY_TARGET_HAS_OLED
 					} else if (mode == MODE_SCOPE) {
-						if (encoder_incr > 0) {
+						if (menu_button_incr > 0) {
 							scope_zoom = scope_zoom + 1;
 							if (scope_zoom > OOPSY_SCOPE_MAX_ZOOM) scope_zoom = 1;
-						} else if (encoder_incr < 0) {
+						} else if (menu_button_incr < 0) {
 							scope_zoom = scope_zoom - 1;
 							if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
 						}
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
-					encoder_incr = 0;
+					menu_button_incr = 0;
 
 					// SHORT PRESS	
-					if (encoder_released) {
+					if (menu_button_released) {
 						if (is_mode_selecting) {
 							is_mode_selecting = 0;
 						#ifdef OOPSY_MULTI_APP
@@ -383,7 +408,7 @@ namespace oopsy {
 						#endif
 						}
 					} 
-					encoder_released = 0;
+					menu_button_released = 0;
 
 					switch(mode) {
 						#ifdef OOPSY_TARGET_HAS_OLED
@@ -458,9 +483,9 @@ namespace oopsy {
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
 
-					#ifdef OOPSY_TARGET_PETAL
+					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 					hardware.UpdateLeds();
-					#endif //OOPSY_TARGET_PETAL
+					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 
 					
 				} // uitimer.ready
@@ -473,24 +498,30 @@ namespace oopsy {
 			midi.preperform(size);
 			#endif
 
-			#if (OOPSY_TARGET_FIELD)
-			hardware.ProcessAnalogControls();
-			hardware.UpdateDigitalControls();
+			#if (OOPSY_TARGET_FIELD || OOPSY_TARGET_VERSIO)
+				hardware.ProcessAnalogControls();
+				#if OOPSY_TARGET_FIELD
+				hardware.UpdateDigitalControls();
+				#endif
 			#else
-			hardware.DebounceControls();
-			hardware.UpdateAnalogControls();
+				hardware.DebounceControls();
+				hardware.UpdateAnalogControls();
 			#endif
 
 			#ifdef OOPSY_TARGET_FIELD
-			encoder_held = hardware.GetSwitch(0)->Pressed();
-			encoder_incr += hardware.GetSwitch(1)->FallingEdge();
-			encoder_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
-			if (hardware.GetSwitch(0)->FallingEdge()) encoder_released = 1;
+			menu_button_held = hardware.GetSwitch(0)->Pressed();
+			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
+			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
+			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
+			#elif OOPSY_TARGET_VERSIO
+			menu_button_held = hardware.tap_.Pressed();
+			menu_button_incr += hardware.GetKnobValue(6) * app_count;
+			menu_button_held_ms = hardware.tap_.TimeHeldMs();
 			#else
-			encoder_held = hardware.encoder.Pressed();
-			encoder_incr += hardware.encoder.Increment();
-			encoder_held_ms = hardware.encoder.TimeHeldMs();
-			if (hardware.encoder.FallingEdge()) encoder_released = 1;
+			menu_button_held = hardware.encoder.Pressed();
+			menu_button_incr += hardware.encoder.Increment();
+			menu_button_held_ms = hardware.encoder.TimeHeldMs();
+			if (hardware.encoder.FallingEdge()) menu_button_released = 1;
 			#endif
 		}
 

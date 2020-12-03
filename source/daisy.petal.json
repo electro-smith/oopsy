@@ -1,5 +1,6 @@
 {
-    "defines": {
+    "max_apps":8,
+	"defines": {
 		"OOPSY_TARGET_PETAL": 1
 	},
 	"labels": {
@@ -17,7 +18,7 @@
 			"sw5": "dsy_switch5",
 			"sw6": "dsy_switch6",
 			"sw7": "dsy_switch7",
-			
+
 			"ctrl1": "dsy_knob1",
 			"ctrl2": "dsy_knob2",
 			"ctrl3": "dsy_knob3",
