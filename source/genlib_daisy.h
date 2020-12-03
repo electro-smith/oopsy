@@ -20,8 +20,8 @@
 	#define OOPSY_IO_COUNT (2)
 	typedef daisy::DaisyField Daisy;
 
-#elif defined(OOPSY_TARGET_menu_button_incr)
-	#include "daisy_menu_button_incr.h"
+#elif defined(OOPSY_TARGET_PETAL)
+	#include "daisy_petal.h"
 	#define OOPSY_IO_COUNT (2)
 	typedef daisy::DaisyPetal Daisy;
 
