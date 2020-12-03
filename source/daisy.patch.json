@@ -4,20 +4,28 @@
     },
     "labels": {
       "params": {
-        "cv": "dsy_cv_in1",
         "cv1": "dsy_cv_in1",
         "cv2": "dsy_cv_in2",
         "cv3": "dsy_cv_in3",
         "cv4": "dsy_cv_in4",
-        "gate": "dsy_gate_in1",
-        "gate1": "dsy_gate_in1"
+        "gate1": "dsy_gate_in1",
+
+        "cv": "dsy_cv_in1",
+        "ctrl": "dsy_cv_in1",
+        "ctrl1": "dsy_cv_in1",
+        "ctrl2": "dsy_cv_in2",
+        "ctrl3": "dsy_cv_in3",
+        "ctrl4": "dsy_cv_in4",
+        "gate": "dsy_gate_in1"
       },
       "outs": {
-        "cv": "dsy_cv_out1",
         "cv1": "dsy_cv_out1",
         "cv2": "dsy_cv_out2",
-        "gate": "dsy_gate_out1",
-        "gate1": "dsy_gate_out1"
+        "gate1": "dsy_gate_out1",
+
+        "cv": "dsy_cv_out1",
+        "gate": "dsy_gate_out1"
+
       },
       "datas": {}
     },

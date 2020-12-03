@@ -4,14 +4,26 @@
 	},
 	"labels": {
 		"params": {
-			"knob": "dsy_knob1",
 			"knob1": "dsy_knob1",
 			"knob2": "dsy_knob2",
 			"knob3": "dsy_knob3",
 			"knob4": "dsy_knob4",
 			"knob5": "dsy_knob5",
 			"knob6": "dsy_knob6",
-			"switch": "dsy_switch1",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2",
+			"sw3": "dsy_switch3",
+			"sw4": "dsy_switch4",
+			"sw5": "dsy_switch5",
+			"sw6": "dsy_switch6",
+			"sw7": "dsy_switch7",
+			
+			"ctrl1": "dsy_knob1",
+			"ctrl2": "dsy_knob2",
+			"ctrl3": "dsy_knob3",
+			"ctrl4": "dsy_knob4",
+			"ctrl5": "dsy_knob5",
+			"ctrl6": "dsy_knob6",
 			"switch1": "dsy_switch1",
 			"switch2": "dsy_switch2",
 			"switch3": "dsy_switch3",
@@ -19,13 +31,9 @@
 			"switch5": "dsy_switch5",
 			"switch6": "dsy_switch6",
 			"switch7": "dsy_switch7",
-			"sw1": "dsy_switch1",
-			"sw2": "dsy_switch2",
-			"sw3": "dsy_switch3",
-			"sw4": "dsy_switch4",
-			"sw5": "dsy_switch5",
-			"sw6": "dsy_switch6",
-			"sw7": "dsy_switch7"
+			"knob": "dsy_knob1",
+			"ctrl": "dsy_knob1",
+			"switch": "dsy_switch1"
 		},
 		"outs": {
 

@@ -4,14 +4,18 @@
 	},
 	"labels": {
 		"params": {
-			"knob": "dsy_knob1",
 			"knob1": "dsy_knob1",
 			"knob2": "dsy_knob2",
-			"switch": "dsy_switch1",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2",
+
+			"ctrl1": "dsy_knob1",
+			"ctrl2": "dsy_knob2",
 			"switch1": "dsy_switch1",
 			"switch2": "dsy_switch2",
-			"sw1": "dsy_switch1",
-			"sw2": "dsy_switch2"
+			"knob": "dsy_knob1",
+			"ctrl": "dsy_knob1",
+			"switch": "dsy_switch1"
 		},
 		"outs": {
 
