@@ -1,0 +1,62 @@
+{
+    "defines": {
+		"OOPSY_TARGET_VERSIO": 1
+	},
+	"labels": {
+		"params": {
+			"knob1": "dsy_knob1",
+			"knob2": "dsy_knob2",
+			"knob3": "dsy_knob3",
+			"knob4": "dsy_knob4",
+			"knob5": "dsy_knob5",
+			"knob6": "dsy_knob6",
+			"knob7": "dsy_knob7",
+			"sw1": "dsy_switch1",
+			"gate1": "dsy_gate_in1",
+
+			"ctrl1": "dsy_knob1",
+			"ctrl2": "dsy_knob2",
+			"ctrl3": "dsy_knob3",
+			"ctrl4": "dsy_knob4",
+			"ctrl5": "dsy_knob5",
+			"ctrl6": "dsy_knob6",
+			"switch1": "dsy_switch1",
+
+			"knob": "dsy_knob1",
+			"ctrl": "dsy_knob1",
+			"switch": "dsy_switch1",
+			"gate": "dsy_gate_in1"
+		},
+		"outs": {
+
+		},
+		"datas": {}
+	},
+	"getters": {
+		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_0)",
+		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_3)",
+		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_4)",
+		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_5)",
+		"dsy_knob7": "hardware.GetKnobValue(hardware.KNOB_6)",
+		"dsy_switch1": "(hardware.SwitchPressed()?1.f:0.f)",
+		"dsy_gate_in1": "(hardware.Gate()?1.f:0.f)"
+	},
+	"setters": {},
+    "mainhandlers": {},
+	"audio_ins": [
+      "dsy_in1",
+      "dsy_in2",
+      "dsy_in3",
+      "dsy_in4"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2",
+      "dsy_out3",
+      "dsy_out4"
+    ],
+    "midi_ins": [],
+    "midi_outs": []
+}
