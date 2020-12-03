@@ -511,7 +511,7 @@ namespace oopsy {
 							switch (scope_option) {
 								case SCOPEOPTION_SOURCE: {
 									hardware.display.SetCursor(0, h - font.FontHeight);
-									hardware.display.WriteString(scope_source ? "inputs" : "outputs", font, true);
+									hardware.display.WriteString(scope_source ? "in1 in2" : "out1 out2", font, true);
 								} break;
 								case SCOPEOPTION_ZOOM: {
 									// each pixel is zoom samples; zoom/samplerate seconds
@@ -629,7 +629,7 @@ namespace oopsy {
 					scope_data[scope_step][1] = (min1);
 					scope_step++;
 					scope_data[scope_step][0] = (max0); 
-					scope_data[scope_step][1] = (min1);
+					scope_data[scope_step][1] = (max1);
 					scope_step++;
 					if (scope_step >= SSD1309_WIDTH*2) scope_step = 0;
 				}
