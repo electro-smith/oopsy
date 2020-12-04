@@ -24,4 +24,3 @@ Memory allocation for the exported gen~ code happens only when an app is loaded.
 Oopsy uses two pre-allocated blocks of memory, a smaller one in SRAM (around 500Kb) and a larger one in SDRAM (64Mb). Both memory blocks are reset when an app is loaded, so that each gen~ has the full blocks available. Generally SRAM seems to offer faster access, so allocations go to this block if they will fit, which is the case for most gen~ patchers and gen~ operators. Only `data` and `delay` operators with large contents that do not fit in SRAM will use the SDRAM block.
 
 The Daisy offers 128k for code size. Initial testing showed that multiple apps have very limited impact on code size. 
-
