@@ -14,7 +14,7 @@ function bang() {
 function configure(doExport) {
 	var pat = this.patcher.parentpatcher;
 	if (!pat.filepath) {
-		error("patcher needs to be saved first\n");
+		error("oopsy: your patcher needs to be saved first\n");
 		pat.message("write");
 		return false;
 	}
