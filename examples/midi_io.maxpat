@@ -3030,7 +3030,7 @@
 									"numoutlets" : 25,
 									"outlettype" : [ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ],
 									"patching_rect" : [ 55.0, 185.0, 271.0, 22.0 ],
-									"text" : "gen2daisy.midiparse"
+									"text" : "oopsy.midi.parse"
 								}
 
 							}
@@ -3422,7 +3422,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 508.0, 185.0, 166.0, 22.0 ],
-									"text" : "gen2daisy.midiformat"
+									"text" : "oopsy.midi.format"
 								}
 
 							}
@@ -3697,14 +3697,14 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "gen2daisy.midiparse.gendsp",
+				"name" : "oopsy.midi.format.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
-				"name" : "gen2daisy.midiformat.gendsp",
+				"name" : "oopsy.midi.parse.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",

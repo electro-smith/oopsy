@@ -140,6 +140,7 @@ namespace oopsy {
 		#ifdef OOPSY_TARGET_HAS_OLED
 		MODE_CONSOLE,
 		MODE_SCOPE,
+		//MODE_PARAMS,
 		#endif
 
 		MODE_COUNT
@@ -276,7 +277,7 @@ namespace oopsy {
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
-			log("loaded %s", appdefs[app_selected].name);
+			log("loaded gen~ %s", appdefs[app_selected].name);
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
 		}
 
@@ -293,7 +294,7 @@ namespace oopsy {
 			
 			#ifdef OOPSY_TARGET_HAS_OLED
 			console_cols = SSD1309_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
-			console_rows = SSD1309_HEIGHT / font.FontHeight - 1; // leave one row free for stats
+			console_rows = SSD1309_HEIGHT / font.FontHeight; 
 			console_memory = (char *)calloc(console_cols, console_rows);
 			console_stats = (char *)calloc(console_cols, 1);
 			for (int i=0; i<console_rows; i++) {
