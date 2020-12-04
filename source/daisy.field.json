@@ -113,12 +113,12 @@
 		"dsy_cv_in2": "hardware.GetCvValue(1)",
 		"dsy_cv_in3": "hardware.GetCvValue(2)",
 		"dsy_cv_in4": "hardware.GetCvValue(3)",
-		"dsy_gate_in1": "(hardware.gate_in_.State()?1.f:0.f)"
+		"dsy_gate_in1": "(hardware.gate_in.State()?1.f:0.f)"
 	},
 	"setters": {
 		"dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
 		"dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
-		"dsy_gate_out1": "dsy_gpio_write(&hardware.gate_out_, $<name> > 0.f)"
+		"dsy_gate_out1": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
 	},
 	"mainhandlers": {
 		"dsy_leds": "daisy.setFieldLedsFromData($<data>)"
