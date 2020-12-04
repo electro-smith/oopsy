@@ -7,3 +7,5 @@ examples/*.cpp
 examples/*.h
 help/*.cpp
 help/*.h
+templates/*.cpp
+templates/*.h
