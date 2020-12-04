@@ -582,6 +582,7 @@ namespace oopsy {
 			midi.preperform(size);
 			#endif
 
+            /*
 			#if (OOPSY_TARGET_FIELD || OOPSY_TARGET_VERSIO)
 				hardware.ProcessAnalogControls();
 				#if OOPSY_TARGET_FIELD
@@ -591,6 +592,8 @@ namespace oopsy {
 				hardware.DebounceControls();
 				hardware.UpdateAnalogControls();
 			#endif
+            */
+            hardware.ProcessAllControls();
 
 			#if (MODE_COUNT > 1)
 
@@ -684,9 +687,9 @@ namespace oopsy {
 				// switch here to re-order the B8-1 to B1-8
 				long idx=i;
 				if (idx > 7 && idx < 16) idx = 23-i;
-				hardware.led_driver_.SetLed(idx, data.mData[i]);
+				hardware.led_driver.SetLed(idx, data.mData[i]);
 			}
-			hardware.led_driver_.SwapBuffersAndTransmit();
+			hardware.led_driver.SwapBuffersAndTransmit();
 		};
 		#endif
 
