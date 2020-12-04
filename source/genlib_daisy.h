@@ -377,20 +377,18 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_VERSIO
 
-					#if (MODE_COUNT > 1)
 					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
 						// LONG PRESS
 						#ifndef OOPSY_TARGET_PETAL
 						is_mode_selecting = 1;
 						#endif
 					}
-					#endif
-			
+					
 					// Handle encoder increment actions:
-					if (MODE_COUNT > 1 && is_mode_selecting) {
+					if (is_mode_selecting) {
 						mode += menu_button_incr;
 						if (mode >= MODE_COUNT) mode = 0;
-						if (mode < 1) mode = MODE_COUNT-1;	
+						if (mode < 0) mode = MODE_COUNT-1;	
 					#ifdef OOPSY_MULTI_APP
 					} else if (mode == MODE_MENU) {
 						#ifdef OOPSY_TARGET_VERSIO
@@ -592,26 +590,22 @@ namespace oopsy {
 				hardware.UpdateAnalogControls();
 			#endif
 
-			#if (MODE_COUNT > 1)
-
 			#ifdef OOPSY_TARGET_FIELD
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
 			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
 			#elif OOPSY_TARGET_VERSIO
-			menu_button_held = hardware.tap_.Pressed();
-			menu_button_incr += hardware.GetKnobValue(6) * app_count;
-			menu_button_held_ms = hardware.tap_.TimeHeldMs();
-			if (hardware.tap_.FallingEdge()) menu_button_released = 1;
+			// menu_button_held = hardware.tap_.Pressed();
+			// menu_button_incr += hardware.GetKnobValue(6) * app_count;
+			// menu_button_held_ms = hardware.tap_.TimeHeldMs();
+			// if (hardware.tap_.FallingEdge()) menu_button_released = 1;
 			#else
 			menu_button_held = hardware.encoder.Pressed();
 			menu_button_incr += hardware.encoder.Increment();
 			menu_button_held_ms = hardware.encoder.TimeHeldMs();
 			if (hardware.encoder.FallingEdge()) menu_button_released = 1;
 			#endif
-
-			#endif //(MODE_COUNT > 1)
 		}
 
 		void audio_postperform(float **hardware_ins, float **hardware_outs, size_t size) {
