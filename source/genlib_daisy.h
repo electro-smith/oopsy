@@ -377,17 +377,19 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_VERSIO
 
+					#if (MODE_COUNT > 1)
 					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
 						// LONG PRESS
 						#ifndef OOPSY_TARGET_PETAL
 						is_mode_selecting = 1;
 						#endif
 					}
+					#endif
 			
 					// Handle encoder increment actions:
-					if (is_mode_selecting) {
+					if (MODE_COUNT > 1 && is_mode_selecting) {
 						mode += menu_button_incr;
-						if (mode >= MODE_COUNT) mode = 1;
+						if (mode >= MODE_COUNT) mode = 0;
 						if (mode < 1) mode = MODE_COUNT-1;	
 					#ifdef OOPSY_MULTI_APP
 					} else if (mode == MODE_MENU) {
@@ -590,6 +592,8 @@ namespace oopsy {
 				hardware.UpdateAnalogControls();
 			#endif
 
+			#if (MODE_COUNT > 1)
+
 			#ifdef OOPSY_TARGET_FIELD
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
@@ -606,6 +610,8 @@ namespace oopsy {
 			menu_button_held_ms = hardware.encoder.TimeHeldMs();
 			if (hardware.encoder.FallingEdge()) menu_button_released = 1;
 			#endif
+
+			#endif //(MODE_COUNT > 1)
 		}
 
 		void audio_postperform(float **hardware_ins, float **hardware_outs, size_t size) {

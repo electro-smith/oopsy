@@ -1,5 +1,5 @@
 {
-	"max_apps":4,
+	"max_apps":1,
 	"defines": {
 		"OOPSY_TARGET_VERSIO": 1
 	},
