@@ -40,13 +40,50 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-3",
+					"linecount" : 4,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 50.0, 235.0, 404.0, 60.0 ],
+					"presentation_linecount" : 4,
+					"text" : "Similarly, output gates that are shorter than 1ms may be missed, because of control-rate sampling. This subpatcher ensures even a single-sample click will be extended to the minimum gate duration for the hardware (1ms by default):"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-2",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 50.0, 297.0, 89.0, 22.0 ],
+					"text" : "oopsy.gate.min"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-1",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 170.0, 166.5, 108.0, 22.0 ],
+					"text" : "oopsy.ctrl.smooth3"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-32",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 50.0, 168.5, 108.0, 22.0 ],
-					"text" : "oopsy.ctrl.smooth3"
+					"patching_rect" : [ 50.0, 166.5, 108.0, 22.0 ],
+					"text" : "oopsy.ctrl.smooth2"
 				}
 
 			}
@@ -58,7 +95,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 50.0, 100.0, 404.0, 60.0 ],
-					"text" : "Note that CV/knob inputs update at block-rate, which is by default 1ms for Daisy. You may want to add some filtering or smoothing to CVs, depending on how they are being used in the patch. Similarly, output gates that are shorter than 1ms may be missed. "
+					"text" : "Note that CV/knob inputs update at block-rate, which is by default 1ms for Daisy. You may want to add some filtering or smoothing to CVs, depending on how they are being used in the patch. Here are some options:"
 				}
 
 			}

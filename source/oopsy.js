@@ -375,6 +375,15 @@ function generate_daisy(hardware, nodes, target) {
 			return name;
 		}),
 
+		gpio_outs_audio: Object.keys(hardware.setters_audio).map(name => {
+			nodes[name] = {
+				name: name,
+				setter: hardware.setters_audio[name],
+				from: [],
+			}
+			return name;
+		}),
+
 		// DEVICE OUTPUTS:
 		mainhandlers: Object.keys(hardware.mainhandlers).map(name => {
 			nodes[name] = {
@@ -571,7 +580,7 @@ function generate_app(app, hardware, target) {
 		let i=0
 		daisy.gpio_outs.forEach(name => {
 			const node = nodes[name];
-			// does this output have an audio source?
+			// does this output have an cv source?
 			if (node.from.length) {
 				available.push(name);
 			} else if (available.length) {
@@ -586,6 +595,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.filter(name => nodes[name].src)
 		.concat(daisy.gpio_outs)
+		.concat(daisy.gpio_outs_audio)
 		.map(name=>`
 	float ${name};`).join("")}
 	${app.audio_outs.map(name=>`
@@ -596,18 +606,23 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${gen.params
 			.filter(name => nodes[name].src)
 			.concat(daisy.gpio_outs)
+			.concat(daisy.gpio_outs_audio)
 			.map(name=>`
 		${name} = 0.f;`).join("")}
 	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
-		// whatever handling is needed here
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${daisy.gpio_outs
 			.filter(name => nodes[name].src || nodes[name].from.length)
 			.map((name, i)=>`
 		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
+	}
+
+	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
+		Daisy& hardware = daisy.hardware;
+		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${daisy.mainhandlers
 			.filter(name => nodes[name].data)
 			.map(name =>`
@@ -641,6 +656,15 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(name => nodes[name].src ? `
 		${name} = ${nodes[name].src};` : `
 		${name} = ${nodes[name].from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
+		${daisy.gpio_outs_audio
+			.filter(name => nodes[name].src || nodes[name].from.length > 0)
+			.map(name => nodes[name].src ? `
+		${name} = ${nodes[name].src};` : `
+		${name} = ${nodes[name].from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
+		${daisy.gpio_outs_audio
+			.filter(name => nodes[name].src || nodes[name].from.length)
+			.map((name, i)=>`
+		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
 	}

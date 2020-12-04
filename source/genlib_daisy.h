@@ -229,6 +229,7 @@ namespace oopsy {
 		size_t blocksize; // default 48
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
+		void (*displayCallback)(uint32_t t, uint32_t dt);
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
@@ -266,6 +267,7 @@ namespace oopsy {
 		void reset(A& newapp) {
 			// first, remove callbacks:
 			mainloopCallback = nullMainloopCallback;
+			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
 			hardware.ChangeAudioCallback(nullAudioCallback);
 			while (!nullAudioCallbackRunning) dsy_system_delay(10);
@@ -276,6 +278,7 @@ namespace oopsy {
 			newapp.init(*this);
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
+			displayCallback = newapp.staticDisplayCallback;
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("loaded gen~ %s", appdefs[app_selected].name);
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
@@ -306,6 +309,7 @@ namespace oopsy {
 			hardware.StartAdc();
 			hardware.StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
+			displayCallback = nullMainloopCallback;
 
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
 			midi.init(); 
@@ -324,6 +328,9 @@ namespace oopsy {
 				dt = t1-t;
 				t = t1;
 				
+				// handle app-level code (e.g. for CV/gate outs)
+				mainloopCallback(t, dt);
+				
 				if (uitimer.ready(dt)) {
 
 					#ifdef OOPSY_TARGET_USES_MIDI_UART
@@ -337,10 +344,7 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_PETAL 
 					hardware.ClearLeds();
 					#endif
-					
-					// handle app-level code (e.g. for LED/CV/gate outs)
-					mainloopCallback(t, dt);
-
+				
 					#ifdef OOPSY_TARGET_PETAL 
 					// has no mode selection
 					is_mode_selecting = 0;
@@ -552,7 +556,7 @@ namespace oopsy {
 					{
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
-						offset += snprintf(console_stats+offset, console_cols-offset, "%cM%c ", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
+						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
 						midi.in_active = midi.out_active = 0;
 						#endif
 						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
@@ -560,9 +564,14 @@ namespace oopsy {
 						hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 						hardware.display.WriteString(console_stats, font, true);
 					}
+					#endif //OOPSY_TARGET_HAS_OLED
+					
+					// handle app-level code (e.g. for LED etc.)
+					displayCallback(t, dt);
+
+					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
-
 					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
@@ -699,6 +708,11 @@ namespace oopsy {
 		static void staticMainloopCallback(uint32_t t, uint32_t dt) {
 			T& self = *(T *)daisy.app;
 			self.mainloopCallback(daisy, t, dt);
+		}
+
+		static void staticDisplayCallback(uint32_t t, uint32_t dt) {
+			T& self = *(T *)daisy.app;
+			self.displayCallback(daisy, t, dt);
 		}
 
 		static void staticAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {

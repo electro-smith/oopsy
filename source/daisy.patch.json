@@ -41,7 +41,9 @@
     },
     "setters": {
       "dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
-      "dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
+      "dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+    },
+    "setters_audio": {
       "dsy_gate_out1": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
     },
     "mainhandlers": {},
