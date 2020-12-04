@@ -250,7 +250,7 @@ namespace oopsy {
 		} ScopeOptions;
 		
 		FontDef& font = Font_6x8;
-		uint_fast8_t scope_zoom = 5; 
+		uint_fast8_t scope_zoom = 3; 
 		uint_fast8_t scope_step = 0; 
 		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = 0;
 		uint16_t console_cols, console_rows, console_line;
