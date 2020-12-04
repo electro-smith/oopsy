@@ -27,14 +27,10 @@ process.stdout.write = (function() {
 	const stdout_write = process.stdout.write;
 	return function(str) {
 		stdout_write.apply(process.stdout, arguments);
-		if (os.platform() == "win32") {
-			maxAPI.outlet(str)
-		} else {
-			let match
-			if (match = str.match(/^oopsy (.*)/i)) {
-			 	maxAPI.outlet(match[1])
-			} 
-		}
+		let match
+		if (match = str.match(/^oopsy (.*)/i)) {
+			maxAPI.outlet(match[1])
+		} 
 	}
 })();
 
