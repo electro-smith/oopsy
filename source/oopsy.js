@@ -145,7 +145,6 @@ function run() {
 	})
 	let build_name = apps.map(v=>v.patch.name).join("_")
 
-
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
 	console.log(`Building to ${build_path}`)

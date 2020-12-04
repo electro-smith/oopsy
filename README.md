@@ -6,7 +6,7 @@ Each Daisy binary can hold several gen~ patcher "apps", which can be switched be
 
 ## How gen~ features map to Daisy
 
-Mostly this works by adding an appropriate name to the `in`, `out`, and `param` objects.
+Mostly this works by adding an appropriate name to the `in`, `out`, and `param` objects, but many features will also auto-map without special naming.
 
 ### Audio
 
