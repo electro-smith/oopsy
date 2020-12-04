@@ -548,9 +548,7 @@ namespace oopsy {
 						#endif
 					} 
 					#ifdef OOPSY_TARGET_HAS_OLED
-					#ifdef OOPSY_MULTI_APP
-					if (mode != MODE_MENU) 
-					#endif //OOPSY_MULTI_APP
+					if (mode != MODE_NONE) 
 					{
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
