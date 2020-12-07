@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 5,
+			"revision" : 8,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 926.0, 78.0, 593.0, 651.0 ],
+		"rect" : [ 926.0, 78.0, 576.0, 594.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -60,12 +60,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-7",
-					"linecount" : 2,
+					"linecount" : 4,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 148.0, 272.0, 215.0, 33.0 ],
-					"text" : "Based on the Dattoro reverb gen~ example inclouded with Max"
+					"patching_rect" : [ 191.5, 508.0, 337.0, 60.0 ],
+					"text" : "Adapted from the Dattoro reverb gen~ example included with Max, which is based on Jon Dattorro's Effect Design Part 1: Reverberator and Other Filters, located here: https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf"
 				}
 
 			}
@@ -107,7 +107,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 5,
+							"revision" : 8,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -318,7 +318,7 @@
 										"appversion" : 										{
 											"major" : 8,
 											"minor" : 1,
-											"revision" : 5,
+											"revision" : 8,
 											"architecture" : "x64",
 											"modernui" : 1
 										}
@@ -2042,7 +2042,7 @@
 										"appversion" : 										{
 											"major" : 8,
 											"minor" : 1,
-											"revision" : 5,
+											"revision" : 8,
 											"architecture" : "x64",
 											"modernui" : 1
 										}

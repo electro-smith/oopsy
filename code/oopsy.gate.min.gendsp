@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "dsp.gen",
-		"rect" : [ 84.0, 103.0, 640.0, 480.0 ],
+		"rect" : [ 84.0, 103.0, 658.0, 409.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,14 +40,37 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-2",
-					"linecount" : 2,
-					"maxclass" : "comment",
+					"id" : "obj-5",
+					"maxclass" : "newobj",
 					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 141.25, 287.0, 196.0, 33.0 ],
-					"presentation_linecount" : 2,
-					"text" : "On Daisy with the default blockrate of 1kHz this implies 1ms."
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 108.25, 267.0, 70.0, 22.0 ],
+					"text" : "mstosamps"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-4",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 108.25, 291.0, 89.0, 22.0 ],
+					"text" : "max vectorsize"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-3",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 108.25, 243.0, 62.0, 22.0 ],
+					"text" : "param ms"
 				}
 
 			}
@@ -58,8 +81,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 376.25, 130.0, 229.0, 141.0 ],
-					"presentation_linecount" : 10,
+					"patching_rect" : [ 376.25, 130.0, 230.0, 141.0 ],
 					"text" : "This subpatcher will extend any short click or gate (positive non-zero values) at least one signal vector's worth.\n\nThis may be necessary to ensure that any very short gates are not 'missed' by the GPIO output handling of the hardware (or indeed by any other hardware unable to register very short gates). "
 				}
 
@@ -67,12 +89,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-41",
-					"linecount" : 2,
+					"linecount" : 4,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 141.25, 245.0, 196.0, 33.0 ],
-					"text" : "keep gate high until one control vector has passed."
+					"patching_rect" : [ 112.25, 319.0, 196.0, 60.0 ],
+					"text" : "keep gate high until 1+ control vectors have passed. On Daisy with the default blockrate of 1kHz this implies 1ms."
 				}
 
 			}
@@ -113,11 +135,11 @@
 				"box" : 				{
 					"id" : "obj-34",
 					"maxclass" : "newobj",
-					"numinlets" : 1,
+					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 50.25, 245.0, 80.0, 22.0 ],
-					"text" : "<= vectorsize"
+					"patching_rect" : [ 50.0, 333.0, 29.5, 22.0 ],
+					"text" : "<="
 				}
 
 			}
@@ -187,7 +209,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 50.25, 338.0, 35.0, 22.0 ],
+					"patching_rect" : [ 50.25, 357.0, 35.0, 22.0 ],
 					"text" : "out 1"
 				}
 
@@ -197,6 +219,13 @@
 				"patchline" : 				{
 					"destination" : [ "obj-30", 0 ],
 					"source" : [ "obj-27", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-5", 0 ],
+					"source" : [ "obj-3", 0 ]
 				}
 
 			}
@@ -230,12 +259,27 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-34", 1 ],
+					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-27", 0 ],
 					"source" : [ "obj-43", 0 ]
 				}
 
 			}
- ]
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-4", 0 ],
+					"source" : [ "obj-5", 0 ]
+				}
+
+			}
+ ],
+		"autosave" : 0
 	}
 
 }
