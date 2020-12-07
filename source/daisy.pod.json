@@ -30,6 +30,7 @@
 		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)"
 	},
 	"setters": {},
+	"setters_audio": {},
     "mainhandlers": {},
 	"audio_ins": [
       "dsy_in1",

@@ -57,6 +57,7 @@
 		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)"
 	},
 	"setters": {},
+	"setters_audio": {},
     "mainhandlers": {},
 	"audio_ins": [
       "dsy_in1",
