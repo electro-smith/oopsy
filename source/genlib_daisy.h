@@ -349,7 +349,7 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Fill(false);
 					#endif
-					#ifdef OOPSY_TARGET_PETAL || OOPSY_TARGET_POD
+					#ifdef OOPSY_TARGET_PETAL 
 					hardware.ClearLeds();
 					#endif
 				
