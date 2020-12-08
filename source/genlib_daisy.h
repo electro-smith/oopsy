@@ -561,7 +561,7 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
-					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
+					#if (OOPSY_TARGET_POD || OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 

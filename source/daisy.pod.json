@@ -23,7 +23,10 @@
 			"press": "dsy_encoder_switch"
 		},
 		"outs": {
+			"led1": "dsy_led1",
+			"led2": "dsy_led2",
 
+			"led": "dsy_led1"
 		},
 		"datas": {}
 	},
@@ -35,7 +38,16 @@
 		"dsy_encoder_incr": "(hardware.encoder.Increment())",
 		"dsy_encoder_switch": "(hardware.encoder.Pressed())"
 	},
-	"outputs": {},
+	"outputs": {
+		"dsy_led1": {
+			"where": "main",
+			"setter": "hardware.led1.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		},
+		"dsy_led2": {
+			"where": "main",
+			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		}
+	},
     "mainhandlers": {},
 	"audio_ins": [
       "dsy_in1",
