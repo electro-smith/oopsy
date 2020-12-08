@@ -291,8 +291,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 244.5, 120.0, 176.0, 22.0 ],
-									"text" : "param knob2 @min -1 @max 1"
+									"patching_rect" : [ 244.5, 120.0, 79.0, 22.0 ],
+									"text" : "param knob2"
 								}
 
 							}
