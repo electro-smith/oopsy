@@ -64,7 +64,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 191.5, 508.0, 337.0, 60.0 ],
+					"patching_rect" : [ 191.5, 508.0, 337.0, 62.0 ],
 					"text" : "Adapted from the Dattoro reverb gen~ example included with Max, which is based on Jon Dattorro's Effect Design Part 1: Reverberator and Other Filters, located here: https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf"
 				}
 
@@ -113,7 +113,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 739.0, 102.0, 586.0, 703.0 ],
+						"rect" : [ 739.0, 102.0, 868.0, 840.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -172,8 +172,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 369.0, 585.0, 65.0, 22.0 ],
-									"text" : "param wet"
+									"patching_rect" : [ 482.0, 451.666655999999989, 94.0, 22.0 ],
+									"text" : "param ctrl1_wet"
 								}
 
 							}
@@ -2974,7 +2974,7 @@
 ,
 					"patching_rect" : [ 24.0, 272.0, 36.0, 22.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
+						"exportfolder" : "C:/Users/shensley/Documents/Max 8/Packages/oopsy/examples/",
 						"exportname" : "reverb"
 					}
 ,
@@ -2991,7 +2991,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 26.0, 261.0, 33.0 ],
+					"patching_rect" : [ 24.0, 26.0, 261.0, 34.0 ],
 					"text" : "Reverb"
 				}
 
