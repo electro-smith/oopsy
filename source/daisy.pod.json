@@ -9,14 +9,18 @@
 			"knob2": "dsy_knob2",
 			"sw1": "dsy_switch1",
 			"sw2": "dsy_switch2",
+			"sw3": "dsy_encoder_switch",
+			"encoder": "dsy_encoder_incr",
 
 			"ctrl1": "dsy_knob1",
 			"ctrl2": "dsy_knob2",
 			"switch1": "dsy_switch1",
 			"switch2": "dsy_switch2",
+			"switch3": "dsy_encoder_switch",
 			"knob": "dsy_knob1",
 			"ctrl": "dsy_knob1",
-			"switch": "dsy_switch1"
+			"switch": "dsy_switch1",
+			"press": "dsy_encoder_switch"
 		},
 		"outs": {
 
@@ -27,7 +31,9 @@
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
 		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
 		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
-		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)"
+		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)",
+		"dsy_encoder_incr": "(hardware.encoder.Increment())",
+		"dsy_encoder_switch": "(hardware.encoder.Pressed())"
 	},
 	"setters": {},
 	"setters_audio": {},

@@ -802,13 +802,7 @@
 					}
 ,
 					"patching_rect" : [ 24.0, 267.0, 194.0, 35.0 ],
-					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "simplepatch"
-					}
-,
-					"text" : "gen~",
-					"varname" : "simplepatch"
+					"text" : "gen~"
 				}
 
 			}
