@@ -40,11 +40,11 @@
 	},
 	"outputs": {
 		"dsy_led1": {
-			"where": "main",
+			"where": "audio",
 			"setter": "hardware.led1.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		},
 		"dsy_led2": {
-			"where": "main",
+			"where": "audio",
 			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		}
 	},
