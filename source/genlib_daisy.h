@@ -327,6 +327,9 @@ namespace oopsy {
 				uint32_t t1 = dsy_system_getnow();
 				dt = t1-t;
 				t = t1;
+
+				// pulse seed LED for status according to CPU usage:
+				hardware.seed.SetLed((t % 100) <= (0.0001f*audioCpuUs*samplerate/blocksize));
 				
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
