@@ -452,11 +452,11 @@ namespace oopsy {
 							for (int i=0; i<8; i++) {
 								if (i == app_selecting) {
 									hardware.display.SetCursor(0, font.FontHeight * i);
-									hardware.display.WriteString((char *)">", font, true);
+									hardware.display.WriteString((char *)">", font, i != app_selected);
 								}
 								if (i < app_count) {
 									hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-									hardware.display.WriteString((char *)appdefs[i].name, font, true);
+									hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
 								}
 							}
 						} break;
