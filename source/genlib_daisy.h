@@ -337,6 +337,11 @@ namespace oopsy {
 					midi.mainloop();
 					#endif
 
+					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
+						// LONG PRESS
+						is_mode_selecting = 1;
+					}
+
 					// CLEAR DISPLAY
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Fill(false);
@@ -349,10 +354,9 @@ namespace oopsy {
 					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
-					// multi-app petal is always in menu mode:
+					// multi-app is always in menu mode:
 					mode = MODE_MENU;
 					#endif
-					
 					for(int i = 0; i < 8; i++) {
 						float white = (i == app_selecting || menu_button_released);
 						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
@@ -367,10 +371,9 @@ namespace oopsy {
 					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
-					// multi-app petal is always in menu mode:
+					// multi-app is always in menu mode:
 					mode = MODE_MENU;
 					#endif
-					
 					for(int i = 0; i < 4; i++) {
 						float white = (i == app_selecting || menu_button_released);
 						hardware.SetLed(i, 
@@ -381,13 +384,6 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_VERSIO
 
-					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
-						// LONG PRESS
-						#ifndef OOPSY_TARGET_PETAL
-						is_mode_selecting = 1;
-						#endif
-					}
-					
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {
 						mode += menu_button_incr;
@@ -424,14 +420,16 @@ namespace oopsy {
 
 					// SHORT PRESS	
 					if (menu_button_released) {
+						menu_button_released = 0;
 						if (is_mode_selecting) {
 							is_mode_selecting = 0;
 						#ifdef OOPSY_MULTI_APP
 						} else if (mode == MODE_MENU) {
 							if (app_selected != app_selecting) {
 								app_selected = app_selecting;
-								appdefs[app_selected].load();
 								mode = mode_default;
+								appdefs[app_selected].load();
+								continue;
 							}
 						#endif
 						#ifdef OOPSY_TARGET_HAS_OLED
@@ -440,10 +438,10 @@ namespace oopsy {
 						#endif
 						}
 					} 
-					menu_button_released = 0;
 
+					// OLED DISPLAY:
+					#ifdef OOPSY_TARGET_HAS_OLED
 					switch(mode) {
-						#ifdef OOPSY_TARGET_HAS_OLED
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
 							for (int i=0; i<8; i++) {
@@ -533,27 +531,13 @@ namespace oopsy {
 							console_display(); 
 							break;
 						}
-						
-						#else  // !OOPSY_TARGET_HAS_OLED
-						#ifdef OOPSY_MULTI_APP
-						case MODE_MENU: {
-							// TODO show menu selection via LEDs
-							
-						} break;
-						#endif
-						#endif //OOPSY_TARGET_HAS_OLED
 						default: {
 						}
 					}
-
 					if (is_mode_selecting) {
-						#ifdef OOPSY_TARGET_HAS_OLED
 						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
-						#endif
 					} 
-					#ifdef OOPSY_TARGET_HAS_OLED
-					if (mode != MODE_NONE) 
-					{
+					if (mode != MODE_NONE) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
 						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
@@ -576,7 +560,6 @@ namespace oopsy {
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 
-					
 				} // uitimer.ready
 			}
 			return 0;

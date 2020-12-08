@@ -802,7 +802,13 @@
 					}
 ,
 					"patching_rect" : [ 24.0, 267.0, 194.0, 35.0 ],
-					"text" : "gen~"
+					"saved_object_attributes" : 					{
+						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportname" : "oopsy_patch"
+					}
+,
+					"text" : "gen~",
+					"varname" : "oopsy_patch"
 				}
 
 			}
@@ -1011,6 +1017,13 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.suggestions.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.min.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
