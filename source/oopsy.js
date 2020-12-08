@@ -239,7 +239,6 @@ int main(void) {
 	try {
 		try {
 			console.log(execSync("make clean", { cwd: build_path }).toString())
-			// TODO: make this cross-platform:
 			if (os.platform() == "win32") {
 				// Gather up make output to run command per line as child process
 				let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
