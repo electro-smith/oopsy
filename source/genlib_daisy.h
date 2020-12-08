@@ -561,7 +561,7 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
-					#if (OOPSY_TARGET_POD || OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
+					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 
@@ -630,6 +630,9 @@ namespace oopsy {
 					if (scope_step >= SSD1309_WIDTH*2) scope_step = 0;
 				}
 			}
+			#endif
+			#if (OOPSY_TARGET_POD)
+				hardware.UpdateLeds();
 			#endif
 		}
 
