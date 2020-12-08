@@ -430,7 +430,9 @@ namespace oopsy {
 						} else if (mode == MODE_MENU) {
 							if (app_selected != app_selecting) {
 								app_selected = app_selecting;
+								#ifndef OOPSY_TARGET_HAS_OLED
 								mode = mode_default;
+								#endif
 								appdefs[app_selected].load();
 								continue;
 							}
