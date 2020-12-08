@@ -1,4 +1,59 @@
 {
+    "max_apps":8,
+	  "defines": {
+      "OOPSY_TARGET_PATCH": 1
+    },
+    "labels": {
+      "params": {
+        "cv1": "dsy_cv_in1",
+        "cv2": "dsy_cv_in2",
+        "cv3": "dsy_cv_in3",
+        "cv4": "dsy_cv_in4",
+        "gate1": "dsy_gate_in1",
+        "gate2": "dsy_gate_in2",
+
+        "cv": "dsy_cv_in1",
+        "ctrl": "dsy_cv_in1",
+        "ctrl1": "dsy_cv_in1",
+        "ctrl2": "dsy_cv_in2",
+        "ctrl3": "dsy_cv_in3",
+        "ctrl4": "dsy_cv_in4",
+        "gate": "dsy_gate_in1"
+      },
+      "outs": {
+        "cv1": "dsy_cv_out1",
+        "cv2": "dsy_cv_out2",
+        "gate1": "dsy_gate_out1",
+
+        "cv": "dsy_cv_out1",
+        "gate": "dsy_gate_out1"
+
+      },
+      "datas": {}
+    },
+    "inputs": {
+      "dsy_cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
+      "dsy_cv_in2": "hardware.GetCtrlValue(hardware.CTRL_2)",
+      "dsy_cv_in3": "hardware.GetCtrlValue(hardware.CTRL_3)",
+      "dsy_cv_in4": "hardware.GetCtrlValue(hardware.CTRL_4)",
+      "dsy_gate_in1": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)",
+      "dsy_gate_in2": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
+    },
+    "outputs": {
+      "dsy_cv_out1": {
+        "where": "main",
+        "setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
+      },
+      "dsy_cv_out2": {
+        "where": "main",
+        "setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+      },
+      "dsy_gate_out1":  {
+        "where": "audio",
+        "setter": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
+      }
+    },
+    "mainhandlers": {},
     "audio_ins": [
       "dsy_in1",
       "dsy_in2",
@@ -16,26 +71,6 @@
     ],
     "midi_outs": [
       "dsy_midi_out1"
-    ],
-    "cv_ins": [
-      "cv_in1",
-      "cv_in2",
-      "cv_in3",
-      "cv_in4"
-    ],
-    "cv_outs": [
-      "cv_out1",
-      "cv_out2"
-    ],
-    "gate_ins": [
-      "gate_in1",
-      "gate_in2"
-    ],
-    "gate_outs": [
-      "gate_out1"
-    ],
-    "encoder": [
-      "encoder1"
     ],
     "oled": true
 }

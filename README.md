@@ -6,7 +6,7 @@ Each Daisy binary can hold several gen~ patcher "apps", which can be switched be
 
 ## How gen~ features map to Daisy
 
-Mostly this works by adding an appropriate name to the `in`, `out`, and `param` objects.
+Mostly this works by adding an appropriate name to the `in`, `out`, and `param` objects, but many features will also auto-map without special naming.
 
 ### Audio
 
@@ -20,7 +20,7 @@ Hardware voltages are mapped to gen~ -1..1
   
 ### CV/Gate/Knobs/Switches etc.
 
-- `param cv1`, `param gate2`, `param knob1`, `param key2`  etc. will give you the CV and gate inputs, hardware knobs, keys, etc. Use `@min` and `@max` to remap the normalized ranges. Use `@min` and `@max` to remap normalized ranges as desired. 
+- `param cv1`, `param gate2`, `param knob1`, `param key2`, `param knob_delay`, `param switch_enable` etc. will give you the CV and gate inputs, hardware knobs, keys, etc. Use `@min` and `@max` to remap the normalized ranges. Use `@min` and `@max` to remap normalized ranges as desired. 
 - Oopsy will try to auto-map any other `param` objects to any unused Knob/CV inputs.
 - `out <n> cv1`, `out <n> gate2`, etc. will send the signal to corresponding CV or Gate outputs if the device has them. `<n>` just needs to be an output channel number that isn't being used for anything else. 
 - CV/gate inputs and outputs are sampled at block rate, which on the default configuration of the Daisy is every 48 samples = 1ms. Trigger/gates shorter than 1-2ms might be missed.

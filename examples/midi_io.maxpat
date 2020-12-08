@@ -40,6 +40,25 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-13",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 25.0, 88.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-6",
 					"lastchannelcount" : 0,
 					"maxclass" : "live.gain~",
@@ -71,29 +90,6 @@
 					"numinlets" : 2,
 					"numoutlets" : 0,
 					"patching_rect" : [ 29.333333333333343, 532.0, 45.0, 45.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-18",
-					"maxclass" : "button",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "bang" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 590.0, 446.0, 74.0, 74.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-14",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 590.0, 537.0, 41.0, 22.0 ],
-					"text" : "oopsy"
 				}
 
 			}
@@ -3034,7 +3030,7 @@
 									"numoutlets" : 25,
 									"outlettype" : [ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ],
 									"patching_rect" : [ 55.0, 185.0, 271.0, 22.0 ],
-									"text" : "gen2daisy.midiparse"
+									"text" : "oopsy.midi.parse"
 								}
 
 							}
@@ -3426,7 +3422,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 508.0, 185.0, 166.0, 22.0 ],
-									"text" : "gen2daisy.midiformat"
+									"text" : "oopsy.midi.format"
 								}
 
 							}
@@ -3558,7 +3554,7 @@
 						"exportname" : "midi_io"
 					}
 ,
-					"text" : "gen~ @title midi_io",
+					"text" : "gen~",
 					"textcolor" : [ 0.996078431372549, 0.996078431372549, 0.996078431372549, 1.0 ],
 					"varname" : "midi_io"
 				}
@@ -3611,13 +3607,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-10", 0 ],
 					"source" : [ "obj-17", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-14", 0 ],
-					"source" : [ "obj-18", 0 ]
 				}
 
 			}
@@ -3697,6 +3686,8 @@
 			}
  ],
 		"parameters" : 		{
+			"obj-13::obj-32" : [ "live.text[2]", "FILTER", 0 ],
+			"obj-13::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
 			"obj-6" : [ "live.gain~", "live.gain~", 0 ],
 			"parameterbanks" : 			{
 
@@ -3706,14 +3697,14 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "gen2daisy.midiparse.gendsp",
+				"name" : "oopsy.midi.format.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
-				"name" : "gen2daisy.midiformat.gendsp",
+				"name" : "oopsy.midi.parse.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",

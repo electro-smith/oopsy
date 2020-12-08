@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 5,
+			"revision" : 8,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 78.0, 431.0, 612.0 ],
+		"rect" : [ 926.0, 78.0, 576.0, 594.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,25 +40,32 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-6",
-					"maxclass" : "message",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 63.0, 224.0, 68.0, 22.0 ],
-					"text" : "exportcode"
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 191.5, 106.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
 				}
 
 			}
 , 			{
 				"box" : 				{
 					"id" : "obj-7",
-					"linecount" : 2,
+					"linecount" : 4,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 148.0, 272.0, 215.0, 33.0 ],
-					"text" : "Based on the Dattoro reverb gen~ example inclouded with Max"
+					"patching_rect" : [ 191.5, 508.0, 337.0, 62.0 ],
+					"text" : "Adapted from the Dattoro reverb gen~ example included with Max, which is based on Jon Dattorro's Effect Design Part 1: Reverberator and Other Filters, located here: https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf"
 				}
 
 			}
@@ -100,13 +107,13 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 5,
+							"revision" : 8,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 397.0, 78.0, 586.0, 703.0 ],
+						"rect" : [ 739.0, 102.0, 868.0, 840.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -165,8 +172,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 369.0, 585.0, 65.0, 22.0 ],
-									"text" : "param wet"
+									"patching_rect" : [ 482.0, 451.666655999999989, 94.0, 22.0 ],
+									"text" : "param ctrl1_wet"
 								}
 
 							}
@@ -311,7 +318,7 @@
 										"appversion" : 										{
 											"major" : 8,
 											"minor" : 1,
-											"revision" : 5,
+											"revision" : 8,
 											"architecture" : "x64",
 											"modernui" : 1
 										}
@@ -1982,7 +1989,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 228.5, 441.666655999999989, 98.0, 22.0 ],
+									"patching_rect" : [ 372.5, 451.666655999999989, 98.0, 22.0 ],
 									"text" : "param decay 0.5"
 								}
 
@@ -2035,7 +2042,7 @@
 										"appversion" : 										{
 											"major" : 8,
 											"minor" : 1,
-											"revision" : 5,
+											"revision" : 8,
 											"architecture" : "x64",
 											"modernui" : 1
 										}
@@ -2965,14 +2972,13 @@
  ]
 					}
 ,
-					"patching_rect" : [ 24.0, 272.0, 107.0, 22.0 ],
+					"patching_rect" : [ 24.0, 272.0, 36.0, 22.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
-						"exportname" : "reverb",
-						"exportnotifier" : "1208_ged_export"
+						"exportfolder" : "C:/Users/shensley/Documents/Max 8/Packages/oopsy/examples/",
+						"exportname" : "reverb"
 					}
 ,
-					"text" : "gen~ @title reverb",
+					"text" : "gen~",
 					"varname" : "reverb"
 				}
 
@@ -2985,7 +2991,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 26.0, 261.0, 33.0 ],
+					"patching_rect" : [ 24.0, 26.0, 261.0, 34.0 ],
 					"text" : "Reverb"
 				}
 
@@ -3022,16 +3028,11 @@
 				}
 
 			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-6", 0 ]
-				}
-
-			}
  ],
 		"parameters" : 		{
 			"obj-4" : [ "live.gain~", "live.gain~", 0 ],
+			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
+			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}
@@ -3039,7 +3040,28 @@
 			"inherited_shortname" : 1
 		}
 ,
-		"dependency_cache" : [  ],
+		"dependency_cache" : [ 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+ ],
 		"autosave" : 0
 	}
 

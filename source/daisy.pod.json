@@ -1,5 +1,55 @@
 {
-    "audio_ins": [
+    "max_apps":1,
+	"defines": {
+		"OOPSY_TARGET_POD": 1
+	},
+	"labels": {
+		"params": {
+			"knob1": "dsy_knob1",
+			"knob2": "dsy_knob2",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2",
+			"sw3": "dsy_encoder_switch",
+			"encoder": "dsy_encoder_incr",
+
+			"ctrl1": "dsy_knob1",
+			"ctrl2": "dsy_knob2",
+			"switch1": "dsy_switch1",
+			"switch2": "dsy_switch2",
+			"switch3": "dsy_encoder_switch",
+			"knob": "dsy_knob1",
+			"ctrl": "dsy_knob1",
+			"switch": "dsy_switch1",
+			"press": "dsy_encoder_switch"
+		},
+		"outs": {
+			"led1": "dsy_led1",
+			"led2": "dsy_led2",
+
+			"led": "dsy_led1"
+		},
+		"datas": {}
+	},
+	"inputs": {
+		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
+		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)",
+		"dsy_encoder_incr": "(hardware.encoder.Increment())",
+		"dsy_encoder_switch": "(hardware.encoder.Pressed())"
+	},
+	"outputs": {
+		"dsy_led1": {
+			"where": "audio",
+			"setter": "hardware.led1.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		},
+		"dsy_led2": {
+			"where": "audio",
+			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		}
+	},
+    "mainhandlers": {},
+	"audio_ins": [
       "dsy_in1",
       "dsy_in2"
     ],
@@ -10,24 +60,5 @@
     "midi_ins": [
       "dsy_midi_in1"
     ],
-    "midi_outs": [],
-	"switches": [
-		"switch1",
-		"switch2"
-	],
-	"cv_ins": [],
-	"cv_outs": [],
-	"gate_ins": [],
-	"gate_outs": [],
-	"knobs": [
-		"knob1",
-		"knob2"
-	],
-	"encoder": [
-		"encoder1"
-	],
-	"leds": [
-		"led1",
-		"led2"
-	]
+    "midi_outs": []
 }

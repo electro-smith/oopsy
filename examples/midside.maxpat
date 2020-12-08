@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 78.0, 396.0, 613.0 ],
+		"rect" : [ 59.0, 78.0, 586.0, 640.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,25 +40,20 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-6",
-					"maxclass" : "message",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 49.0, 219.0, 68.0, 22.0 ],
-					"text" : "exportcode"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-7",
-					"linecount" : 3,
-					"maxclass" : "comment",
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 162.0, 272.0, 150.0, 47.0 ],
-					"text" : "Inspired by the Worng Electronics device of the same name."
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 298.0, 26.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
 				}
 
 			}
@@ -106,7 +101,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 397.0, 78.0, 634.0, 454.0 ],
+						"rect" : [ 761.0, 119.0, 634.0, 454.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -136,12 +131,24 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-14",
+									"linecount" : 3,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 334.0, 183.0, 150.0, 47.0 ],
+									"text" : "A really basic patch for mid-side stereo conversion"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-11",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 247.5, 241.0, 45.0, 22.0 ],
-									"text" : "out 4"
+									"patching_rect" : [ 221.0, 249.0, 47.0, 22.0 ],
+									"text" : "out 4 R"
 								}
 
 							}
@@ -151,8 +158,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 200.0, 241.0, 45.0, 22.0 ],
-									"text" : "out 3"
+									"patching_rect" : [ 168.0, 249.0, 45.0, 22.0 ],
+									"text" : "out 3 L"
 								}
 
 							}
@@ -163,7 +170,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 247.5, 175.0, 39.5, 22.0 ],
+									"patching_rect" : [ 221.0, 183.0, 39.5, 22.0 ],
 									"text" : "-"
 								}
 
@@ -175,7 +182,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 200.0, 175.0, 32.0, 22.0 ],
+									"patching_rect" : [ 168.0, 183.0, 32.0, 22.0 ],
 									"text" : "/ 2"
 								}
 
@@ -186,8 +193,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 110.5, 241.0, 45.0, 22.0 ],
-									"text" : "out 2"
+									"patching_rect" : [ 84.0, 249.0, 47.0, 22.0 ],
+									"text" : "out 2 S"
 								}
 
 							}
@@ -197,8 +204,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 63.0, 241.0, 45.0, 22.0 ],
-									"text" : "out 1"
+									"patching_rect" : [ 31.0, 249.0, 49.0, 22.0 ],
+									"text" : "out 1 M"
 								}
 
 							}
@@ -209,7 +216,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 110.5, 175.0, 39.5, 22.0 ],
+									"patching_rect" : [ 84.0, 183.0, 39.5, 22.0 ],
 									"text" : "-"
 								}
 
@@ -221,7 +228,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 63.0, 175.0, 32.0, 22.0 ],
+									"patching_rect" : [ 31.0, 183.0, 32.0, 22.0 ],
 									"text" : "/ 2"
 								}
 
@@ -233,8 +240,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 258.0, 117.0, 38.0, 22.0 ],
-									"text" : "in 4"
+									"patching_rect" : [ 241.5, 125.0, 39.0, 22.0 ],
+									"text" : "in 4 S"
 								}
 
 							}
@@ -245,8 +252,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 200.0, 117.0, 38.0, 22.0 ],
-									"text" : "in 3"
+									"patching_rect" : [ 168.0, 125.0, 41.0, 22.0 ],
+									"text" : "in 3 M"
 								}
 
 							}
@@ -257,8 +264,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 121.0, 117.0, 38.0, 22.0 ],
-									"text" : "in 2"
+									"patching_rect" : [ 104.5, 125.0, 40.0, 22.0 ],
+									"text" : "in 2 R"
 								}
 
 							}
@@ -269,8 +276,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 63.0, 117.0, 38.0, 22.0 ],
-									"text" : "in 1"
+									"patching_rect" : [ 31.0, 125.0, 38.0, 22.0 ],
+									"text" : "in 1 L"
 								}
 
 							}
@@ -370,15 +377,14 @@
  ]
 					}
 ,
-					"patching_rect" : [ 24.0, 272.0, 118.0, 22.0 ],
+					"patching_rect" : [ 24.0, 272.0, 50.5, 22.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
-						"exportname" : "lrmsmslr",
-						"exportnotifier" : "1203_ged_export"
+						"exportname" : "midside"
 					}
 ,
-					"text" : "gen~ @title lrmsmslr",
-					"varname" : "lrmsmslr"
+					"text" : "gen~",
+					"varname" : "midside"
 				}
 
 			}
@@ -387,11 +393,12 @@
 					"fontname" : "Arial Bold Italic",
 					"fontsize" : 24.0,
 					"id" : "obj-3",
+					"linecount" : 2,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 26.0, 261.0, 33.0 ],
-					"text" : "Mid-Side converter"
+					"patching_rect" : [ 24.0, 26.0, 261.0, 60.0 ],
+					"text" : "Mid-Side Stereo Conversion"
 				}
 
 			}
@@ -427,24 +434,51 @@
 				}
 
 			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-6", 0 ]
-				}
-
-			}
  ],
 		"parameters" : 		{
 			"obj-4" : [ "live.gain~", "live.gain~", 0 ],
+			"obj-9::obj-32" : [ "live.text[4]", "FILTER", 0 ],
+			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
 			"parameterbanks" : 			{
+
+			}
+,
+			"parameter_overrides" : 			{
+				"obj-9::obj-32" : 				{
+					"parameter_longname" : "live.text[4]"
+				}
+,
+				"obj-9::obj-36" : 				{
+					"parameter_longname" : "live.menu[1]"
+				}
 
 			}
 ,
 			"inherited_shortname" : 1
 		}
 ,
-		"dependency_cache" : [  ],
+		"dependency_cache" : [ 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+ ],
 		"autosave" : 0
 	}
 

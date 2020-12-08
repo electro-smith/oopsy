@@ -14,13 +14,13 @@ function bang() {
 function configure(doExport) {
 	var pat = this.patcher.parentpatcher;
 	if (!pat.filepath) {
-		error("patcher needs to be saved first\n");
+		error("oopsy: your patcher needs to be saved first\n");
 		pat.message("write");
 		return false;
 	}
 	var export_path = extractFilepath(pat.filepath);
 
-
+	var default_name = pat.name || "gen";
 
 	// send message out to convert this path
 	// response will update the variable `path`:
@@ -34,7 +34,7 @@ function configure(doExport) {
 	var gen = pat.firstobject;
 	while (gen) {
 		if (gen.maxclass.toString() == "gen~") {
-			var name = "gen";
+			var name = default_name;
 			if (gen.getattr("exportname")) { 
 				name = gen.getattr("exportname").toString(); 
 			} else if (gen.getattr("title")) { 

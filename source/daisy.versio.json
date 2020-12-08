@@ -1,0 +1,81 @@
+{
+	"max_apps":1,
+	"defines": {
+		"OOPSY_TARGET_VERSIO": 1
+	},
+	"labels": {
+		"params": {
+			"knob1": "dsy_knob1",
+			"knob2": "dsy_knob2",
+			"knob3": "dsy_knob3",
+			"knob4": "dsy_knob4",
+			"knob5": "dsy_knob5",
+			"knob6": "dsy_knob6",
+			"knob7": "dsy_knob7",
+			"button1": "dsy_button1",
+			"sw1": "dsy_switch1",
+			"sw2": "dsy_switch2",
+			"gate1": "dsy_gate_in1",
+
+			"cv1": "dsy_knob1",
+			"cv2": "dsy_knob2",
+			"cv3": "dsy_knob3",
+			"cv4": "dsy_knob4",
+			"cv5": "dsy_knob5",
+			"cv6": "dsy_knob6",
+			"cv7": "dsy_knob7",
+			"ctrl1": "dsy_knob1",
+			"ctrl2": "dsy_knob2",
+			"ctrl3": "dsy_knob3",
+			"ctrl4": "dsy_knob4",
+			"ctrl5": "dsy_knob5",
+			"ctrl6": "dsy_knob6",
+			"ctrl7": "dsy_knob7",
+			"switch1": "dsy_switch1",
+			"switch2": "dsy_switch2",
+
+			"knob": "dsy_knob1",
+			"button": "dsy_button1",
+			"ctrl": "dsy_knob1",
+			"cv": "dsy_knob1",
+			"switch": "dsy_switch1",
+			"gate": "dsy_gate_in1",
+
+
+			"tap": "dsy_button1",
+			"fsu": "dsy_button1",
+			"abc": "dsy_switch1",
+			"xyz": "dsy_switch2"
+			
+		},
+		"outs": {
+
+		},
+		"datas": {}
+	},
+	"inputs": {
+		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_0)",
+		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_1)",
+		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_2)",
+		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_3)",
+		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_4)",
+		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_5)",
+		"dsy_knob7": "hardware.GetKnobValue(hardware.KNOB_6)",
+		"dsy_switch1": "(hardware.sw_[0].Read())",
+		"dsy_switch1": "(hardware.sw_[1].Read())",
+		"dsy_button1": "(hardware.SwitchPressed()?1.f:0.f)",
+		"dsy_gate_in1": "(hardware.Gate()?1.f:0.f)"
+	},
+	"outputs": {},
+    "mainhandlers": {},
+	"audio_ins": [
+      "dsy_in1",
+      "dsy_in2"
+    ],
+    "audio_outs": [
+      "dsy_out1",
+      "dsy_out2"
+    ],
+    "midi_ins": [],
+    "midi_outs": []
+}
