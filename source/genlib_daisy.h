@@ -684,6 +684,10 @@ namespace oopsy {
 
 	void GenDaisy::nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
 		daisy.nullAudioCallbackRunning = true;
+		// zero audio outs:
+		for (int i=0; i<OOPSY_IO_COUNT; i++) {
+			memset(hardware_outs[i], 0, sizeof(float)*size);
+		}
 	}
 
 
