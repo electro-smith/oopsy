@@ -1,5 +1,5 @@
 {
-    "max_apps":8,
+    "max_apps":1,
 	"defines": {
 		"OOPSY_TARGET_PETAL": 1
 	},
@@ -47,7 +47,7 @@
 		},
 		"datas": {}
 	},
-	"getters": {
+	"inputs": {
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
 		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
 		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
@@ -63,14 +63,26 @@
 		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)",
 		"dsy_exp1": "(hardware.GetExpression())"
 	},
-	"setters": {
-		"dsy_footswitch_led1": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>)",
-		"dsy_footswitch_led2": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>)",
-		"dsy_footswitch_led3": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>)",
-		"dsy_footswitch_led4": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
+	"outputs": {
+		"dsy_footswitch_led1": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>)"
+		},
+		"dsy_footswitch_led2": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>)"
+		},
+		"dsy_footswitch_led3": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>)"
+		},
+		"dsy_footswitch_led4": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
+		}
 	},
-	"setters_audio": {},
-    "mainhandlers": {},
+    "mainhandlers": {
+	},
 	"audio_ins": [
       "dsy_in1",
       "dsy_in2"

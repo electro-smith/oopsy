@@ -27,7 +27,7 @@
 		},
 		"datas": {}
 	},
-	"getters": {
+	"inputs": {
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
 		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
 		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
@@ -35,8 +35,7 @@
 		"dsy_encoder_incr": "(hardware.encoder.Increment())",
 		"dsy_encoder_switch": "(hardware.encoder.Pressed())"
 	},
-	"setters": {},
-	"setters_audio": {},
+	"outputs": {},
     "mainhandlers": {},
 	"audio_ins": [
       "dsy_in1",
