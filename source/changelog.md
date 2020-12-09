@@ -5,3 +5,4 @@
 - Examples:
   - crossover filter
   - pulsar osc
+  - mod FM osc
