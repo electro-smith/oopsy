@@ -72,3 +72,7 @@ node oopsy.js field ../examples/simple.cpp
 ## Installing
 
 See the instructions [on the wiki page](https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration))
+
+-----
+
+Oopsy was authored by [Graham](https://github.com/grrrwaaa) [Wakefield](http://alicelab.world) in 2020.

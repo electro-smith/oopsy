@@ -432,13 +432,7 @@
 					}
 ,
 					"patching_rect" : [ 18.0, 267.0, 137.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_pod"
-					}
-,
-					"text" : "gen~",
-					"varname" : "oopsy_pod"
+					"text" : "gen~"
 				}
 
 			}

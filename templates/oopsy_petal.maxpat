@@ -773,13 +773,7 @@
 					}
 ,
 					"patching_rect" : [ 17.333333333333343, 222.0, 71.5, 35.0 ],
-					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_petal"
-					}
-,
-					"text" : "gen~",
-					"varname" : "oopsy_petal"
+					"text" : "gen~"
 				}
 
 			}

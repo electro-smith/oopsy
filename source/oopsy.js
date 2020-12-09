@@ -2,6 +2,8 @@
 
 /*
 	Generates and compiles wrapper code for gen~ export to Daisy hardware
+
+	Oopsy was authored by Graham Wakefield in 2020.
 */
 const fs = require("fs"),
 	path = require("path"),
