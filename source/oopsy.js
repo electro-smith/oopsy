@@ -300,7 +300,8 @@ function analyze_cpp(cpp) {
 			param.cname = /pi->defaultvalue\s+=\s+self->([^;]+)/gm.exec(s)[1]; 
 			param.min = +(/pi->outputmin\s+=\s+([^;]+)/gm.exec(s)[1])
 			param.max = +(/pi->outputmax\s+=\s+([^;]+)/gm.exec(s)[1])
-			param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			//param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			let match = new RegExp(`\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`, 'gm').exec(cpp)
