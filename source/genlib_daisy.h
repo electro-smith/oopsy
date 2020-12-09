@@ -223,7 +223,7 @@ namespace oopsy {
 		Timer uitimer;
 
 		// microseconds spent in audio callback
-		uint32_t audioCpuUs = 0; 
+		float audioCpuUs = 0; 
 
 		float samplerate; // default 48014
 		size_t blocksize; // default 48
@@ -252,9 +252,9 @@ namespace oopsy {
 		} ScopeOptions;
 		
 		FontDef& font = Font_6x8;
-		uint_fast8_t scope_zoom = 3; 
+		uint_fast8_t scope_zoom = 7; 
 		uint_fast8_t scope_step = 0; 
-		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = 0;
+		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = SCOPESTYLE_TOPBOTTOM;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
 		char * console_memory;
@@ -715,8 +715,8 @@ namespace oopsy {
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
 			daisy.audio_postperform(hardware_ins, hardware_outs, size);
-			// convert elapsed time (200Mhz ticks) to CPU percentage:
-			daisy.audioCpuUs = (dsy_tim_get_tick() - start) / 200;
+			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
+			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
 	};
 

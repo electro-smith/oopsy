@@ -4,3 +4,4 @@
 - Fix for parsing params declared with @default
 - Examples:
   - crossover filter
+  - pulsar osc
