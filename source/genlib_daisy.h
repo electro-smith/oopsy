@@ -10,6 +10,8 @@
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
 
+//#define OOPSY_USE_LOGGING 1
+
 #if defined(OOPSY_TARGET_PATCH)
 	#include "daisy_patch.h"
 	#define OOPSY_IO_COUNT (4)
@@ -294,6 +296,11 @@ namespace oopsy {
 			hardware.Init(); 
 			samplerate = hardware.AudioSampleRate(); // default 48014
 			blocksize = hardware.AudioBlockSize();  // default 48
+
+			#ifdef OOPSY_USE_LOGGING
+			hardware.seed.StartLog(true);
+			//daisy::Logger<daisy::LOGGER_INTERNAL>::StartLog(false);
+			#endif
 			
 			#ifdef OOPSY_TARGET_HAS_OLED
 			console_cols = SSD1309_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
@@ -335,6 +342,12 @@ namespace oopsy {
 				mainloopCallback(t, dt);
 				
 				if (uitimer.ready(dt)) {
+
+
+					#ifdef OOPSY_USE_LOGGING
+					//hardware.seed.PrintLine("helo %d", t);
+					hardware.seed.PrintLine("helo"FLT_FMT3"", FLT_VAR3(t/1000.f));
+					#endif
 
 					#ifdef OOPSY_TARGET_USES_MIDI_UART
 					midi.mainloop();
