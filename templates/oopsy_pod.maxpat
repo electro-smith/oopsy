@@ -291,8 +291,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 244.5, 120.0, 176.0, 22.0 ],
-									"text" : "param knob2 @min -1 @max 1"
+									"patching_rect" : [ 244.5, 120.0, 79.0, 22.0 ],
+									"text" : "param knob2"
 								}
 
 							}
@@ -432,13 +432,7 @@
 					}
 ,
 					"patching_rect" : [ 18.0, 267.0, 137.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_pod"
-					}
-,
-					"text" : "gen~",
-					"varname" : "oopsy_pod"
+					"text" : "gen~"
 				}
 
 			}

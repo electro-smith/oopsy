@@ -32,10 +32,10 @@
       "datas": {}
     },
     "inputs": {
-      "dsy_cv_in1": "hardware.GetCtrlValue(hardware.CTRL_1)",
-      "dsy_cv_in2": "hardware.GetCtrlValue(hardware.CTRL_2)",
-      "dsy_cv_in3": "hardware.GetCtrlValue(hardware.CTRL_3)",
-      "dsy_cv_in4": "hardware.GetCtrlValue(hardware.CTRL_4)",
+      "dsy_cv_in1": "hardware.GetKnobValue(hardware.CTRL_1)",
+      "dsy_cv_in2": "hardware.GetKnobValue(hardware.CTRL_2)",
+      "dsy_cv_in3": "hardware.GetKnobValue(hardware.CTRL_3)",
+      "dsy_cv_in4": "hardware.GetKnobValue(hardware.CTRL_4)",
       "dsy_gate_in1": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)",
       "dsy_gate_in2": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
     },

@@ -6,5 +6,3 @@ max definesubstitution oopsy.petal bpatcher @name oopsy.maxpat @args petal;
 max objectfile oopsy.petal oopsy.petal;
 max definesubstitution oopsy.pod bpatcher @name oopsy.maxpat @args pod;
 max objectfile oopsy.pod oopsy.pod;
-max definesubstitution oopsy.versio bpatcher @name oopsy.maxpat @args versio;
-max objectfile oopsy.versio oopsy.versio;

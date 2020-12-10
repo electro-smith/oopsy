@@ -1,7 +1,7 @@
 
 autowatch = 1;
 inlets = 2;
-outlets = 2;
+outlets = 3;
 
 var path = ""
 var target = "patch"
@@ -24,7 +24,7 @@ function configure(doExport) {
 
 	// send message out to convert this path
 	// response will update the variable `path`:
-	outlet(1, export_path);
+	outlet(2, export_path);
 
 	var names = [];
 	var cpps = [];
@@ -66,6 +66,9 @@ function configure(doExport) {
 		}
 		gen = gen.nextobject;
 	}
+
+	var name = names.join("_")
+	outlet(1, name)
 
 	var args = [target].concat(cpps);
 	outlet(0, args)

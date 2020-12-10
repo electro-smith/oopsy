@@ -2,6 +2,8 @@
 
 /*
 	Generates and compiles wrapper code for gen~ export to Daisy hardware
+
+	Oopsy was authored by Graham Wakefield in 2020.
 */
 const fs = require("fs"),
 	path = require("path"),
@@ -209,7 +211,7 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	if (hardware.oled) defines.OOPSY_TARGET_HAS_OLED = 1
 
 	// store for debugging:
-	//fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
+	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
 
 	const cppcode = `${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}
@@ -298,7 +300,8 @@ function analyze_cpp(cpp) {
 			param.cname = /pi->defaultvalue\s+=\s+self->([^;]+)/gm.exec(s)[1]; 
 			param.min = +(/pi->outputmin\s+=\s+([^;]+)/gm.exec(s)[1])
 			param.max = +(/pi->outputmax\s+=\s+([^;]+)/gm.exec(s)[1])
-			param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			//param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			let match = new RegExp(`\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`, 'gm').exec(cpp)
@@ -651,7 +654,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.src || node.from.length)
 			.map(node => node.src ? `
 		${node.name} = ${node.src};` : `
-		${node.name} = ${node.from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
+		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")};`).join("")}
 		${daisy.device_outs.map(name => nodes[name])
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "audio")
@@ -659,6 +662,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${interpolate(node.config.setter, node)};`).join("")}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
+		${daisy.audio_outs.map(name=>nodes[name])
+			.filter(node => node.src != node.name)
+			.map(node=>node.src ? `
+		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
+		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 	}
 };`
 	app.cpp = {
