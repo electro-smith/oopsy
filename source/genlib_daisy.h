@@ -346,7 +346,7 @@ namespace oopsy {
 
 					#ifdef OOPSY_USE_LOGGING
 					//hardware.seed.PrintLine("helo %d", t);
-					hardware.seed.PrintLine("helo"FLT_FMT3"", FLT_VAR3(t/1000.f));
+					hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
 					#endif
 
 					#ifdef OOPSY_TARGET_USES_MIDI_UART
