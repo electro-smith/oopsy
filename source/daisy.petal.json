@@ -18,6 +18,7 @@
 			"sw5": "dsy_switch5",
 			"sw6": "dsy_switch6",
 			"sw7": "dsy_switch7",
+			"exp1": "dsy_exp1",
 
 			"ctrl1": "dsy_knob1",
 			"ctrl2": "dsy_knob2",
@@ -34,14 +35,19 @@
 			"switch7": "dsy_switch7",
 			"knob": "dsy_knob1",
 			"ctrl": "dsy_knob1",
-			"switch": "dsy_switch1"
+			"switch": "dsy_switch1",
+			"exp": "dsy_exp1",
+			"expression": "dsy_exp1"
 		},
 		"outs": {
-
+			"led1": "dsy_footswitch_led1",
+			"led2": "dsy_footswitch_led2",
+			"led3": "dsy_footswitch_led3",
+			"led4": "dsy_footswitch_led4"
 		},
 		"datas": {}
 	},
-	"getters": {
+	"inputs": {
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
 		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
 		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
@@ -54,10 +60,29 @@
 		"dsy_switch4": "(hardware.switches[3].Pressed()?1.f:0.f)",
 		"dsy_switch5": "(hardware.switches[4].Pressed()?1.f:0.f)",
 		"dsy_switch6": "(hardware.switches[5].Pressed()?1.f:0.f)",
-		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)"
+		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)",
+		"dsy_exp1": "(hardware.GetExpression())"
 	},
-	"setters": {},
-    "mainhandlers": {},
+	"outputs": {
+		"dsy_footswitch_led1": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>)"
+		},
+		"dsy_footswitch_led2": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>)"
+		},
+		"dsy_footswitch_led3": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>)"
+		},
+		"dsy_footswitch_led4": {
+			"where": "display",
+			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
+		}
+	},
+    "mainhandlers": {
+	},
 	"audio_ins": [
       "dsy_in1",
       "dsy_in2"

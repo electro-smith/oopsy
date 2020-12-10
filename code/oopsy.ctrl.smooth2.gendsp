@@ -41,40 +41,12 @@
 		"boxes" : [ 			{
 				"box" : 				{
 					"id" : "obj-15",
-					"linecount" : 13,
+					"linecount" : 8,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 276.0, 35.0, 150.0, 181.0 ],
-					"text" : "A 3-pole lowpass filter at 30Hz seems to effectively silence any noise from hardware input ADCs.\n\nMost of the time this level of aggressive smoothing is probably unnecessary, but for some applications that are very sensitive (e.g. setting long delay line lengths) it might be needed."
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"fontname" : "Lato",
-					"fontsize" : 12.0,
-					"id" : "obj-11",
-					"maxclass" : "newobj",
-					"numinlets" : 3,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 190.5, 193.0, 46.0, 23.0 ],
-					"text" : "mix"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"fontname" : "Lato",
-					"fontsize" : 12.0,
-					"id" : "obj-12",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 190.5, 153.0, 45.0, 23.0 ],
-					"text" : "history"
+					"patching_rect" : [ 254.0, 61.0, 150.0, 114.0 ],
+					"text" : "A 2-pole lowpass filter at 10Hz seems to effectively silence noise from hardware input ADCs.\n\nBut a 10Hz filter might be too slow to respond, if so, try the smooth3 option."
 				}
 
 			}
@@ -114,7 +86,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 190.5, 240.0, 37.0, 23.0 ],
+					"patching_rect" : [ 118.0, 239.0, 37.0, 23.0 ],
 					"text" : "out 1"
 				}
 
@@ -199,7 +171,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 127.5, 23.0, 22.0, 23.0 ],
-					"text" : "30"
+					"text" : "10"
 				}
 
 			}
@@ -220,30 +192,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-12", 0 ],
-					"midpoints" : [ 200.0, 222.0, 178.0, 222.0, 178.0, 141.0, 200.0, 141.0 ],
-					"order" : 1,
-					"source" : [ "obj-11", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-4", 0 ],
-					"order" : 0,
-					"source" : [ "obj-11", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-11", 0 ],
-					"source" : [ "obj-12", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-6", 0 ],
 					"source" : [ "obj-14", 0 ]
 				}
@@ -258,18 +206,9 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-11", 2 ],
-					"midpoints" : [ 137.0, 123.5, 227.0, 123.5 ],
-					"order" : 0,
-					"source" : [ "obj-5", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-6", 2 ],
 					"midpoints" : [ 137.0, 121.5, 80.5, 121.5 ],
-					"order" : 2,
+					"order" : 1,
 					"source" : [ "obj-5", 0 ]
 				}
 
@@ -278,7 +217,7 @@
 				"patchline" : 				{
 					"destination" : [ "obj-8", 2 ],
 					"midpoints" : [ 137.0, 122.5, 154.5, 122.5 ],
-					"order" : 1,
+					"order" : 0,
 					"source" : [ "obj-5", 0 ]
 				}
 
@@ -302,7 +241,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-11", 1 ],
+					"destination" : [ "obj-4", 0 ],
 					"order" : 0,
 					"source" : [ "obj-8", 0 ]
 				}
@@ -324,8 +263,7 @@
 				}
 
 			}
- ],
-		"autosave" : 0
+ ]
 	}
 
 }

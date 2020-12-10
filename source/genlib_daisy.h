@@ -223,12 +223,13 @@ namespace oopsy {
 		Timer uitimer;
 
 		// microseconds spent in audio callback
-		uint32_t audioCpuUs = 0; 
+		float audioCpuUs = 0; 
 
 		float samplerate; // default 48014
 		size_t blocksize; // default 48
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
+		void (*displayCallback)(uint32_t t, uint32_t dt);
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
@@ -251,9 +252,9 @@ namespace oopsy {
 		} ScopeOptions;
 		
 		FontDef& font = Font_6x8;
-		uint_fast8_t scope_zoom = 3; 
+		uint_fast8_t scope_zoom = 7; 
 		uint_fast8_t scope_step = 0; 
-		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = 0;
+		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = SCOPESTYLE_TOPBOTTOM;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
 		char * console_memory;
@@ -266,6 +267,7 @@ namespace oopsy {
 		void reset(A& newapp) {
 			// first, remove callbacks:
 			mainloopCallback = nullMainloopCallback;
+			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
 			hardware.ChangeAudioCallback(nullAudioCallback);
 			while (!nullAudioCallbackRunning) dsy_system_delay(10);
@@ -276,6 +278,7 @@ namespace oopsy {
 			newapp.init(*this);
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
+			displayCallback = newapp.staticDisplayCallback;
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("loaded gen~ %s", appdefs[app_selected].name);
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
@@ -306,6 +309,7 @@ namespace oopsy {
 			hardware.StartAdc();
 			hardware.StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
+			displayCallback = nullMainloopCallback;
 
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
 			midi.init(); 
@@ -323,12 +327,23 @@ namespace oopsy {
 				uint32_t t1 = dsy_system_getnow();
 				dt = t1-t;
 				t = t1;
+
+				// pulse seed LED for status according to CPU usage:
+				hardware.seed.SetLed((t % 1000)/10 <= uint32_t(0.0001f*audioCpuUs*samplerate/blocksize));
+				
+				// handle app-level code (e.g. for CV/gate outs)
+				mainloopCallback(t, dt);
 				
 				if (uitimer.ready(dt)) {
 
 					#ifdef OOPSY_TARGET_USES_MIDI_UART
 					midi.mainloop();
 					#endif
+
+					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
+						// LONG PRESS
+						is_mode_selecting = 1;
+					}
 
 					// CLEAR DISPLAY
 					#ifdef OOPSY_TARGET_HAS_OLED
@@ -337,18 +352,14 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_PETAL 
 					hardware.ClearLeds();
 					#endif
-					
-					// handle app-level code (e.g. for LED/CV/gate outs)
-					mainloopCallback(t, dt);
-
+				
 					#ifdef OOPSY_TARGET_PETAL 
 					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
-					// multi-app petal is always in menu mode:
+					// multi-app is always in menu mode:
 					mode = MODE_MENU;
 					#endif
-					
 					for(int i = 0; i < 8; i++) {
 						float white = (i == app_selecting || menu_button_released);
 						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
@@ -363,10 +374,9 @@ namespace oopsy {
 					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
-					// multi-app petal is always in menu mode:
+					// multi-app is always in menu mode:
 					mode = MODE_MENU;
 					#endif
-					
 					for(int i = 0; i < 4; i++) {
 						float white = (i == app_selecting || menu_button_released);
 						hardware.SetLed(i, 
@@ -377,13 +387,6 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_VERSIO
 
-					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
-						// LONG PRESS
-						#ifndef OOPSY_TARGET_PETAL
-						is_mode_selecting = 1;
-						#endif
-					}
-					
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {
 						mode += menu_button_incr;
@@ -420,14 +423,18 @@ namespace oopsy {
 
 					// SHORT PRESS	
 					if (menu_button_released) {
+						menu_button_released = 0;
 						if (is_mode_selecting) {
 							is_mode_selecting = 0;
 						#ifdef OOPSY_MULTI_APP
 						} else if (mode == MODE_MENU) {
 							if (app_selected != app_selecting) {
 								app_selected = app_selecting;
-								appdefs[app_selected].load();
+								#ifndef OOPSY_TARGET_HAS_OLED
 								mode = mode_default;
+								#endif
+								appdefs[app_selected].load();
+								continue;
 							}
 						#endif
 						#ifdef OOPSY_TARGET_HAS_OLED
@@ -436,20 +443,20 @@ namespace oopsy {
 						#endif
 						}
 					} 
-					menu_button_released = 0;
 
+					// OLED DISPLAY:
+					#ifdef OOPSY_TARGET_HAS_OLED
 					switch(mode) {
-						#ifdef OOPSY_TARGET_HAS_OLED
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
 							for (int i=0; i<8; i++) {
 								if (i == app_selecting) {
 									hardware.display.SetCursor(0, font.FontHeight * i);
-									hardware.display.WriteString((char *)">", font, true);
+									hardware.display.WriteString((char *)">", font, i != app_selected);
 								}
 								if (i < app_count) {
 									hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-									hardware.display.WriteString((char *)appdefs[i].name, font, true);
+									hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
 								}
 							}
 						} break;
@@ -529,30 +536,16 @@ namespace oopsy {
 							console_display(); 
 							break;
 						}
-						
-						#else  // !OOPSY_TARGET_HAS_OLED
-						#ifdef OOPSY_MULTI_APP
-						case MODE_MENU: {
-							// TODO show menu selection via LEDs
-							
-						} break;
-						#endif
-						#endif //OOPSY_TARGET_HAS_OLED
 						default: {
 						}
 					}
-
 					if (is_mode_selecting) {
-						#ifdef OOPSY_TARGET_HAS_OLED
 						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
-						#endif
 					} 
-					#ifdef OOPSY_TARGET_HAS_OLED
-					if (mode != MODE_NONE) 
-					{
+					if (mode != MODE_NONE) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
-						offset += snprintf(console_stats+offset, console_cols-offset, "%cM%c ", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
+						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
 						midi.in_active = midi.out_active = 0;
 						#endif
 						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
@@ -560,14 +553,18 @@ namespace oopsy {
 						hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 						hardware.display.WriteString(console_stats, font, true);
 					}
+					#endif //OOPSY_TARGET_HAS_OLED
+					
+					// handle app-level code (e.g. for LED etc.)
+					displayCallback(t, dt);
+
+					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
-
 					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 
-					
 				} // uitimer.ready
 			}
 			return 0;
@@ -637,6 +634,9 @@ namespace oopsy {
 				}
 			}
 			#endif
+			#if (OOPSY_TARGET_POD)
+				hardware.UpdateLeds();
+			#endif
 		}
 
 		#ifdef OOPSY_TARGET_HAS_OLED
@@ -692,6 +692,10 @@ namespace oopsy {
 
 	void GenDaisy::nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
 		daisy.nullAudioCallbackRunning = true;
+		// zero audio outs:
+		for (int i=0; i<OOPSY_IO_COUNT; i++) {
+			memset(hardware_outs[i], 0, sizeof(float)*size);
+		}
 	}
 
 
@@ -704,13 +708,18 @@ namespace oopsy {
 			self.mainloopCallback(daisy, t, dt);
 		}
 
+		static void staticDisplayCallback(uint32_t t, uint32_t dt) {
+			T& self = *(T *)daisy.app;
+			self.displayCallback(daisy, t, dt);
+		}
+
 		static void staticAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
 			uint32_t start = dsy_tim_get_tick(); // 200MHz
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
 			daisy.audio_postperform(hardware_ins, hardware_outs, size);
-			// convert elapsed time (200Mhz ticks) to CPU percentage:
-			daisy.audioCpuUs = (dsy_tim_get_tick() - start) / 200;
+			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
+			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
 	};
 

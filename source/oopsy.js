@@ -2,6 +2,8 @@
 
 /*
 	Generates and compiles wrapper code for gen~ export to Daisy hardware
+
+	Oopsy was authored by Graham Wakefield in 2020.
 */
 const fs = require("fs"),
 	path = require("path"),
@@ -239,7 +241,6 @@ int main(void) {
 	try {
 		try {
 			console.log(execSync("make clean", { cwd: build_path }).toString())
-			// TODO: make this cross-platform:
 			if (os.platform() == "win32") {
 				// Gather up make output to run command per line as child process
 				let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
@@ -248,7 +249,6 @@ int main(void) {
 					if (line.length > 0)
 						execSync(line, { cwd: build_path }).toString()
 				})
-			
 			} else {
 				console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
 			}
@@ -300,7 +300,8 @@ function analyze_cpp(cpp) {
 			param.cname = /pi->defaultvalue\s+=\s+self->([^;]+)/gm.exec(s)[1]; 
 			param.min = +(/pi->outputmin\s+=\s+([^;]+)/gm.exec(s)[1])
 			param.max = +(/pi->outputmax\s+=\s+([^;]+)/gm.exec(s)[1])
-			param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			//param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
+			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			let match = new RegExp(`\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`, 'gm').exec(cpp)
@@ -316,6 +317,7 @@ function generate_daisy(hardware, nodes, target) {
 		audio_ins: hardware.audio_ins.map((v, i)=>{
 			let name = `dsy_in${i+1}`
 			nodes[name] = {
+				name: name,
 				// name: name,
 				// kind: "input_buffer",
 				// index: i,
@@ -326,6 +328,7 @@ function generate_daisy(hardware, nodes, target) {
 		audio_outs: hardware.audio_outs.map((v, i)=>{
 			let name = `dsy_out${i+1}`
 			nodes[name] = {
+				name: name,
 				// name: name,
 				// kind: "output_buffer",
 				// index: i,
@@ -337,6 +340,7 @@ function generate_daisy(hardware, nodes, target) {
 		midi_ins: hardware.midi_ins.map((v, i)=>{
 			let name = `dsy_midi_in${i+1}`
 			nodes[name] = {
+				name: name,
 				// buffername: name,
 				// index: i,
 				to: [],
@@ -346,6 +350,7 @@ function generate_daisy(hardware, nodes, target) {
 		midi_outs: hardware.midi_outs.map((v, i)=>{
 			let name = `dsy_midi_out${i+1}`
 			nodes[name] = {
+				name: name,
 				// buffername: name,
 				// index: i,
 				from: [],
@@ -354,21 +359,12 @@ function generate_daisy(hardware, nodes, target) {
 		}),
 
 		// DEVICE INPUTS:
-		gpio_ins: Object.keys(hardware.getters).map(v => {
+		device_inputs: Object.keys(hardware.inputs).map(v => {
 			let name = v
 			nodes[name] = {
-				to: [],
-				get: hardware.getters[v],
-			}
-			return name;
-		}),
-
-		// DEVICE OUTPUTS:
-		gpio_outs: Object.keys(hardware.setters).map(name => {
-			nodes[name] = {
 				name: name,
-				setter: hardware.setters[name],
-				from: [],
+				to: [],
+				get: hardware.inputs[v],
 			}
 			return name;
 		}),
@@ -379,6 +375,16 @@ function generate_daisy(hardware, nodes, target) {
 				name: name,
 				setter: hardware.mainhandlers[name],
 				data: null,
+			}
+			return name;
+		}),
+
+		// DEVICE OUTPUTS:
+		device_outs: Object.keys(hardware.outputs).map(name => {
+			nodes[name] = {
+				name: name,
+				config: hardware.outputs[name],
+				from: [],
 			}
 			return name;
 		}),
@@ -536,7 +542,7 @@ function generate_app(app, hardware, target) {
 	// map unused cvs/knobs to unmapped params
 	let upi=0; // unused param index
 	let param = gen.params[upi];
-	Object.keys(hardware.getters).forEach(name => {
+	Object.keys(hardware.inputs).forEach(name => {
 		const node = nodes[name];
 		if (node.to.length == 0) {
 			//console.log(name, "not mapped")
@@ -567,9 +573,9 @@ function generate_app(app, hardware, target) {
 	{
 		let available = []
 		let i=0
-		daisy.gpio_outs.forEach(name => {
+		daisy.device_outs.forEach(name => {
 			const node = nodes[name];
-			// does this output have an audio source?
+			// does this output have an cv source?
 			if (node.from.length) {
 				available.push(name);
 			} else if (available.length) {
@@ -583,7 +589,7 @@ function generate_app(app, hardware, target) {
 struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.filter(name => nodes[name].src)
-		.concat(daisy.gpio_outs)
+		.concat(daisy.device_outs)
 		.map(name=>`
 	float ${name};`).join("")}
 	${app.audio_outs.map(name=>`
@@ -593,32 +599,42 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		${gen.params
 			.filter(name => nodes[name].src)
-			.concat(daisy.gpio_outs)
+			.concat(daisy.device_outs)
 			.map(name=>`
 		${name} = 0.f;`).join("")}
 	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
-		// whatever handling is needed here
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
-		${daisy.gpio_outs
-			.filter(name => nodes[name].src || nodes[name].from.length)
-			.map((name, i)=>`
-		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
-		${daisy.mainhandlers
-			.filter(name => nodes[name].data)
-			.map(name =>`
-		${interpolate(nodes[name].setter, nodes[name])};`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.filter(node => node.config.where == "main")
+			.map(node=>`
+		${interpolate(node.config.setter, node)};`).join("")}
+	}
+
+	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
+		Daisy& hardware = daisy.hardware;
+		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${daisy.mainhandlers.map(name => nodes[name])
+			.filter(node => node.data)
+			.map(node =>`
+		${interpolate(node.setter, node)};`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.filter(node => node.config.where == "display")
+			.map(node=>`
+		${interpolate(node.config.setter, node)};`).join("")}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
-		${daisy.gpio_ins
-			.filter(name => nodes[name].to.length)
-			.map(name=>`
-		float ${name} = ${nodes[name].get};`).join("")}
+		${daisy.device_inputs.map(name => nodes[name])
+			.filter(node => node.to.length)
+			.map(node=>`
+		float ${node.name} = ${node.get};`).join("")}
 		${gen.params.filter(name => nodes[name].src).map(name=>`
 		// ${nodes[name].label}
 		${name} = ${nodes[name].src}*${toCfloat(nodes[name].max-nodes[name].min)} + ${toCfloat(nodes[name].min)};
@@ -634,13 +650,23 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		// ${gen.audio_outs.map(name=>nodes[name].label).join(", ")}:
 		float * outputs[] = { ${gen.audio_outs.map(name=>nodes[name].src).join(", ")} };
 		gen.perform(inputs, outputs, size);
-		${daisy.gpio_outs
-			.filter(name => nodes[name].src || nodes[name].from.length > 0)
-			.map(name => nodes[name].src ? `
-		${name} = ${nodes[name].src};` : `
-		${name} = ${nodes[name].from.map(name=>name+"[size-1]").join(" + ")};`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.map(node => node.src ? `
+		${node.name} = ${node.src};` : `
+		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")};`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.filter(node => node.config.where == "audio")
+			.map(node=>`
+		${interpolate(node.config.setter, node)};`).join("")}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
+		${daisy.audio_outs.map(name=>nodes[name])
+			.filter(node => node.src != node.name)
+			.map(node=>node.src ? `
+		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
+		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 	}
 };`
 	app.cpp = {

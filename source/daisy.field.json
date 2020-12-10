@@ -82,7 +82,7 @@
 			"leds": "dsy_leds"
 		}
 	},
-	"getters": {
+	"inputs": {
 		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
 		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
 		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
@@ -115,10 +115,19 @@
 		"dsy_cv_in4": "hardware.GetCvValue(3)",
 		"dsy_gate_in1": "(hardware.gate_in.State()?1.f:0.f)"
 	},
-	"setters": {
-		"dsy_cv_out1": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)",
-		"dsy_cv_out2": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)",
-		"dsy_gate_out1": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
+	"outputs": {
+		"dsy_cv_out1": {
+			"where":"main",
+			"setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
+		},
+		"dsy_cv_out2": {
+			"where":"main",
+			"setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+		},
+		"dsy_gate_out1": {
+			"where":"audio",
+			"setter": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
+		}
 	},
 	"mainhandlers": {
 		"dsy_leds": "daisy.setFieldLedsFromData($<data>)"
