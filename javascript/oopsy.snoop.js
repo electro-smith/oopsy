@@ -13,15 +13,16 @@ function bang() {
 
 function configure(doExport) {
 	var pat = this.patcher.parentpatcher;
-	if (!pat.filepath) {
+	var topmost_pat = pat;
+	while (topmost_pat.parentpatcher) {
+		topmost_pat = topmost_pat.parentpatcher;
+	}
+	if (!topmost_pat.filepath) {
 		error("oopsy: your patcher needs to be saved first\n");
 		pat.message("write");
 		return false;
 	}
-	var export_path = extractFilepath(pat.filepath);
-
-	var default_name = pat.name || "gen";
-
+	var export_path = extractFilepath(topmost_pat.filepath);
 	// send message out to convert this path
 	// response will update the variable `path`:
 	outlet(2, export_path);
@@ -29,43 +30,58 @@ function configure(doExport) {
 	var names = [];
 	var cpps = [];
 
-	// iterate all gen~ objects in the patcher
-	// to set their export name, path, and scripting name
-	var gen = pat.firstobject;
-	while (gen) {
-		if (gen.maxclass.toString() == "gen~") {
-			var name = default_name;
-			if (gen.getattr("exportname")) { 
-				name = gen.getattr("exportname").toString(); 
-			} else if (gen.getattr("title")) { 
-				name = gen.getattr("title").toString(); 
-			} else if (gen.getattr("gen")) { 
-				name = gen.getattr("gen").toString(); 
-			} else if (gen.varname.toString()) {
-				name = gen.varname.toString();
-			}
-			// sanitize:
-			name = safename(name);
-			// sanitize via scripting name too:
-			while (name != gen.varname.toString()) {
-				// try to apply it:
-				gen.varname = name;
-				name = safename(gen.varname);
-			}
-			// ensure exportname matches:
-			gen.message("exportname", name);
-			// ensure each gen~ has an export path configured:
-			gen.message("exportfolder", export_path);
-			
-			if (doExport) {
-				gen.message("exportcode");
-			}
-			names.push(name);
+	// find gen~ objects in a patcher:
+	function find_gens(pat) {
+		var default_name = pat.name || "gen";
+		// iterate all gen~ objects in the patcher
+		// to set their export name, path, and scripting name
+		var obj = pat.firstobject;
+		while (obj) {
+			if (obj.maxclass.toString() == "patcher") {
+				var subpat = obj.subpatcher()
+				if (subpat) {
+					post("patcher", subpat.name, "\n")
+					find_gens(subpat);
+				}
+			} else if (obj.maxclass.toString() == "gen~") {
+				var name = default_name;
+				if (obj.getattr("exportname")) { 
+					name = obj.getattr("exportname").toString(); 
+				} else if (obj.getattr("title")) { 
+					name = obj.getattr("title").toString(); 
+				} else if (obj.getattr("gen")) { 
+					name = obj.getattr("gen").toString(); 
+				} else if (obj.varname.toString()) {
+					name = obj.varname.toString();
+				}
+				// sanitize:
+				name = safename(name);
+				// sanitize via scripting name too:
+				while (name != obj.varname.toString()) {
+					// try to apply it:
+					obj.varname = name;
+					name = safename(obj.varname);
+				}
+				// ensure exportname matches:
+				obj.message("exportname", name);
+				// ensure each gen~ has an export path configured:
+				obj.message("exportfolder", export_path);
+				
+				if (doExport) obj.message("exportcode");
+				
+				names.push(name);
 
-			cpps.push(path + sep + name + ".cpp")
+				cpps.push(path + sep + name + ".cpp")
+			}
+			obj = obj.nextobject;
 		}
-		gen = gen.nextobject;
 	}
+	find_gens(pat, names, cpps, export_path) 
+
+	if (names.length < 1) {
+		post("oopsy: didn't find any gen~ objects\n")
+		return;
+	} 
 
 	var name = names.join("_")
 	outlet(1, name)
