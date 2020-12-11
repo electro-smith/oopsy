@@ -708,9 +708,9 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		case ${i}:
 		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr * ${toCfloat(node.stepsize)});
 		snprintf(label, len, "${node.src ? 
-			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,8).padEnd(8," ")}" FLT_FMT3 ""` 
+			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 ""` 
 			: 
-			`%s ${node.label.substring(0,10).padEnd(10," ")}" FLT_FMT3 "", (daisy.param_is_tweaking && ${i} == daisy.param_selected) ? "enc" : "   "`
+			`%s ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 "", (daisy.param_is_tweaking && ${i} == daisy.param_selected) ? "enc" : "   "`
 			}, FLT_VAR3(${node.varname}) ); 
 		break;`).join("")}
 		}	
