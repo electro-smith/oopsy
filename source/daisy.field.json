@@ -5,196 +5,201 @@
 	},
 	"labels": {
 		"params": {
-			"knob1": "dsy_knob1",
-			"knob2": "dsy_knob2",
-			"knob3": "dsy_knob3",
-			"knob4": "dsy_knob4",
-			"knob5": "dsy_knob5",
-			"knob6": "dsy_knob6",
-			"knob7": "dsy_knob7",
-			"knob8": "dsy_knob8",
-			"keyA1": "dsy_key9",
-			"keyA2": "dsy_key10",
-			"keyA3": "dsy_key11",
-			"keyA4": "dsy_key12",
-			"keyA5": "dsy_key13",
-			"keyA6": "dsy_key14",
-			"keyA7": "dsy_key15",
-			"keyA8": "dsy_key16",
-			"keyB1": "dsy_key1",
-			"keyB2": "dsy_key2",
-			"keyB3": "dsy_key3",
-			"keyB4": "dsy_key4",
-			"keyB5": "dsy_key5",
-			"keyB6": "dsy_key6",
-			"keyB7": "dsy_key7",
-			"keyB8": "dsy_key8",
-			"sw1": "dsy_switch1",
-			"sw2": "dsy_switch2",
-			"cv1": "dsy_cv_in1",
-			"cv2": "dsy_cv_in2",
-			"cv3": "dsy_cv_in3",
-			"cv4": "dsy_cv_in4",
-			"gate1": "dsy_gate_in1",
+			"knob1": "kn1",
+			"knob2": "kn2",
+			"knob3": "kn3",
+			"knob4": "kn4",
+			"knob5": "kn5",
+			"knob6": "kn6",
+			"knob7": "kn7",
+			"knob8": "kn8",
+			"keyA1": "kB1",
+			"keyA2": "kB2",
+			"keyA3": "kB3",
+			"keyA4": "kB4",
+			"keyA5": "kB5",
+			"keyA6": "kB6",
+			"keyA7": "kB7",
+			"keyA8": "kB8",
+			"keyB1": "kA1",
+			"keyB2": "kA2",
+			"keyB3": "kA3",
+			"keyB4": "kA4",
+			"keyB5": "kA5",
+			"keyB6": "kA6",
+			"keyB7": "kA7",
+			"keyB8": "kA8",
+			"sw1": "sw1",
+			"sw2": "sw2",
+			"cv1": "cv1",
+			"cv2": "cv2",
+			"cv3": "cv3",
+			"cv4": "cv4",
+			"gate1": "gt1",
 
-			"key1": "dsy_key1",
-			"key2": "dsy_key2",
-			"key3": "dsy_key3",
-			"key4": "dsy_key4",
-			"key5": "dsy_key5",
-			"key6": "dsy_key6",
-			"key7": "dsy_key7",
-			"key8": "dsy_key8",
-			"key9": "dsy_key9",
-			"key10": "dsy_key10",
-			"key11": "dsy_key11",
-			"key12": "dsy_key12",
-			"key13": "dsy_key13",
-			"key14": "dsy_key14",
-			"key15": "dsy_key15",
-			"key16": "dsy_key16",
-			"ctrl1": "dsy_knob1",
-			"ctrl2": "dsy_knob2",
-			"ctrl3": "dsy_knob3",
-			"ctrl4": "dsy_knob4",
-			"ctrl5": "dsy_knob5",
-			"ctrl6": "dsy_knob6",
-			"ctrl7": "dsy_knob7",
-			"ctrl8": "dsy_knob8",
-			"switch1": "dsy_switch1",
-			"switch2": "dsy_switch2",
+			"key1": "kA1",
+			"key2": "kA2",
+			"key3": "kA3",
+			"key4": "kA4",
+			"key5": "kA5",
+			"key6": "kA6",
+			"key7": "kA7",
+			"key8": "kA8",
+			"key9": "kB1",
+			"key10": "kB2",
+			"key11": "kB3",
+			"key12": "kB4",
+			"key13": "kB5",
+			"key14": "kB6",
+			"key15": "kB7",
+			"key16": "kB8",
+			"ctrl1": "kn1",
+			"ctrl2": "kn2",
+			"ctrl3": "kn3",
+			"ctrl4": "kn4",
+			"ctrl5": "kn5",
+			"ctrl6": "kn6",
+			"ctrl7": "kn7",
+			"ctrl8": "kn8",
+			"switch1": "sw1",
+			"switch2": "sw2",
 
-			"knob": "dsy_knob1",
-			"key": "dsy_key1",
-			"ctrl": "dsy_knob1",
-			"cv": "dsy_cv_in1",
-			"gate": "dsy_gate_in1",
-			"switch": "dsy_switch1"
+			"knob": "kn",
+			"key": "kA1",
+			"ctrl": "kn",
+			"cv": "cv1",
+			"gate": "gt1",
+			"switch": "sw1"
 		},
 		"outs": {
-			"cv": "dsy_cv_out1",
-			"cv1": "dsy_cv_out1",
-			"cv2": "dsy_cv_out2",
-			"gate": "dsy_gate_out1",
-			"gate1": "dsy_gate_out1"
+			"cv": "cvout1",
+			"cv1": "cvout1",
+			"cv2": "cvout2",
+			"gate": "gateout1",
+			"gate1": "gateout1"
 		},
 		"datas": {
 			"leds": "dsy_leds"
 		}
 	},
 	"inputs": {
-		"dsy_knob1": {
+		"kn1": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
 		},
-		"dsy_knob2": {
+		"kn2": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
 		},
-		"dsy_knob3": {
+		"kn3": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
 		},
-		"dsy_knob4": {
+		"kn4": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
 		},
-		"dsy_knob5": {
+		"kn5": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
 		},
-		"dsy_knob6": {
+		"kn6": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
 		},
-		"dsy_knob7": {
+		"kn7": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_7)"
 		},
-		"dsy_knob8": {
+		"kn8": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_8)"
 		},
-		"dsy_key1": {
+		"kA1": {
 			"getter": "(hardware.KeyboardState(0)?1.f:0.f)"
 		},
-		"dsy_key2": {
+		"kA2": {
 			"getter": "(hardware.KeyboardState(1)?1.f:0.f)"
 		},
-		"dsy_key3": {
+		"kA3": {
 			"getter": "(hardware.KeyboardState(2)?1.f:0.f)"
 		},
-		"dsy_key4": {
+		"kA4": {
 			"getter": "(hardware.KeyboardState(3)?1.f:0.f)"
 		},
-		"dsy_key5": {
+		"kA5": {
 			"getter": "(hardware.KeyboardState(4)?1.f:0.f)"
 		},
-		"dsy_key6": {
+		"kA6": {
 			"getter": "(hardware.KeyboardState(5)?1.f:0.f)"
 		},
-		"dsy_key7": {
+		"kA7": {
 			"getter": "(hardware.KeyboardState(6)?1.f:0.f)"
 		},
-		"dsy_key8": {
+		"kA8": {
 			"getter": "(hardware.KeyboardState(7)?1.f:0.f)"
 		},
-		"dsy_key9": {
+		"kB1": {
 			"getter": "(hardware.KeyboardState(8)?1.f:0.f)"
 		},
-		"dsy_key10": {
+		"kB2": {
 			"getter": "(hardware.KeyboardState(9)?1.f:0.f)"
 		},
-		"dsy_key11": {
+		"kB3": {
 			"getter": "(hardware.KeyboardState(10)?1.f:0.f)"
 		},
-		"dsy_key12": {
+		"kB4": {
 			"getter": "(hardware.KeyboardState(11)?1.f:0.f)"
 		},
-		"dsy_key13": {
+		"kB5": {
 			"getter": "(hardware.KeyboardState(12)?1.f:0.f)"
 		},
-		"dsy_key14": {
+		"kB6": {
 			"getter": "(hardware.KeyboardState(13)?1.f:0.f)"
 		},
-		"dsy_key15": {
+		"kB7": {
 			"getter": "(hardware.KeyboardState(14)?1.f:0.f)"
 		},
-		"dsy_key16": {
+		"kB8": {
 			"getter": "(hardware.KeyboardState(15)?1.f:0.f)"
 		},
-		"dsy_switch1": {
+		"sw1": {
 			"getter": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f)"
 		},
-		"dsy_switch2": {
+		"sw2": {
 			"getter": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)"
 		},
-		"dsy_cv_in1": {
-			"getter": "hardware.GetCvValue(0)"
+		"cv1": {
+			"nick": "cv1",
+        	"getter": "hardware.GetCvValue(0)"
 		},
-		"dsy_cv_in2": {
-			"getter": "hardware.GetCvValue(1)"
+		"cv2": {
+			"nick": "cv2",
+        	"getter": "hardware.GetCvValue(1)"
 		},
-		"dsy_cv_in3": {
-			"getter": "hardware.GetCvValue(2)"
+		"cv3": {
+			"nick": "cv3",
+        	"getter": "hardware.GetCvValue(2)"
 		},
-		"dsy_cv_in4": {
-			"getter": "hardware.GetCvValue(3)"
+		"cv4": {
+			"nick": "cv4",
+        	"getter": "hardware.GetCvValue(3)"
 		},
-		"dsy_gate_in1": {
-			"getter": "(hardware.gate_in.State()?1.f:0.f)"
+		"gt1": {
+			"nick": "gt1",
+        	"getter": "(hardware.gate_in.State()?1.f:0.f)"
 		}
 	},
 	"outputs": {
-		"dsy_cv_out1": {
+		"cvout1": {
 			"where":"main",
 			"setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
 		},
-		"dsy_cv_out2": {
+		"cvout2": {
 			"where":"main",
 			"setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
 		},
-		"dsy_gate_out1": {
+		"gateout1": {
 			"where":"audio",
 			"setter": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
 		}

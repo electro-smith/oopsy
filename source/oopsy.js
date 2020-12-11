@@ -566,7 +566,7 @@ function generate_app(app, hardware, target) {
 	Object.keys(hardware.inputs).forEach(name => {
 		const node = nodes[name];
 		if (node.to.length == 0 && node.automap) {
-			console.log(name, "not mapped")
+			//console.log(name, "not mapped")
 			// find next param without a src:
 			while (param && !!nodes[param].src) param = gen.params[++upi];
 			if (param) {
@@ -618,43 +618,12 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		daisy.param_count = ${gen.params.length};
+		daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};	
 		${gen.params.map(name=>nodes[name])
 			.map(node=>`
 		${node.varname} = ${toCfloat(node.default)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
-	}	
-
-	const char * paramname(int idx) {
-		switch(idx) {
-			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}:return "${node.label}";`).join("")}
-		}
-		return "";
-	}
-
-	float getparam(int idx) {
-		switch(idx) {
-			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return ${node.varname};`).join("")}
-		}
-		return 0.f;
-	}
-
-	float incrparam(int idx, int incr) {
-		switch(idx) {
-			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return setparam(idx, ${node.varname} + incr * ${toCfloat(node.stepsize)});`).join("")}	
-		}
-		return 0.f;	
-	}
-
-	float setparam(int idx, float val) {
-		switch(idx) {
-			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return ${node.varname} = (val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
-		}
-		return 0.f;	
 	}
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -723,7 +692,30 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(node=>node.src ? `
 		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
+	}	
+
+	float setparam(int idx, float val) {
+		switch(idx) {
+			${gen.params.map(name=>nodes[name]).map((node, i)=>`
+			case ${i}: return ${node.varname} = (val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
+		}
+		return 0.f;	
 	}
+
+	#ifdef OOPSY_TARGET_HAS_OLED
+	void paramCallback(oopsy::GenDaisy& daisy, int idx, char * label, int len, bool tweak) {
+		switch(idx) { ${gen.params.map(name=>nodes[name]).map((node, i)=>`
+		case ${i}:
+		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr * ${toCfloat(node.stepsize)});
+		snprintf(label, len, "${node.src ? 
+			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,8).padEnd(8," ")}" FLT_FMT3 ""` 
+			: 
+			`%s ${node.label.substring(0,10).padEnd(10," ")}" FLT_FMT3 "", (daisy.param_is_tweaking && ${i} == daisy.param_selected) ? "enc" : "   "`
+			}, FLT_VAR3(${node.varname}) ); 
+		break;`).join("")}
+		}	
+	}
+	#endif
 };`
 	app.cpp = {
 		union: `App_${name} app_${name};`,

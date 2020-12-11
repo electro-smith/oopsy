@@ -221,7 +221,7 @@ namespace oopsy {
 		int is_mode_selecting = 0;
 
 		int param_count = 0;
-		int param_selected = 0, param_is_selecting = 0;
+		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
 
 		uint32_t t = 0, dt = 10;
 		Timer uitimer;
@@ -234,7 +234,7 @@ namespace oopsy {
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
 		void (*displayCallback)(uint32_t t, uint32_t dt);
-		void (*paramCallback)(int i, char * label, int incr);
+		void (*paramCallback)(int idx, char * label, int len, bool tweak);
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
@@ -292,7 +292,6 @@ namespace oopsy {
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
 
 			// reset some state:
-			param_selected = param_count-1;
 			menu_button_incr = 0;
 		}
 
@@ -441,15 +440,11 @@ namespace oopsy {
 							} break;
 						}
 					} else if (mode == MODE_PARAMS) {
-						if (param_is_selecting) {
+						if (!param_is_tweaking) {
 							param_selected += menu_button_incr;
-							if (param_selected >= param_count) param_selected -= param_count;
-							if (param_selected < 0) param_selected += param_count;
-						} else {
-							// tweak it!
-
-						}
-						
+							if (param_selected >= param_count) param_selected = param_count-1;
+							if (param_selected < 0) param_selected = 0;
+						} 
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
 
@@ -473,7 +468,7 @@ namespace oopsy {
 						} else if (mode == MODE_SCOPE) {
 							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
 						} else if (mode == MODE_PARAMS) {
-							param_is_selecting = !param_is_selecting;
+							param_is_tweaking = !param_is_tweaking;
 						#endif
 						}
 					} 
@@ -496,16 +491,15 @@ namespace oopsy {
 						} break;
 						#endif //OOPSY_MULTI_APP
 						case MODE_PARAMS: {
-							char label[console_cols];
-							for (int i=0; i<(console_rows < param_count ? console_rows : param_count); i++) {
-								if (param_is_selecting && i == param_selected) {
-								 	hardware.display.SetCursor(0, font.FontHeight * i);
-								 	hardware.display.WriteString((char *)">", font, true);
-								}
-								//snprintf(label, console_cols, "param %d %s", i);
-								paramCallback(i, label, (!param_is_selecting && i == param_selected) ? menu_button_incr : 0);
-								hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-								hardware.display.WriteString(label, font, param_is_selecting || (i != param_selected));	
+							char label[console_cols+1];
+							// ensure selected parameter is on-screen:
+							if (param_scroll > param_selected) param_scroll = param_selected;
+							if (param_scroll < (param_selected - console_rows + 1)) param_scroll = (param_selected - console_rows + 1);
+							int idx = param_scroll; // offset this for screen-scroll
+							for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
+								paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
+								hardware.display.SetCursor(0, font.FontHeight * line);
+								hardware.display.WriteString(label, font, (param_selected != idx));	
 							}
 						} break;
 						case MODE_SCOPE: {
@@ -589,7 +583,7 @@ namespace oopsy {
 					if (is_mode_selecting) {
 						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
 					} 
-					if (mode != MODE_NONE) {
+					if (mode != MODE_NONE && mode != MODE_PARAMS) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
 						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
@@ -774,9 +768,9 @@ namespace oopsy {
 		}
 
 		#ifdef OOPSY_TARGET_HAS_OLED
-		static void staticParamCallback(int i, char * label, int incr) {
+		static void staticParamCallback(int idx, char * label, int len, bool tweak) {
 			T& self = *(T *)daisy.app;
-			snprintf(label, daisy.console_cols, "%s" FLT_FMT3 "", self.paramname(i), FLT_VAR3(self.incrparam(i, incr)));
+			self.paramCallback(daisy, idx, label, len, tweak);
 		}
 		#endif
 	};

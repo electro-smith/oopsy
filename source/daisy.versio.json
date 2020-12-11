@@ -5,47 +5,47 @@
 	},
 	"labels": {
 		"params": {
-			"knob1": "dsy_knob1",
-			"knob2": "dsy_knob2",
-			"knob3": "dsy_knob3",
-			"knob4": "dsy_knob4",
-			"knob5": "dsy_knob5",
-			"knob6": "dsy_knob6",
-			"knob7": "dsy_knob7",
-			"button1": "dsy_button1",
-			"sw1": "dsy_switch1",
-			"sw2": "dsy_switch2",
-			"gate1": "dsy_gate_in1",
+			"knob1": "kn1",
+			"knob2": "kn2",
+			"knob3": "kn3",
+			"knob4": "kn4",
+			"knob5": "kn5",
+			"knob6": "kn6",
+			"knob7": "kn7",
+			"button1": "bt1",
+			"sw1": "sw1",
+			"sw2": "sw2",
+			"gate1": "gt1",
 
-			"cv1": "dsy_knob1",
-			"cv2": "dsy_knob2",
-			"cv3": "dsy_knob3",
-			"cv4": "dsy_knob4",
-			"cv5": "dsy_knob5",
-			"cv6": "dsy_knob6",
-			"cv7": "dsy_knob7",
-			"ctrl1": "dsy_knob1",
-			"ctrl2": "dsy_knob2",
-			"ctrl3": "dsy_knob3",
-			"ctrl4": "dsy_knob4",
-			"ctrl5": "dsy_knob5",
-			"ctrl6": "dsy_knob6",
-			"ctrl7": "dsy_knob7",
-			"switch1": "dsy_switch1",
-			"switch2": "dsy_switch2",
+			"cv1": "kn1",
+			"cv2": "kn2",
+			"cv3": "kn3",
+			"cv4": "kn4",
+			"cv5": "kn5",
+			"cv6": "kn6",
+			"cv7": "kn7",
+			"ctrl1": "kn1",
+			"ctrl2": "kn2",
+			"ctrl3": "kn3",
+			"ctrl4": "kn4",
+			"ctrl5": "kn5",
+			"ctrl6": "kn6",
+			"ctrl7": "kn7",
+			"switch1": "sw1",
+			"switch2": "sw2",
 
-			"knob": "dsy_knob1",
-			"button": "dsy_button1",
-			"ctrl": "dsy_knob1",
-			"cv": "dsy_knob1",
-			"switch": "dsy_switch1",
-			"gate": "dsy_gate_in1",
+			"knob": "kn1",
+			"button": "bt1",
+			"ctrl": "kn1",
+			"cv": "kn1",
+			"switch": "sw1",
+			"gate": "gt1",
 
 
-			"tap": "dsy_button1",
-			"fsu": "dsy_button1",
-			"abc": "dsy_switch1",
-			"xyz": "dsy_switch2"
+			"tap": "bt1",
+			"fsu": "bt1",
+			"abc": "sw1",
+			"xyz": "sw2"
 			
 		},
 		"outs": {
@@ -54,44 +54,44 @@
 		"datas": {}
 	},
 	"inputs": {
-		"dsy_knob1": {
+		"kn1": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_0)"
 		},
-		"dsy_knob2": {
+		"kn2": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
 		},
-		"dsy_knob3": {
+		"kn3": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
 		},
-		"dsy_knob4": {
+		"kn4": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
 		},
-		"dsy_knob5": {
+		"kn5": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
 		},
-		"dsy_knob6": {
+		"kn6": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
 		},
-		"dsy_knob7": {
+		"kn7": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
 		},
-		"dsy_switch1": {
+		"sw1": {
 			"getter": "(hardware.sw_[0].Read())"
 		},
-		"dsy_switch1": {
+		"sw2": {
 			"getter": "(hardware.sw_[1].Read())"
 		},
-		"dsy_button1": {
+		"bt1": {
 			"getter": "(hardware.SwitchPressed()?1.f:0.f)"
 		},
-		"dsy_gate_in1": {
+		"gt1": {
 			"getter": "(hardware.Gate()?1.f:0.f)"
 		}
 	},

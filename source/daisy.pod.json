@@ -5,59 +5,59 @@
 	},
 	"labels": {
 		"params": {
-			"knob1": "dsy_knob1",
-			"knob2": "dsy_knob2",
-			"sw1": "dsy_switch1",
-			"sw2": "dsy_switch2",
-			"sw3": "dsy_encoder_switch",
-			"encoder": "dsy_encoder_incr",
+			"knob1": "kn1",
+			"knob2": "kn2",
+			"sw1": "sw1",
+			"sw2": "sw2",
+			"sw3": "enp",
+			"encoder": "enc",
 
-			"ctrl1": "dsy_knob1",
-			"ctrl2": "dsy_knob2",
-			"switch1": "dsy_switch1",
-			"switch2": "dsy_switch2",
-			"switch3": "dsy_encoder_switch",
-			"knob": "dsy_knob1",
-			"ctrl": "dsy_knob1",
-			"switch": "dsy_switch1",
-			"press": "dsy_encoder_switch"
+			"ctrl1": "kn1",
+			"ctrl2": "kn2",
+			"switch1": "sw1",
+			"switch2": "sw2",
+			"switch3": "enp",
+			"knob": "kn1",
+			"ctrl": "kn1",
+			"switch": "sw1",
+			"press": "enp"
 		},
 		"outs": {
-			"led1": "dsy_led1",
-			"led2": "dsy_led2",
+			"led1": "led1",
+			"led2": "led2",
 
-			"led": "dsy_led1"
+			"led": "led1"
 		},
 		"datas": {}
 	},
 	"inputs": {
-		"dsy_knob1": {
+		"kn1": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
 		},
-		"dsy_knob2": {
+		"kn2": {
 			"automap": true,
         	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
 		},
-		"dsy_switch1": {
+		"sw1": {
 			"getter": "(hardware.button1.Pressed()?1.f:0.f)"
 		},
-		"dsy_switch2": {
+		"sw2": {
 			"getter": "(hardware.button2.Pressed()?1.f:0.f)"
 		},
-		"dsy_encoder_incr": {
+		"enc": {
 			"getter": "(hardware.encoder.Increment())"
 		},
-		"dsy_encoder_switch": {
+		"enp": {
 			"getter": "(hardware.encoder.Pressed())"
 		}
 	},
 	"outputs": {
-		"dsy_led1": {
+		"led1": {
 			"where": "audio",
 			"setter": "hardware.led1.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		},
-		"dsy_led2": {
+		"led2": {
 			"where": "audio",
 			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		}
