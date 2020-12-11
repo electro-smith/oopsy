@@ -361,11 +361,10 @@ function generate_daisy(hardware, nodes, target) {
 		// DEVICE INPUTS:
 		device_inputs: Object.keys(hardware.inputs).map(v => {
 			let name = v
-			nodes[name] = {
+			nodes[name] = Object.assign({
 				name: name,
 				to: [],
-				get: hardware.inputs[v],
-			}
+			}, hardware.inputs[v])
 			return name;
 		}),
 
@@ -561,13 +560,13 @@ function generate_app(app, hardware, target) {
 	})
 
 	// fill all my holes
-	// map unused cvs/knobs to unmapped params
+	// map unused cvs/knobs to unmapped params?
 	let upi=0; // unused param index
 	let param = gen.params[upi];
 	Object.keys(hardware.inputs).forEach(name => {
 		const node = nodes[name];
-		if (node.to.length == 0) {
-			//console.log(name, "not mapped")
+		if (node.to.length == 0 && node.automap) {
+			console.log(name, "not mapped")
 			// find next param without a src:
 			while (param && !!nodes[param].src) param = gen.params[++upi];
 			if (param) {
@@ -610,7 +609,6 @@ function generate_app(app, hardware, target) {
 
 struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
-		.filter(name => nodes[name].src)
 		.concat(daisy.device_outs)
 		.map(name=>`
 	float ${name};`).join("")}
@@ -620,10 +618,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		daisy.param_count = ${gen.params.length};
-		${gen.params
-			.filter(name => nodes[name].src)
-			.concat(daisy.device_outs)
-			.map(name=>`
+		${gen.params.map(name=>nodes[name])
+			.map(node=>`
+		${node.varname} = ${toCfloat(node.default)};`).join("")}
+		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
 	}	
 
@@ -632,6 +630,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
 			case ${i}:return "${node.label}";`).join("")}
 		}
+		return "";
 	}
 
 	float getparam(int idx) {
@@ -639,13 +638,15 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
 			case ${i}: return ${node.varname};`).join("")}
 		}
+		return 0.f;
 	}
 
 	float incrparam(int idx, int incr) {
 		switch(idx) {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return setparam(idx, ${node.varname} + incr * ${toCfloat(node.stepsize)});`).join("")}			
+			case ${i}: return setparam(idx, ${node.varname} + incr * ${toCfloat(node.stepsize)});`).join("")}	
 		}
+		return 0.f;	
 	}
 
 	float setparam(int idx, float val) {
@@ -653,6 +654,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
 			case ${i}: return ${node.varname} = (val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
 		}
+		return 0.f;	
 	}
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -685,10 +687,13 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${daisy.device_inputs.map(name => nodes[name])
 			.filter(node => node.to.length)
 			.map(node=>`
-		float ${node.name} = ${node.get};`).join("")}
-		${gen.params.filter(name => nodes[name].src).map(name=>`
-		// ${nodes[name].label}
-		${name} = ${nodes[name].src}*${toCfloat(nodes[name].max-nodes[name].min)} + ${toCfloat(nodes[name].min)};
+		float ${node.name} = ${node.getter};`).join("")}
+		${gen.params
+			.filter(name => nodes[name].src)
+			.map(name=>`
+		${name} = ${nodes[name].src}*${toCfloat(nodes[name].max-nodes[name].min)} + ${toCfloat(nodes[name].min)};`).join("")}
+		${gen.params
+			.map(name=>`
 		gen.set_${nodes[name].name}(${name});`).join("")}
 		${daisy.audio_ins.map((name, i)=>`
 		float * ${name} = hardware_ins[${i}];`).join("")}

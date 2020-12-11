@@ -48,20 +48,54 @@
 		"datas": {}
 	},
 	"inputs": {
-		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
-		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
-		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
-		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
-		"dsy_switch1": "(hardware.switches[0].Pressed()?1.f:0.f)",
-		"dsy_switch2": "(hardware.switches[1].Pressed()?1.f:0.f)",
-		"dsy_switch3": "(hardware.switches[2].Pressed()?1.f:0.f)",
-		"dsy_switch4": "(hardware.switches[3].Pressed()?1.f:0.f)",
-		"dsy_switch5": "(hardware.switches[4].Pressed()?1.f:0.f)",
-		"dsy_switch6": "(hardware.switches[5].Pressed()?1.f:0.f)",
-		"dsy_switch7": "(hardware.switches[6].Pressed()?1.f:0.f)",
-		"dsy_exp1": "(hardware.GetExpression())"
+		"dsy_knob1": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+		},
+		"dsy_knob2": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+		},
+		"dsy_knob3": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+		},
+		"dsy_knob4": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+		},
+		"dsy_knob5": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+		},
+		"dsy_knob6": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+		},
+		"dsy_switch1": {
+			"getter": "(hardware.switches[0].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch2": {
+			"getter": "(hardware.switches[1].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch3": {
+			"getter": "(hardware.switches[2].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch4": {
+			"getter": "(hardware.switches[3].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch5": {
+			"getter": "(hardware.switches[4].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch6": {
+			"getter": "(hardware.switches[5].Pressed()?1.f:0.f)"
+		},
+		"dsy_switch7": {
+			"getter": "(hardware.switches[6].Pressed()?1.f:0.f)"
+		},
+		"dsy_exp1": {
+			"getter": "(hardware.GetExpression())"
+		}
 	},
 	"outputs": {
 		"dsy_footswitch_led1": {

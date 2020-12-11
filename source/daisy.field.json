@@ -83,37 +83,107 @@
 		}
 	},
 	"inputs": {
-		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_3)",
-		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_4)",
-		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_5)",
-		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_6)",
-		"dsy_knob7": "hardware.GetKnobValue(hardware.KNOB_7)",
-		"dsy_knob8": "hardware.GetKnobValue(hardware.KNOB_8)",
-		"dsy_key1": "(hardware.KeyboardState(0)?1.f:0.f)",
-		"dsy_key2": "(hardware.KeyboardState(1)?1.f:0.f)",
-		"dsy_key3": "(hardware.KeyboardState(2)?1.f:0.f)",
-		"dsy_key4": "(hardware.KeyboardState(3)?1.f:0.f)",
-		"dsy_key5": "(hardware.KeyboardState(4)?1.f:0.f)",
-		"dsy_key6": "(hardware.KeyboardState(5)?1.f:0.f)",
-		"dsy_key7": "(hardware.KeyboardState(6)?1.f:0.f)",
-		"dsy_key8": "(hardware.KeyboardState(7)?1.f:0.f)",
-		"dsy_key9": "(hardware.KeyboardState(8)?1.f:0.f)",
-		"dsy_key10": "(hardware.KeyboardState(9)?1.f:0.f)",
-		"dsy_key11": "(hardware.KeyboardState(10)?1.f:0.f)",
-		"dsy_key12": "(hardware.KeyboardState(11)?1.f:0.f)",
-		"dsy_key13": "(hardware.KeyboardState(12)?1.f:0.f)",
-		"dsy_key14": "(hardware.KeyboardState(13)?1.f:0.f)",
-		"dsy_key15": "(hardware.KeyboardState(14)?1.f:0.f)",
-		"dsy_key16": "(hardware.KeyboardState(15)?1.f:0.f)",
-		"dsy_switch1": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f)",
-		"dsy_switch2": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)",
-		"dsy_cv_in1": "hardware.GetCvValue(0)",
-		"dsy_cv_in2": "hardware.GetCvValue(1)",
-		"dsy_cv_in3": "hardware.GetCvValue(2)",
-		"dsy_cv_in4": "hardware.GetCvValue(3)",
-		"dsy_gate_in1": "(hardware.gate_in.State()?1.f:0.f)"
+		"dsy_knob1": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+		},
+		"dsy_knob2": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+		},
+		"dsy_knob3": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+		},
+		"dsy_knob4": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+		},
+		"dsy_knob5": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+		},
+		"dsy_knob6": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+		},
+		"dsy_knob7": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_7)"
+		},
+		"dsy_knob8": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_8)"
+		},
+		"dsy_key1": {
+			"getter": "(hardware.KeyboardState(0)?1.f:0.f)"
+		},
+		"dsy_key2": {
+			"getter": "(hardware.KeyboardState(1)?1.f:0.f)"
+		},
+		"dsy_key3": {
+			"getter": "(hardware.KeyboardState(2)?1.f:0.f)"
+		},
+		"dsy_key4": {
+			"getter": "(hardware.KeyboardState(3)?1.f:0.f)"
+		},
+		"dsy_key5": {
+			"getter": "(hardware.KeyboardState(4)?1.f:0.f)"
+		},
+		"dsy_key6": {
+			"getter": "(hardware.KeyboardState(5)?1.f:0.f)"
+		},
+		"dsy_key7": {
+			"getter": "(hardware.KeyboardState(6)?1.f:0.f)"
+		},
+		"dsy_key8": {
+			"getter": "(hardware.KeyboardState(7)?1.f:0.f)"
+		},
+		"dsy_key9": {
+			"getter": "(hardware.KeyboardState(8)?1.f:0.f)"
+		},
+		"dsy_key10": {
+			"getter": "(hardware.KeyboardState(9)?1.f:0.f)"
+		},
+		"dsy_key11": {
+			"getter": "(hardware.KeyboardState(10)?1.f:0.f)"
+		},
+		"dsy_key12": {
+			"getter": "(hardware.KeyboardState(11)?1.f:0.f)"
+		},
+		"dsy_key13": {
+			"getter": "(hardware.KeyboardState(12)?1.f:0.f)"
+		},
+		"dsy_key14": {
+			"getter": "(hardware.KeyboardState(13)?1.f:0.f)"
+		},
+		"dsy_key15": {
+			"getter": "(hardware.KeyboardState(14)?1.f:0.f)"
+		},
+		"dsy_key16": {
+			"getter": "(hardware.KeyboardState(15)?1.f:0.f)"
+		},
+		"dsy_switch1": {
+			"getter": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f)"
+		},
+		"dsy_switch2": {
+			"getter": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)"
+		},
+		"dsy_cv_in1": {
+			"getter": "hardware.GetCvValue(0)"
+		},
+		"dsy_cv_in2": {
+			"getter": "hardware.GetCvValue(1)"
+		},
+		"dsy_cv_in3": {
+			"getter": "hardware.GetCvValue(2)"
+		},
+		"dsy_cv_in4": {
+			"getter": "hardware.GetCvValue(3)"
+		},
+		"dsy_gate_in1": {
+			"getter": "(hardware.gate_in.State()?1.f:0.f)"
+		}
 	},
 	"outputs": {
 		"dsy_cv_out1": {

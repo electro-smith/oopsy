@@ -31,12 +31,26 @@
 		"datas": {}
 	},
 	"inputs": {
-		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"dsy_switch1": "(hardware.button1.Pressed()?1.f:0.f)",
-		"dsy_switch2": "(hardware.button2.Pressed()?1.f:0.f)",
-		"dsy_encoder_incr": "(hardware.encoder.Increment())",
-		"dsy_encoder_switch": "(hardware.encoder.Pressed())"
+		"dsy_knob1": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+		},
+		"dsy_knob2": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+		},
+		"dsy_switch1": {
+			"getter": "(hardware.button1.Pressed()?1.f:0.f)"
+		},
+		"dsy_switch2": {
+			"getter": "(hardware.button2.Pressed()?1.f:0.f)"
+		},
+		"dsy_encoder_incr": {
+			"getter": "(hardware.encoder.Increment())"
+		},
+		"dsy_encoder_switch": {
+			"getter": "(hardware.encoder.Pressed())"
+		}
 	},
 	"outputs": {
 		"dsy_led1": {

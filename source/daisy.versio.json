@@ -54,17 +54,46 @@
 		"datas": {}
 	},
 	"inputs": {
-		"dsy_knob1": "hardware.GetKnobValue(hardware.KNOB_0)",
-		"dsy_knob2": "hardware.GetKnobValue(hardware.KNOB_1)",
-		"dsy_knob3": "hardware.GetKnobValue(hardware.KNOB_2)",
-		"dsy_knob4": "hardware.GetKnobValue(hardware.KNOB_3)",
-		"dsy_knob5": "hardware.GetKnobValue(hardware.KNOB_4)",
-		"dsy_knob6": "hardware.GetKnobValue(hardware.KNOB_5)",
-		"dsy_knob7": "hardware.GetKnobValue(hardware.KNOB_6)",
-		"dsy_switch1": "(hardware.sw_[0].Read())",
-		"dsy_switch1": "(hardware.sw_[1].Read())",
-		"dsy_button1": "(hardware.SwitchPressed()?1.f:0.f)",
-		"dsy_gate_in1": "(hardware.Gate()?1.f:0.f)"
+		"dsy_knob1": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_0)"
+		},
+		"dsy_knob2": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+		},
+		"dsy_knob3": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+		},
+		"dsy_knob4": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+		},
+		"dsy_knob5": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+		},
+		"dsy_knob6": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+		},
+		"dsy_knob7": {
+			"automap": true,
+        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+		},
+		"dsy_switch1": {
+			"getter": "(hardware.sw_[0].Read())"
+		},
+		"dsy_switch1": {
+			"getter": "(hardware.sw_[1].Read())"
+		},
+		"dsy_button1": {
+			"getter": "(hardware.SwitchPressed()?1.f:0.f)"
+		},
+		"dsy_gate_in1": {
+			"getter": "(hardware.Gate()?1.f:0.f)"
+		}
 	},
 	"outputs": {},
     "mainhandlers": {},

@@ -140,8 +140,8 @@ namespace oopsy {
 
 		#ifdef OOPSY_TARGET_HAS_OLED
 		MODE_CONSOLE,
+		MODE_PARAMS,
 		MODE_SCOPE,
-		//MODE_PARAMS,
 		#endif
 
 		MODE_COUNT
@@ -221,6 +221,7 @@ namespace oopsy {
 		int is_mode_selecting = 0;
 
 		int param_count = 0;
+		int param_selected = 0, param_is_selecting = 0;
 
 		uint32_t t = 0, dt = 10;
 		Timer uitimer;
@@ -233,6 +234,7 @@ namespace oopsy {
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
 		void (*displayCallback)(uint32_t t, uint32_t dt);
+		void (*paramCallback)(int i, char * label, int incr);
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
@@ -282,9 +284,16 @@ namespace oopsy {
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
 			displayCallback = newapp.staticDisplayCallback;
+			#ifdef OOPSY_TARGET_HAS_OLED
+			paramCallback = newapp.staticParamCallback;
+			#endif
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("loaded gen~ %s", appdefs[app_selected].name);
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
+
+			// reset some state:
+			param_selected = param_count-1;
+			menu_button_incr = 0;
 		}
 
 		int run(AppDef * appdefs, int count) {
@@ -431,9 +440,18 @@ namespace oopsy {
 								if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
 							} break;
 						}
+					} else if (mode == MODE_PARAMS) {
+						if (param_is_selecting) {
+							param_selected += menu_button_incr;
+							if (param_selected >= param_count) param_selected -= param_count;
+							if (param_selected < 0) param_selected += param_count;
+						} else {
+							// tweak it!
+
+						}
+						
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
-					menu_button_incr = 0;
 
 					// SHORT PRESS	
 					if (menu_button_released) {
@@ -454,6 +472,8 @@ namespace oopsy {
 						#ifdef OOPSY_TARGET_HAS_OLED
 						} else if (mode == MODE_SCOPE) {
 							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
+						} else if (mode == MODE_PARAMS) {
+							param_is_selecting = !param_is_selecting;
 						#endif
 						}
 					} 
@@ -463,10 +483,10 @@ namespace oopsy {
 					switch(mode) {
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
-							for (int i=0; i<8; i++) {
+							for (int i=0; i<console_rows; i++) {
 								if (i == app_selecting) {
 									hardware.display.SetCursor(0, font.FontHeight * i);
-									hardware.display.WriteString((char *)">", font, i != app_selected);
+									hardware.display.WriteString((char *)">", font, true);
 								}
 								if (i < app_count) {
 									hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
@@ -475,6 +495,19 @@ namespace oopsy {
 							}
 						} break;
 						#endif //OOPSY_MULTI_APP
+						case MODE_PARAMS: {
+							char label[console_cols];
+							for (int i=0; i<(console_rows < param_count ? console_rows : param_count); i++) {
+								if (param_is_selecting && i == param_selected) {
+								 	hardware.display.SetCursor(0, font.FontHeight * i);
+								 	hardware.display.WriteString((char *)">", font, true);
+								}
+								//snprintf(label, console_cols, "param %d %s", i);
+								paramCallback(i, label, (!param_is_selecting && i == param_selected) ? menu_button_incr : 0);
+								hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
+								hardware.display.WriteString(label, font, param_is_selecting || (i != param_selected));	
+							}
+						} break;
 						case MODE_SCOPE: {
 							uint8_t h = SSD1309_HEIGHT;
 							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
@@ -568,6 +601,8 @@ namespace oopsy {
 						hardware.display.WriteString(console_stats, font, true);
 					}
 					#endif //OOPSY_TARGET_HAS_OLED
+
+					menu_button_incr = 0;
 					
 					// handle app-level code (e.g. for LED etc.)
 					displayCallback(t, dt);
@@ -579,7 +614,9 @@ namespace oopsy {
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
 
+
 				} // uitimer.ready
+				
 			}
 			return 0;
 		}
@@ -736,20 +773,12 @@ namespace oopsy {
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
 
-		static void staticParamCallback() {
+		#ifdef OOPSY_TARGET_HAS_OLED
+		static void staticParamCallback(int i, char * label, int incr) {
 			T& self = *(T *)daisy.app;
-
-			char param_text[daisy.console_cols];
-
-			for (int i=0; i<daisy.param_count; i++) {
-				float val = self.getparam(i);
-				// apply incr?
-				if (1) {
-					//val += daisy.encoder_incr; // TODO map appropriately and clamp!
-				}
-				snprintf(param_text, daisy.console_cols, "%s"FLT_FMT3"", self.paramname(i), FLT_VAR3(val));
-			}
+			snprintf(label, daisy.console_cols, "%s" FLT_FMT3 "", self.paramname(i), FLT_VAR3(self.incrparam(i, incr)));
 		}
+		#endif
 	};
 
 }; // oopsy::
