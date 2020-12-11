@@ -132,7 +132,6 @@ namespace oopsy {
 		const char * name;
 		void (*load)();
 	};
-
 	typedef enum {
 		MODE_NONE = 0,
 		#ifdef OOPSY_MULTI_APP
@@ -220,6 +219,8 @@ namespace oopsy {
 		int app_count = 1, app_selected = 0, app_selecting = 0;
 		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
+
+		int param_count = 0;
 
 		uint32_t t = 0, dt = 10;
 		Timer uitimer;
@@ -733,6 +734,21 @@ namespace oopsy {
 			daisy.audio_postperform(hardware_ins, hardware_outs, size);
 			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
+		}
+
+		static void staticParamCallback() {
+			T& self = *(T *)daisy.app;
+
+			char param_text[daisy.console_cols];
+
+			for (int i=0; i<daisy.param_count; i++) {
+				float val = self.getparam(i);
+				// apply incr?
+				if (1) {
+					//val += daisy.encoder_incr; // TODO map appropriately and clamp!
+				}
+				snprintf(param_text, daisy.console_cols, "%s"FLT_FMT3"", self.paramname(i), FLT_VAR3(val));
+			}
 		}
 	};
 

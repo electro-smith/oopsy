@@ -503,8 +503,30 @@ function generate_app(app, hardware, target) {
 			label: label || param.name,
 			src: src,
 		}, param);
-		nodes[varname] = node;
 
+		// figure out parameter range:
+		node.max = node.max || 1;
+		node.min = node.min || 0;
+		node.default = node.default || 0;
+		node.range = node.max - node.min;
+		// figure out a suitable encoder step division for this parameter
+		let ideal_steps = 100 // about 4 good twists of the encoder
+		if (node.range > 2 && Number.isInteger(node.max) && Number.isInteger(node.max) && Number.isInteger(node.default)) {
+			if (node.range < 10) {
+				// might be v/oct
+				node.stepsize = 1/12
+			} else {
+				// find a suitable subdivision:
+				let power = Math.round(Math.log2(node.range / ideal_steps))
+				node.stepsize = Math.pow(2, power)
+			}
+		} 
+		if (!node.stepsize) {
+			// general case:
+			node.stepsize = node.range / ideal_steps
+		}
+
+		nodes[varname] = node;
 		if (src) {
 			nodes[src].to.push(varname)
 		}
@@ -597,12 +619,41 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
+		daisy.param_count = ${gen.params.length};
 		${gen.params
 			.filter(name => nodes[name].src)
 			.concat(daisy.device_outs)
 			.map(name=>`
 		${name} = 0.f;`).join("")}
 	}	
+
+	const char * paramname(int idx) {
+		switch(idx) {
+			${gen.params.map(name=>nodes[name]).map((node, i)=>`
+			case ${i}:return "${node.label}";`).join("")}
+		}
+	}
+
+	float getparam(int idx) {
+		switch(idx) {
+			${gen.params.map(name=>nodes[name]).map((node, i)=>`
+			case ${i}: return ${node.varname};`).join("")}
+		}
+	}
+
+	float incrparam(int idx, int incr) {
+		switch(idx) {
+			${gen.params.map(name=>nodes[name]).map((node, i)=>`
+			case ${i}: return setparam(idx, ${node.varname} + incr * ${toCfloat(node.stepsize)});`).join("")}			
+		}
+	}
+
+	float setparam(int idx, float val) {
+		switch(idx) {
+			${gen.params.map(name=>nodes[name]).map((node, i)=>`
+			case ${i}: return ${node.varname} = (val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
+		}
+	}
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
