@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2-beta
+
+- Fixes for windows compatibility
+
 ## v0.2.1-beta
 
 - Automatic zeroing / normalling of unused audio outputs
