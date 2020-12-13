@@ -1,5 +1,6 @@
 # Changelog
 
+- Added OLED parameter view, displaying input mapping, current value, and ability to modify non-mapped params via encoder/switches
 ## v0.2.1-beta
 
 - Automatic zeroing / normalling of unused audio outputs
@@ -14,3 +15,5 @@
 ## v0.2-beta
 
 - Initial public beta
+
+
