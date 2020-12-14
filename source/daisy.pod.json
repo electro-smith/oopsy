@@ -62,7 +62,7 @@
 			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		}
 	},
-    "mainhandlers": {},
+    "datahandlers": {},
 	"audio_ins": [
       "dsy_in1",
       "dsy_in2"

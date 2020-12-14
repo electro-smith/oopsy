@@ -204,8 +204,11 @@
 			"setter": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
 		}
 	},
-	"mainhandlers": {
-		"dsy_leds": "daisy.setFieldLedsFromData($<data>)"
+	"datahandlers": {
+		"dsy_leds": {
+			"where":"display",
+			"setter": "daisy.setFieldLedsFromData($<data>)"
+		}
 	},
 	"audio_ins": [
       "dsy_in1",

@@ -33,7 +33,9 @@
         "cv": "cvout1",
         "gate": "gateout1"
       },
-      "datas": {}
+      "datas": {
+        "midi": "dsy_midi_out"
+      }
     },
     "inputs": {
       "kn1": {
@@ -72,8 +74,14 @@
         "where": "audio",
         "setter": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
       }
+    },   
+    "datahandlers": {
+      "dsy_midi_out": {
+        "where":"main",
+        "init": "oopsy::midi.nullMidiData(gen.m_midi_1)",
+        "setter": "oopsy::midi.fromData($<data>)"
+      }
     },
-    "mainhandlers": {},
     "audio_ins": [
       "dsy_in1",
       "dsy_in2",

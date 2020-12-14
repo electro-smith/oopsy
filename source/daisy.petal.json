@@ -115,7 +115,7 @@
 			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
 		}
 	},
-    "mainhandlers": {
+    "datahandlers": {
 	},
 	"audio_ins": [
       "dsy_in1",

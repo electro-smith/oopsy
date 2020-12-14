@@ -369,12 +369,11 @@ function generate_daisy(hardware, nodes, target) {
 		}),
 
 		// DEVICE OUTPUTS:
-		mainhandlers: Object.keys(hardware.mainhandlers).map(name => {
-			nodes[name] = {
+		datahandlers: Object.keys(hardware.datahandlers).map(name => {
+			nodes[name] = Object.assign({
 				name: name,
-				setter: hardware.mainhandlers[name],
 				data: null,
-			}
+			}, hardware.datahandlers[name])
 			return name;
 		}),
 
@@ -541,6 +540,10 @@ function generate_app(app, hardware, target) {
 			if (match = new RegExp(`^${k}_?(.+)?`).exec(param.name)) {
 				src = hardware.labels.datas[k];
 				label = match[1] || param.name
+
+				if (param.name == "midi") {
+					app.has_midi_out = true;
+				}
 			}
 		})
 
@@ -617,6 +620,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
+		${name}::State& gen = *(${name}::State *)daisy.gen;
 		daisy.param_count = ${gen.params.length};
 		daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};	
 		${gen.params.map(name=>nodes[name])
@@ -624,11 +628,22 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${node.varname} = ${toCfloat(node.default)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
+
+		${daisy.datahandlers.map(name => nodes[name])
+			.filter(node => node.init)
+			.filter(node => node.data)
+			.map(node =>`
+		${interpolate(node.init, node)};`).join("")}
 	}
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${daisy.datahandlers.map(name => nodes[name])
+			.filter(node => node.where == "main")
+			.filter(node => node.data)
+			.map(node =>`
+		${interpolate(node.setter, node)};`).join("")}
 		${daisy.device_outs.map(name => nodes[name])
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "main")
@@ -639,7 +654,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
-		${daisy.mainhandlers.map(name => nodes[name])
+		${daisy.datahandlers.map(name => nodes[name])
+			.filter(node => node.where == "display")
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.setter, node)};`).join("")}
@@ -685,6 +701,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.config.where == "audio")
 			.map(node=>`
 		${interpolate(node.config.setter, node)};`).join("")}
+		${daisy.datahandlers.map(name => nodes[name])
+			.filter(node => node.where == "audio")
+			.filter(node => node.data)
+			.map(node =>`
+		${interpolate(node.setter, node)};`).join("")}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
 		${daisy.audio_outs.map(name=>nodes[name])

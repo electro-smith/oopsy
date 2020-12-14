@@ -154,10 +154,18 @@ namespace oopsy {
 		uint8_t in_active = 0, out_active = 0;
 		uint8_t out_data[OOPSY_MIDI_BUFFER_SIZE];
 		float in_data[OOPSY_BUFFER_SIZE];
+		int data_idx = 0;
 
 		void init() {
 			uart.Init(); 
 			uart.StartRx();
+			reset();
+		}
+
+		void reset() {
+			data_idx = 0;
+			in_written = 0, out_written = 0;
+			in_active = 0, out_active = 0;
 		}
 
 		void preperform(size_t size) {
@@ -168,7 +176,7 @@ namespace oopsy {
 		}
 
 		void postperform(float * buf, size_t size) {
-			for (size_t i=0; i<size && out_written < OOPSY_MIDI_BUFFER_SIZE; i++) {
+			for (size_t i=0; i<size && out_written < OOPSY_MIDI_BUFFER_SIZE-1; i++) {
 				if (buf[i] >= 0.f) {
 					// scale (0.0, 1.0) back to (0, 255) for MIDI bytes
 					out_data[out_written++] = buf[i] * 256.0f;
@@ -177,18 +185,25 @@ namespace oopsy {
 			}
 		}
 
-		// void fromData(Data& data) {
-		// 	// this might need a reset:
-		// 	static long data_read = 0;
-		// 	while (out_written < OOPSY_MIDI_BUFFER_SIZE) {
-		// 		double b = data.mData[data_read];
-		// 		if (b < 0.) break;
+		void nullMidiData(Data& data) {
+			for (int i=0; i<data.dim; i++) {
+				data.write(-1/256., data_idx, 0);
+			}
+		}
 
-		// 		out_data[out_written++] = b * 256.0;
-		// 		out_active = 1;
-		// 		data_read++; if (data_read >= data.dim) data_read = 0;
-		// 	}
-		// }
+		void fromData(Data& data) {
+			double b = data.read(data_idx, 0);
+			while (b > 0. && out_written < OOPSY_MIDI_BUFFER_SIZE-1) {
+				// erase it from [data midi]
+				data.write(-1/256., data_idx, 0);
+				// write it to our active outbuffer:
+				out_data[out_written++] = b * 256.0;
+				out_active = 1;
+				// and advance one index in the [data midi]
+				data_idx++; if (data_idx >= data.dim) data_idx = 0;
+				b = data.read(data_idx, 0);
+			}
+		}
 
 		void mainloop() {
 			// input:
@@ -349,7 +364,6 @@ namespace oopsy {
 				
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
-
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
 				midi.mainloop();
 				#endif
@@ -724,7 +738,7 @@ namespace oopsy {
 				// switch here to re-order the B8-1 to B1-8
 				long idx=i;
 				if (idx > 7 && idx < 16) idx = 23-i;
-				hardware.led_driver.SetLed(idx, data.mData[i]);
+				hardware.led_driver.SetLed(idx, data.read(i, 0));
 			}
 			hardware.led_driver.SwapBuffersAndTransmit();
 		};
