@@ -650,12 +650,12 @@ namespace oopsy {
 			#endif
 		}
 
-		void audio_postperform(float **hardware_ins, float **hardware_outs, size_t size) {
+		void audio_postperform(float **buffers, size_t size) {
 			#ifdef OOPSY_TARGET_HAS_OLED
 			if (mode == MODE_SCOPE) {
 				// TODO: add selector for scope storage source:
-				float * buf0 = scope_source ? hardware_ins[0] : hardware_outs[0];
-				float * buf1 = scope_source ? hardware_ins[1] : hardware_outs[1];
+				float * buf0 = scope_source ? buffers[0] : buffers[2];
+				float * buf1 = scope_source ? buffers[1] : buffers[3];
 				size_t samples = scope_samples();
 				for (size_t i=0; i<size/samples; i++) {
 					float min0 = 10.f, max0 = -10.f;
@@ -793,7 +793,8 @@ namespace oopsy {
 			uint32_t start = dsy_tim_get_tick(); // 200MHz
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
-			daisy.audio_postperform(hardware_ins, hardware_outs, size);
+			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_outs[0], hardware_outs[1]};
+			daisy.audio_postperform(buffers, size);
 			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
