@@ -685,7 +685,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${daisy.audio_outs.map((name, i)=>`
 		float * ${name} = hardware_outs[${i}];`).join("")}
 		${app.has_midi_in ? daisy.midi_ins.map(name=>`
-		float * ${name} = oopsy::midi.in_data;`).join("") : ''}
+		float * ${name} = daisy.midi_in_data;`).join("") : ''}
 		// ${gen.audio_ins.map(name=>nodes[name].label).join(", ")}:
 		float * inputs[] = { ${gen.audio_ins.map(name=>nodes[name].src).join(", ")} }; 
 		// ${gen.audio_outs.map(name=>nodes[name].label).join(", ")}:
@@ -707,7 +707,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(node =>`
 		${interpolate(node.setter, node)};`).join("")}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
-		oopsy::midi.postperform(${name}, size);`).join("")).join("") : ''}
+		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}
 		${daisy.audio_outs.map(name=>nodes[name])
 			.filter(node => node.src != node.name)
 			.map(node=>node.src ? `

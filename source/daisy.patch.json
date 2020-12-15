@@ -78,8 +78,8 @@
     "datahandlers": {
       "dsy_midi_out": {
         "where":"main",
-        "init": "oopsy::midi.nullMidiData(gen.m_midi_1)",
-        "setter": "oopsy::midi.fromData($<data>)"
+        "init": "daisy.midi_nullData($<data>)",
+        "setter": "daisy.midi_fromData($<data>)"
       }
     },
     "audio_ins": [

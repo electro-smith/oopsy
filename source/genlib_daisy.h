@@ -147,84 +147,6 @@ namespace oopsy {
 		MODE_COUNT
 	} Mode;
 
-	#ifdef OOPSY_TARGET_USES_MIDI_UART
-	struct {
-		daisy::UartHandler uart;
-		uint8_t in_written = 0, out_written = 0;
-		uint8_t in_active = 0, out_active = 0;
-		uint8_t out_data[OOPSY_MIDI_BUFFER_SIZE];
-		float in_data[OOPSY_BUFFER_SIZE];
-		int data_idx = 0;
-
-		void init() {
-			uart.Init(); 
-			uart.StartRx();
-			reset();
-		}
-
-		void reset() {
-			data_idx = 0;
-			in_written = 0, out_written = 0;
-			in_active = 0, out_active = 0;
-		}
-
-		void preperform(size_t size) {
-			// fill remainder of midi buffer with non-data:
-			for (size_t i=in_written; i<size; i++) in_data[i] = -0.1f;
-			// done with midi input:
-			in_written = 0;
-		}
-
-		void postperform(float * buf, size_t size) {
-			for (size_t i=0; i<size && out_written < OOPSY_MIDI_BUFFER_SIZE-1; i++) {
-				if (buf[i] >= 0.f) {
-					// scale (0.0, 1.0) back to (0, 255) for MIDI bytes
-					out_data[out_written++] = buf[i] * 256.0f;
-					out_active = 1;
-				}
-			}
-		}
-
-		void nullMidiData(Data& data) {
-			for (int i=0; i<data.dim; i++) {
-				data.write(-1/256., data_idx, 0);
-			}
-		}
-
-		void fromData(Data& data) {
-			double b = data.read(data_idx, 0);
-			while (b > 0. && out_written < OOPSY_MIDI_BUFFER_SIZE-1) {
-				// erase it from [data midi]
-				data.write(-1/256., data_idx, 0);
-				// write it to our active outbuffer:
-				out_data[out_written++] = b * 256.0;
-				out_active = 1;
-				// and advance one index in the [data midi]
-				data_idx++; if (data_idx >= data.dim) data_idx = 0;
-				b = data.read(data_idx, 0);
-			}
-		}
-
-		void mainloop() {
-			// input:
-			while(uart.Readable()) {
-				uint8_t byte = uart.PopRx();
-				if (in_written < OOPSY_BUFFER_SIZE) {
-					// scale (0, 255) to (0.0, 1.0)
-					// to protect hardware from accidental patching
-					in_data[in_written] = byte / 256.0f;
-					in_written++;
-				}
-				in_active = 1;
-			}
-			// output:
-			if (out_written) {
-				if (0 == uart.PollTx(out_data, out_written)) out_written = 0;
-			}
-		}
-	} midi;
-	#endif
-
 	struct GenDaisy {
 
 		Daisy hardware;
@@ -283,6 +205,16 @@ namespace oopsy {
 		char scope_label[11];
 		#endif // OOPSY_TARGET_HAS_OLED
 
+		#ifdef OOPSY_TARGET_USES_MIDI_UART
+		daisy::UartHandler uart;
+		uint8_t midi_in_written = 0, midi_out_written = 0;
+		uint8_t midi_in_active = 0, midi_out_active = 0;
+		uint8_t midi_out_data[OOPSY_MIDI_BUFFER_SIZE];
+		float midi_in_data[OOPSY_BUFFER_SIZE];
+		int midi_data_idx = 0;
+		int midi_parse_state = 0;
+		#endif //OOPSY_TARGET_USES_MIDI_UART
+
 		template<typename A>
 		void reset(A& newapp) {
 			// first, remove callbacks:
@@ -308,6 +240,11 @@ namespace oopsy {
 
 			// reset some state:
 			menu_button_incr = 0;
+			#ifdef OOPSY_TARGET_USES_MIDI_UART
+			midi_data_idx = 0;
+			midi_in_written = 0, midi_out_written = 0;
+			midi_in_active = 0, midi_out_active = 0;
+			#endif
 		}
 
 		int run(AppDef * appdefs, int count) {
@@ -343,7 +280,11 @@ namespace oopsy {
 			displayCallback = nullMainloopCallback;
 
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
-			midi.init(); 
+			midi_data_idx = 0;
+			midi_in_written = 0, midi_out_written = 0;
+			midi_in_active = 0, midi_out_active = 0;
+			uart.Init(); 
+			uart.StartRx();
 			#endif
 
 			app_selected = 0;
@@ -365,7 +306,43 @@ namespace oopsy {
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
-				midi.mainloop();
+				if (midi_out_written) {
+					log("midi %d", midi_out_written);
+					for (int i=0; i<midi_out_written; i++) {
+						log("%d", midi_out_data[i]);
+					}
+				}
+				{
+					// input:
+					while(uart.Readable()) {
+						uint8_t byte = uart.PopRx();
+						// TODO: any oopsy-level handling here
+						#ifdef OOPSY_MULTI_APP
+						if (midi_parse_state) {
+							if (midi_parse_state == 4) {
+								// program change:
+								uint8_t v = (byte & 0x7F);
+
+							}
+							midi_parse_state = 0;
+						} else if ((byte & 0x80)) {
+							midi_parse_state = ((byte & 0x70) >> 4);
+						}
+						#endif // OOPSY_MULTI_APP
+
+						if (midi_in_written < OOPSY_BUFFER_SIZE) {
+							// scale (0, 255) to (0.0, 1.0)
+							// to protect hardware from accidental patching
+							midi_in_data[midi_in_written] = byte / 256.0f;
+							midi_in_written++;
+						}
+						midi_in_active = 1;
+					}
+					// output:
+					if (midi_out_written) {
+						if (0 == uart.PollTx(midi_out_data, midi_out_written)) midi_out_written = 0;
+					}
+				}
 				#endif
 				
 				if (uitimer.ready(dt)) {
@@ -600,8 +577,8 @@ namespace oopsy {
 					if (mode != MODE_NONE && mode != MODE_PARAMS) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
-						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi.in_active ? '<' : ' ', midi.out_active ? '>' : ' ');
-						midi.in_active = midi.out_active = 0;
+						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
+						midi_in_active = midi_out_active = 0;
 						#endif
 						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
 						// stats:
@@ -631,7 +608,10 @@ namespace oopsy {
 
 		void audio_preperform(size_t size) {
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
-			midi.preperform(size);
+			// fill remainder of midi buffer with non-data:
+			for (size_t i=midi_in_written; i<size; i++) midi_in_data[i] = -0.1f;
+			// done with midi input:
+			midi_in_written = 0;
 			#endif
 
             /*
@@ -730,6 +710,38 @@ namespace oopsy {
 			#endif
 			return *this;
 		}
+
+		#if OOPSY_TARGET_USES_MIDI_UART
+		void midi_postperform(float * buf, size_t size) {
+			for (size_t i=0; i<size && midi_out_written < OOPSY_MIDI_BUFFER_SIZE-1; i++) {
+				if (buf[i] >= 0.f) {
+					// scale (0.0, 1.0) back to (0, 255) for MIDI bytes
+					midi_out_data[midi_out_written++] = buf[i] * 256.0f;
+					midi_out_active = 1;
+				}
+			}
+		}
+
+		void midi_nullData(Data& data) {
+			for (int i=0; i<data.dim; i++) {
+				data.write(-1, i, 0);
+			}
+		}
+
+		void midi_fromData(Data& data) {
+			double b = data.read(midi_data_idx, 0);
+			while (b >= 0. && midi_out_written < OOPSY_MIDI_BUFFER_SIZE-1) {
+				// erase it from [data midi]
+				data.write(-1, midi_data_idx, 0);
+				// write it to our active outbuffer:
+				midi_out_data[midi_out_written++] = b;
+				midi_out_active = 1;
+				// and advance one index in the [data midi]
+				midi_data_idx++; if (midi_data_idx >= data.dim) midi_data_idx = 0;
+				b = data.read(midi_data_idx, 0);
+			}
+		}
+		#endif //OOPSY_TARGET_USES_MIDI_UART
 
 		#if (OOPSY_TARGET_FIELD)
 		void setFieldLedsFromData(Data& data) {

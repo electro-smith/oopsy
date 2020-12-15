@@ -39,10 +39,8 @@ function configure(doExport) {
 		while (obj) {
 			if (obj.maxclass.toString() == "patcher") {
 				var subpat = obj.subpatcher()
-				if (subpat) {
-					post("patcher", subpat.name, "\n")
-					find_gens(subpat);
-				}
+				if (subpat) find_gens(subpat);
+				
 			} else if (obj.maxclass.toString() == "gen~") {
 				var name = default_name;
 				if (obj.getattr("exportname")) { 
