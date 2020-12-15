@@ -50,7 +50,7 @@
 #define OOPSY_MIDI_BUFFER_SIZE 64
 #define OOPSY_LONG_PRESS_MS 250
 #define OOPSY_DISPLAY_PERIOD_MS 10
-#define OOPSY_SCOPE_MAX_ZOOM (9)
+#define OOPSY_SCOPE_MAX_ZOOM (8)
 static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 
@@ -196,7 +196,7 @@ namespace oopsy {
 		FontDef& font = Font_6x8;
 		uint_fast8_t scope_zoom = 7; 
 		uint_fast8_t scope_step = 0; 
-		uint_fast8_t scope_option = 0, scope_source = 0, scope_style = SCOPESTYLE_TOPBOTTOM;
+		uint_fast8_t scope_option = 0, scope_style = SCOPESTYLE_TOPBOTTOM, scope_source = 0;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
 		char * console_memory;
@@ -427,12 +427,10 @@ namespace oopsy {
 								scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
 							} break;
 							case SCOPEOPTION_SOURCE: {
-								if (menu_button_incr) scope_source = !scope_source;
+								scope_source = (scope_source + menu_button_incr) % (OOPSY_IO_COUNT*2);
 							} break;
 							case SCOPEOPTION_ZOOM: {
-								scope_zoom = (scope_zoom + menu_button_incr);
-								if (scope_zoom > OOPSY_SCOPE_MAX_ZOOM) scope_zoom = 1;
-								if (scope_zoom < 1) scope_zoom = OOPSY_SCOPE_MAX_ZOOM;
+								scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
 							} break;
 						}
 					} else if (mode == MODE_PARAMS) {
@@ -502,7 +500,7 @@ namespace oopsy {
 							uint8_t h = SSD1309_HEIGHT;
 							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
 							uint8_t h2 = h/2, h4 = h/4;
-							size_t samples = scope_samples();
+							size_t zoomlevel = scope_samples();
 							hardware.display.Fill(false);
 
 							// stereo views:
@@ -527,28 +525,33 @@ namespace oopsy {
 							case SCOPESTYLE_LEFTRIGHT:
 							{
 								// stereo L/R:
-								samples /= 2;
 								for (uint_fast8_t i=0; i<w2; i++) {
-									int j = i*2;
+									int j = i*4;
 									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
 									hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
 								}
 							} break;
 							default:
 							{
-								// stereo lissajous:
-								samples /= 2;
-
 								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
 									int j = i*2;
-									hardware.display.DrawLine(
+									hardware.display.DrawPixel(
 										w2 + h2*scope_data[j][0],
 										h2 + h2*scope_data[j][1],
-										w2 + h2*scope_data[j+1][0],
-										h2 + h2*scope_data[j+1][1],
 										1
 									);
 								}
+
+								// for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+								// 	int j = i*2;
+								// 	hardware.display.DrawLine(
+								// 		w2 + h2*scope_data[j][0],
+								// 		h2 + h2*scope_data[j][1],
+								// 		w2 + h2*scope_data[j+1][0],
+								// 		h2 + h2*scope_data[j+1][1],
+								// 		1
+								// 	);
+								// }
 							} break;
 							} // switch
 
@@ -556,12 +559,28 @@ namespace oopsy {
 							switch (scope_option) {
 								case SCOPEOPTION_SOURCE: {
 									hardware.display.SetCursor(0, h - font.FontHeight);
-									hardware.display.WriteString(scope_source ? "in1 in2" : "out1 out2", font, true);
+									switch(scope_source) {
+									#if (OOPSY_IO_COUNT == 4)
+										case 0: hardware.display.WriteString("in1  in2", font, true); break;
+										case 1: hardware.display.WriteString("in3  in4", font, true); break;
+										case 2: hardware.display.WriteString("out1 out2", font, true); break;
+										case 3: hardware.display.WriteString("out3 out4", font, true); break;
+										case 4: hardware.display.WriteString("in1  out1", font, true); break;
+										case 5: hardware.display.WriteString("in2  out2", font, true); break;
+										case 6: hardware.display.WriteString("in3  out3", font, true); break;
+										case 7: hardware.display.WriteString("in4  out4", font, true); break;
+									#else
+										case 0: hardware.display.WriteString("in1  in2", font, true); break;
+										case 1: hardware.display.WriteString("out1 out2", font, true); break;
+										case 2: hardware.display.WriteString("in1  out1", font, true); break;
+										case 3: hardware.display.WriteString("in2  out2", font, true); break;
+									#endif
+									}
 								} break;
 								case SCOPEOPTION_ZOOM: {
 									// each pixel is zoom samples; zoom/samplerate seconds
-									float scope_duration = SSD1309_WIDTH*(1000.f*samples/samplerate);
-									int offset = snprintf(scope_label, console_cols, "%dx %dms", samples, (int)ceilf(scope_duration));
+									float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/samplerate);
+									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
 									hardware.display.SetCursor(0, h - font.FontHeight);
 									hardware.display.WriteString(scope_label, font, true);
 								} break;
@@ -653,9 +672,16 @@ namespace oopsy {
 		void audio_postperform(float **buffers, size_t size) {
 			#ifdef OOPSY_TARGET_HAS_OLED
 			if (mode == MODE_SCOPE) {
-				// TODO: add selector for scope storage source:
-				float * buf0 = scope_source ? buffers[0] : buffers[2];
-				float * buf1 = scope_source ? buffers[1] : buffers[3];
+				// selector for scope storage source:
+				// e.g. for OOPSY_IO_COUNT=4, inputs:outputs as 0123:4567 makes:
+				// 01, 23, 45, 67  2n:2n+1  i1i2 i3i4 o1o2 o3o4
+				// 04, 15, 26, 37  n:n+ch   i1o1 i2o2 i3o3 i4o4
+				int n = scope_source % OOPSY_IO_COUNT;
+				float * buf0 = (scope_source < OOPSY_IO_COUNT) ? buffers[2*n  ] : buffers[n   ]; 
+				float * buf1 = (scope_source < OOPSY_IO_COUNT) ? buffers[2*n+1] : buffers[n+OOPSY_IO_COUNT];
+
+				// float * buf0 = scope_source ? buffers[0] : buffers[2];
+				// float * buf1 = scope_source ? buffers[1] : buffers[3];
 				size_t samples = scope_samples();
 				for (size_t i=0; i<size/samples; i++) {
 					float min0 = 10.f, max0 = -10.f;
@@ -689,9 +715,8 @@ namespace oopsy {
 			switch(scope_zoom) {
 				case 1: case 2: case 3: case 4: return scope_zoom; break;
 				case 5: return 6; break;
-				case 6: return 8; break;
-				case 7: return 12; break;
-				case 8: return 16; break;
+				case 6: return 12; break;
+				case 7: return 16; break;
 				default: return 24; break;
 			}
 		}
@@ -793,7 +818,11 @@ namespace oopsy {
 			uint32_t start = dsy_tim_get_tick(); // 200MHz
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
+			#if (OOPSY_IO_COUNT == 4)
+			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_ins[2], hardware_ins[3], hardware_outs[0], hardware_outs[1], hardware_outs[2], hardware_outs[3]};
+			#else
 			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_outs[0], hardware_outs[1]};
+			#endif
 			daisy.audio_postperform(buffers, size);
 			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
