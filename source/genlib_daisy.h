@@ -316,20 +316,25 @@ namespace oopsy {
 					// input:
 					while(uart.Readable()) {
 						uint8_t byte = uart.PopRx();
-						// TODO: any oopsy-level handling here
-						#ifdef OOPSY_MULTI_APP
-						if (midi_parse_state) {
-							if (midi_parse_state == 4) {
-								// program change:
-								uint8_t v = (byte & 0x7F);
 
-							}
+						// Oopsy-level handling here
+						#ifdef OOPSY_MULTI_APP
+						if (byte >= 128 && byte < 240) {
+							// status byte:
+							midi_parse_state = (byte/16)-7;
+						} else if (midi_parse_state == 5) {
 							midi_parse_state = 0;
-						} else if ((byte & 0x80)) {
-							midi_parse_state = ((byte & 0x70) >> 4);
+							// program change => load a new app
+							app_selected = app_selecting = byte % app_count;
+							appdefs[app_selected].load();
+							continue;
+						} else {
+							// ignored:
+							midi_parse_state = 0;
 						}
 						#endif // OOPSY_MULTI_APP
 
+						// gen~ level handling here:
 						if (midi_in_written < OOPSY_BUFFER_SIZE) {
 							// scale (0, 255) to (0.0, 1.0)
 							// to protect hardware from accidental patching
