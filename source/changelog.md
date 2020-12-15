@@ -1,6 +1,7 @@
 # Changelog
 
 - Added OLED parameter view, displaying input mapping, current value, and ability to modify non-mapped params via encoder/switches
+- Added more IO channel options to OLED display
 ## v0.2.1-beta
 
 - Automatic zeroing / normalling of unused audio outputs

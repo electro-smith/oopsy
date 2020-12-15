@@ -86,6 +86,18 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-18",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 133.5, 303.0, 37.0, 22.0 ],
+									"text" : "noise"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-21",
 									"maxclass" : "newobj",
 									"numinlets" : 2,
@@ -103,8 +115,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 225.5, 378.0, 186.0, 47.0 ],
-									"presentation_linecount" : 6,
+									"patching_rect" : [ 225.5, 378.0, 189.0, 47.0 ],
 									"text" : "LED outputs range -1 to 1; where output will be green when positive and red when negative"
 								}
 
@@ -409,6 +420,22 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-4", 0 ],
+									"order" : 1,
+									"source" : [ "obj-18", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-5", 0 ],
+									"order" : 0,
+									"source" : [ "obj-18", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-16", 0 ],
 									"source" : [ "obj-2", 0 ]
 								}
@@ -432,7 +459,13 @@
 					}
 ,
 					"patching_rect" : [ 18.0, 267.0, 137.0, 22.0 ],
-					"text" : "gen~"
+					"saved_object_attributes" : 					{
+						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportname" : "oopsy_pod"
+					}
+,
+					"text" : "gen~",
+					"varname" : "oopsy_pod"
 				}
 
 			}

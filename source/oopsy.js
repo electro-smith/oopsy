@@ -198,17 +198,15 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	console.log(`\t${makefile_path}`)
 	console.log(`\t${bin_path}`)
 
-	apps.map(app => {
-		generate_app(app, hardware, target);
-		return app;
-	})
-
 	let defines = Object.assign({}, hardware.defines);
-	if (apps.some(g => (g.has_midi_in && hardware.midi_ins.length) || (g.has_midi_out && hardware.midi_outs.length))) {
-		defines.OOPSY_TARGET_USES_MIDI_UART = 1
-	}
+	if (target == "patch") defines.OOPSY_HAS_PARAM_VIEW = 1
 	if (apps.length > 1) defines.OOPSY_MULTI_APP = 1
 	if (hardware.oled) defines.OOPSY_TARGET_HAS_OLED = 1
+
+	apps.map(app => {
+		generate_app(app, hardware, target, defines);
+		return app;
+	})
 
 	// store for debugging:
 	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
@@ -390,7 +388,7 @@ function generate_daisy(hardware, nodes, target) {
 	return daisy
 }
 
-function generate_app(app, hardware, target) {
+function generate_app(app, hardware, target, defines) {
 	const nodes = {}
 	const daisy = generate_daisy(hardware, nodes, target);
 	const gen = {}
@@ -562,6 +560,10 @@ function generate_app(app, hardware, target) {
 		return varname;
 	})
 
+	if ((app.has_midi_in && hardware.midi_ins.length) || (app.has_midi_out && hardware.midi_outs.length)) {
+		defines.OOPSY_TARGET_USES_MIDI_UART = 1
+	}
+
 	// fill all my holes
 	// map unused cvs/knobs to unmapped params?
 	let upi=0; // unused param index
@@ -622,7 +624,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		daisy.gen = ${name}::create(daisy.samplerate, daisy.blocksize);
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		daisy.param_count = ${gen.params.length};
-		daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};	
+		${(defines.OOPSY_HAS_PARAM_VIEW) ? `daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};`:``}
 		${gen.params.map(name=>nodes[name])
 			.map(node=>`
 		${node.varname} = ${toCfloat(node.default)};`).join("")}
@@ -715,6 +717,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 	}	
 
+	${defines.OOPSY_HAS_PARAM_VIEW ? `
 	float setparam(int idx, float val) {
 		switch(idx) {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
@@ -737,6 +740,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		}	
 	}
 	#endif
+	` : ``}
 };`
 	app.cpp = {
 		union: `App_${name} app_${name};`,

@@ -140,7 +140,9 @@ namespace oopsy {
 
 		#ifdef OOPSY_TARGET_HAS_OLED
 		MODE_CONSOLE,
+		#ifdef OOPSY_HAS_PARAM_VIEW
 		MODE_PARAMS,
+		#endif
 		MODE_SCOPE,
 		#endif
 
@@ -156,9 +158,10 @@ namespace oopsy {
 		int app_count = 1, app_selected = 0, app_selecting = 0;
 		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
-
 		int param_count = 0;
+		#ifdef OOPSY_HAS_PARAM_VIEW
 		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
+		#endif
 
 		uint32_t t = 0, dt = 10;
 		Timer uitimer;
@@ -171,7 +174,9 @@ namespace oopsy {
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
 		void (*displayCallback)(uint32_t t, uint32_t dt);
+		#ifdef OOPSY_HAS_PARAM_VIEW
 		void (*paramCallback)(int idx, char * label, int len, bool tweak);
+		#endif
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
@@ -231,11 +236,11 @@ namespace oopsy {
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
 			displayCallback = newapp.staticDisplayCallback;
-			#ifdef OOPSY_TARGET_HAS_OLED
+			#ifdef OOPSY_HAS_PARAM_VIEW
 			paramCallback = newapp.staticParamCallback;
 			#endif
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
-			log("loaded gen~ %s", appdefs[app_selected].name);
+			log("gen~ %s", appdefs[app_selected].name);
 			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
 
 			// reset some state:
@@ -433,12 +438,14 @@ namespace oopsy {
 								scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
 							} break;
 						}
+					#ifdef OOPSY_HAS_PARAM_VIEW
 					} else if (mode == MODE_PARAMS) {
 						if (!param_is_tweaking) {
 							param_selected += menu_button_incr;
-							if (param_selected >= param_count) param_selected = param_count-1;
-							if (param_selected < 0) param_selected = 0;
+							if (param_selected >= param_count) param_selected = 0;
+							if (param_selected < 0) param_selected = param_count-1;
 						} 
+					#endif //OOPSY_HAS_PARAM_VIEW
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
 
@@ -461,9 +468,11 @@ namespace oopsy {
 						#ifdef OOPSY_TARGET_HAS_OLED
 						} else if (mode == MODE_SCOPE) {
 							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
+						#ifdef OOPSY_HAS_PARAM_VIEW
 						} else if (mode == MODE_PARAMS) {
 							param_is_tweaking = !param_is_tweaking;
-						#endif
+						#endif //OOPSY_HAS_PARAM_VIEW
+						#endif //OOPSY_TARGET_HAS_OLED
 						}
 					} 
 
@@ -484,6 +493,7 @@ namespace oopsy {
 							}
 						} break;
 						#endif //OOPSY_MULTI_APP
+						#ifdef OOPSY_HAS_PARAM_VIEW
 						case MODE_PARAMS: {
 							char label[console_cols+1];
 							// ensure selected parameter is on-screen:
@@ -496,6 +506,7 @@ namespace oopsy {
 								hardware.display.WriteString(label, font, (param_selected != idx));	
 							}
 						} break;
+						#endif // OOPSY_HAS_PARAM_VIEW
 						case MODE_SCOPE: {
 							uint8_t h = SSD1309_HEIGHT;
 							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
@@ -598,7 +609,7 @@ namespace oopsy {
 					if (is_mode_selecting) {
 						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
 					} 
-					if (mode != MODE_NONE && mode != MODE_PARAMS) {
+					if (mode == MODE_CONSOLE) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
 						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
@@ -828,12 +839,12 @@ namespace oopsy {
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
 
-		#ifdef OOPSY_TARGET_HAS_OLED
+		#ifdef OOPSY_HAS_PARAM_VIEW
 		static void staticParamCallback(int idx, char * label, int len, bool tweak) {
 			T& self = *(T *)daisy.app;
 			self.paramCallback(daisy, idx, label, len, tweak);
 		}
-		#endif
+		#endif //OOPSY_HAS_PARAM_VIEW
 	};
 
 }; // oopsy::
