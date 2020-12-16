@@ -217,7 +217,7 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	})
 
 	// store for debugging:
-	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
+	//fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
 
 	const cppcode = `${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}
