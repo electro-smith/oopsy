@@ -5,6 +5,7 @@ outlets = 3;
 
 var path = ""
 var target = "patch"
+var samplerate = "48"
 var sep = "/"
 
 function bang() {
@@ -84,7 +85,7 @@ function configure(doExport) {
 	var name = names.join("_")
 	outlet(1, name)
 
-	var args = [target].concat(cpps);
+	var args = [target, samplerate].concat(cpps);
 	outlet(0, args)
 }
 

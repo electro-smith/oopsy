@@ -1188,14 +1188,14 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "oopsy.cv2hz.gendsp",
+				"name" : "oopsy.ctrl.smooth3.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
-				"name" : "oopsy.ctrl.smooth3.gendsp",
+				"name" : "oopsy.cv2hz.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",

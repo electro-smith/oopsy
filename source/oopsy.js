@@ -68,6 +68,7 @@ function run() {
 	let target_path
 	let watch = false
 	let cpps = []
+	let samplerate = 48
 
 	if (args.length == 0) {
 		console.log(help)
@@ -87,6 +88,12 @@ function run() {
 			case "patch": 
 			case "versio": {target = arg;} break;
 			case "watch": watch=true; break;
+			case "96": 
+			case "96kHz": samplerate = 96; break;
+			case "48": 
+			case "48kHz": samplerate = 48; break;
+			case "32": 
+			case "32kHz": samplerate = 32; break;
 
 			default: {
 
@@ -131,6 +138,7 @@ function run() {
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
+	hardware.samplerate = samplerate
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
@@ -228,7 +236,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	return oopsy::daisy.run(appdefs, ${apps.length});
+	return oopsy::daisy.run(appdefs, ${apps.length}, daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
 }
 `
 	fs.writeFileSync(maincpp_path, cppcode, "utf-8");	
@@ -444,12 +452,14 @@ function generate_app(app, hardware, target, defines) {
 			}
 			app.audio_outs.push(src);
 		}
-		nodes[name] = {
-			// name: name,
+		
+		let node = {
+			name: name,
 			// label: label,
 			// index: i,
 			src: src,
 		}
+		nodes[name] = node
 
 		// figure out if the out buffer maps to anything:
 
@@ -463,7 +473,47 @@ function generate_app(app, hardware, target, defines) {
 				maplabel = match[1] || label
 			}
 		})
-		if (label == "midi") {
+
+		// check for dedicated midi patterns:
+		let match
+		// e.g.
+		// [out 5 midi_cc100_ch1] // input is 0..1 for cc value
+		// [out 6 midi_cc74]	  // default channel 1
+		if (match = (/^midi_cc(\d+)(_(ch)?(\d+))?/g).exec(label)) {
+			app.has_midi_out = true;
+			node.midi_setter = `daisy.midi_message3(${176+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+		}
+
+		// e.g.
+		// [out 5 midi_bend_ch1] // input is -1..1 for full bend range
+		// [out 6 midi_bend]	 // default channel 1
+		else if (match = (/^midi_bend(_(ch)?(\d+))?/g).exec(label)) {
+			let ch = +match[3] || 1;
+			let status = 224 + (ch-1)%16;
+			app.has_midi_out = true;
+			console.log(label, "MIDI BEND", ch, status)
+
+			app.has_midi_out = true;
+			node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F)`;
+			//node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, uint8_t((${node.src}[size-1]+1.f)*8192.f) & 0x7F, 64)`;
+		}
+
+		// e.g.
+		// [out 5 midi_drum36]
+		else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
+			app.has_midi_out = true;
+			node.midi_setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+		}
+
+		// e.g.
+		// [out 5 midi_note36_ch10] // input is 0..1 for note velocity
+		// [out 6 midi_note60]		// default channel 1
+		else if (match = (/^midi_note(\d+)(_(ch)?(\d+))?/g).exec(label)) {
+			app.has_midi_out = true;
+			node.midi_setter = `daisy.midi_message3(${144+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+		}
+
+		else if (label == "midi") {
 			map = daisy.midi_outs[0]
 			app.has_midi_out = true;
 		} else if (map) {
@@ -630,7 +680,6 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${node.varname} = ${toCfloat(node.default)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
-
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.init)
 			.filter(node => node.data)
@@ -708,6 +757,13 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.setter, node)};`).join("")}
+		${(function() { 
+		let midisetters = gen.audio_outs.map(name=>nodes[name]).filter(node=>node.midi_setter);
+		return `${midisetters.length > 0 ? 
+		`if (daisy.frames % ${Math.ceil(midisetters.length*hardware.samplerate/32)} == 0){ // throttle output for MIDI baud limits
+				${midisetters.map(node=>`
+		${node.midi_setter};`).join(``)}
+		}` : ``}` })()}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}
 		${daisy.audio_outs.map(name=>nodes[name])

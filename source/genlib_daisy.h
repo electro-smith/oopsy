@@ -47,7 +47,7 @@
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_BUFFER_SIZE 48
-#define OOPSY_MIDI_BUFFER_SIZE 64
+#define OOPSY_MIDI_BUFFER_SIZE 256
 #define OOPSY_LONG_PRESS_MS 250
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
@@ -163,7 +163,7 @@ namespace oopsy {
 		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
 		#endif
 
-		uint32_t t = 0, dt = 10;
+		uint32_t t = 0, dt = 10, frames = 0;
 		Timer uitimer;
 
 		// microseconds spent in audio callback
@@ -201,7 +201,7 @@ namespace oopsy {
 		FontDef& font = Font_6x8;
 		uint_fast8_t scope_zoom = 7; 
 		uint_fast8_t scope_step = 0; 
-		uint_fast8_t scope_option = 0, scope_style = SCOPESTYLE_TOPBOTTOM, scope_source = 0;
+		uint_fast8_t scope_option = 0, scope_style = SCOPESTYLE_TOPBOTTOM, scope_source = OOPSY_IO_COUNT/2;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
 		char * console_memory;
@@ -241,7 +241,8 @@ namespace oopsy {
 			#endif
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("gen~ %s", appdefs[app_selected].name);
-			log("%d/%dK+%d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
+			log("SR %dkHz / %dHz", (int)(samplerate/1000), (int)hardware.seed.AudioCallbackRate());
+			log("%d/%dK + %d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
 
 			// reset some state:
 			menu_button_incr = 0;
@@ -249,10 +250,11 @@ namespace oopsy {
 			midi_data_idx = 0;
 			midi_in_written = 0, midi_out_written = 0;
 			midi_in_active = 0, midi_out_active = 0;
+			frames = 0;
 			#endif
 		}
 
-		int run(AppDef * appdefs, int count) {
+		int run(AppDef * appdefs, int count, daisy::SaiHandle::Config::SampleRate SR) {
 			this->appdefs = appdefs;
 			app_count = count;
 			
@@ -260,8 +262,9 @@ namespace oopsy {
 			mode = mode_default;
 
 			hardware.Init(); 
-			samplerate = hardware.AudioSampleRate(); // default 48014
-			blocksize = hardware.AudioBlockSize();  // default 48
+			hardware.seed.SetAudioSampleRate(SR);
+			samplerate = hardware.seed.AudioSampleRate(); 
+			blocksize = hardware.seed.AudioBlockSize();  // default 48
 
 			#ifdef OOPSY_USE_LOGGING
 			hardware.seed.StartLog(true);
@@ -313,7 +316,7 @@ namespace oopsy {
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
 				if (midi_out_written) {
 					//log("midi %d", midi_out_written);
-					//for (int i=0; i<midi_out_written; i++) log("%d", midi_out_data[i]);
+					//for (int i=0; i<midi_out_written; i+=3) log("%d %d %d", midi_out_data[i], midi_out_data[i+1], midi_out_data[i+2]);
 				}
 				{
 					// input:
@@ -348,14 +351,15 @@ namespace oopsy {
 					}
 					// output:
 					if (midi_out_written) {
-						if (0 == uart.PollTx(midi_out_data, midi_out_written)) midi_out_written = 0;
+						midi_out_active = 1;
+						if (0 == uart.PollTx(midi_out_data, midi_out_written)) {
+							midi_out_written = 0;
+						}
 					}
 				}
 				#endif
 				
 				if (uitimer.ready(dt)) {
-
-
 					#ifdef OOPSY_USE_LOGGING
 					//hardware.seed.PrintLine("helo %d", t);
 					hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
@@ -476,9 +480,11 @@ namespace oopsy {
 
 					// OLED DISPLAY:
 					#ifdef OOPSY_TARGET_HAS_OLED
+					int showstats = 0;
 					switch(mode) {
 						#ifdef OOPSY_MULTI_APP
 						case MODE_MENU: {
+							showstats = 1;
 							for (int i=0; i<console_rows; i++) {
 								if (i == app_selecting) {
 									hardware.display.SetCursor(0, font.FontHeight * i);
@@ -506,6 +512,7 @@ namespace oopsy {
 						} break;
 						#endif // OOPSY_HAS_PARAM_VIEW
 						case MODE_SCOPE: {
+							showstats = 1;
 							uint8_t h = SSD1309_HEIGHT;
 							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
 							uint8_t h2 = h/2, h4 = h/4;
@@ -598,6 +605,7 @@ namespace oopsy {
 						} break;
 						case MODE_CONSOLE: 
 						{
+							showstats = 1;
 							console_display(); 
 							break;
 						}
@@ -607,7 +615,7 @@ namespace oopsy {
 					if (is_mode_selecting) {
 						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
 					} 
-					if (mode == MODE_CONSOLE) {
+					if (showstats) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
 						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
@@ -716,6 +724,7 @@ namespace oopsy {
 			#if (OOPSY_TARGET_POD)
 				hardware.UpdateLeds();
 			#endif
+			frames++;
 		}
 
 		#ifdef OOPSY_TARGET_HAS_OLED
@@ -752,12 +761,21 @@ namespace oopsy {
 
 		#if OOPSY_TARGET_USES_MIDI_UART
 		void midi_postperform(float * buf, size_t size) {
-			for (size_t i=0; i<size && midi_out_written < OOPSY_MIDI_BUFFER_SIZE-1; i++) {
+			for (size_t i=0; i<size && midi_out_written+1 < OOPSY_MIDI_BUFFER_SIZE; i++) {
 				if (buf[i] >= 0.f) {
 					// scale (0.0, 1.0) back to (0, 255) for MIDI bytes
-					midi_out_data[midi_out_written++] = buf[i] * 256.0f;
-					midi_out_active = 1;
+					midi_out_data[midi_out_written] = buf[i] * 256.0f;
+					midi_out_written++;
 				}
+			}
+		}
+
+		void midi_message3(uint8_t status, uint8_t b1, uint8_t b2) {
+			if (midi_out_written+3 < OOPSY_MIDI_BUFFER_SIZE) {
+				midi_out_data[midi_out_written] = status;
+				midi_out_data[midi_out_written+1] = b1;
+				midi_out_data[midi_out_written+2] = b2;
+				midi_out_written += 3;
 			}
 		}
 
@@ -774,7 +792,6 @@ namespace oopsy {
 				data.write(-1, midi_data_idx, 0);
 				// write it to our active outbuffer:
 				midi_out_data[midi_out_written++] = b;
-				midi_out_active = 1;
 				// and advance one index in the [data midi]
 				midi_data_idx++; if (midi_data_idx >= data.dim) midi_data_idx = 0;
 				b = data.read(midi_data_idx, 0);
