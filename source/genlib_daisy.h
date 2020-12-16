@@ -312,16 +312,14 @@ namespace oopsy {
 				mainloopCallback(t, dt);
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
 				if (midi_out_written) {
-					log("midi %d", midi_out_written);
-					for (int i=0; i<midi_out_written; i++) {
-						log("%d", midi_out_data[i]);
-					}
+					//log("midi %d", midi_out_written);
+					//for (int i=0; i<midi_out_written; i++) log("%d", midi_out_data[i]);
 				}
 				{
 					// input:
 					while(uart.Readable()) {
 						uint8_t byte = uart.PopRx();
-
+						//log("midi in %d", byte);
 						// Oopsy-level handling here
 						#ifdef OOPSY_MULTI_APP
 						if (byte >= 128 && byte < 240) {

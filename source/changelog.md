@@ -2,6 +2,8 @@
 
 - Added OLED parameter view, displaying input mapping, current value, and ability to modify non-mapped params via encoder/switches
 - Added more IO channel options to OLED display
+- Multi-app binaries will switch app according to MIDI program-change messages
+- Code generation cleanup
 ## v0.2.1-beta
 
 - Automatic zeroing / normalling of unused audio outputs
