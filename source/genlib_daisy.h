@@ -227,7 +227,7 @@ namespace oopsy {
 			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
 			hardware.ChangeAudioCallback(nullAudioCallback);
-			while (!nullAudioCallbackRunning) dsy_system_delay(10);
+			while (!nullAudioCallbackRunning) dsy_system_delay(1);
 			// reset memory
 			oopsy::init();
 			// install new app:
