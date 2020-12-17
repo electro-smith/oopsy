@@ -166,6 +166,8 @@
 					"patching_rect" : [ 24.0, 390.0, 44.0, 90.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
+							"parameter_initial" : [ -42.549019607843135 ],
+							"parameter_initial_enable" : 1,
 							"parameter_longname" : "live.gain~",
 							"parameter_mmax" : 6.0,
 							"parameter_mmin" : -70.0,
@@ -8659,6 +8661,7 @@
 			"obj-11" : [ "live.gain~", "live.gain~", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}

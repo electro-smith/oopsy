@@ -40,6 +40,19 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"attr" : "knob4_octave",
+					"displaymode" : 1,
+					"id" : "obj-1",
+					"maxclass" : "attrui",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 177.0, 217.599999999999937, 150.0, 22.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-20",
 					"maxclass" : "spectroscope~",
 					"numinlets" : 2,
@@ -191,6 +204,30 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-18",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 359.0, 105.5, 108.0, 22.0 ],
+									"text" : "oopsy.ctrl.smooth3"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-1",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 119.0, 646.25, 33.0, 22.0 ],
+									"text" : "* 0.5"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-60",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
@@ -280,20 +317,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 359.0, 110.0, 29.5, 22.0 ],
+									"patching_rect" : [ 359.0, 75.0, 29.5, 22.0 ],
 									"text" : "+"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-52",
-									"maxclass" : "newobj",
-									"numinlets" : 1,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 359.0, 82.0, 108.0, 22.0 ],
-									"text" : "oopsy.ctrl.smooth3"
 								}
 
 							}
@@ -354,8 +379,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 347.0, 405.0, 251.0, 23.0 ],
-									"text" : "param knob2_bandwidth 1 @min 0 @max 100"
+									"patching_rect" : [ 347.0, 405.0, 244.0, 23.0 ],
+									"text" : "param knob2_bandwidth 1 @min 0 @max 10"
 								}
 
 							}
@@ -450,7 +475,7 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 119.0, 659.0, 35.0, 22.0 ],
+									"patching_rect" : [ 119.0, 685.0, 35.0, 22.0 ],
 									"text" : "out 2"
 								}
 
@@ -727,13 +752,20 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 69.0, 659.0, 38.0, 23.0 ],
+									"patching_rect" : [ 69.0, 685.0, 38.0, 23.0 ],
 									"text" : "out 1"
 								}
 
 							}
  ],
 						"lines" : [ 							{
+								"patchline" : 								{
+									"destination" : [ "obj-13", 0 ],
+									"source" : [ "obj-1", 0 ]
+								}
+
+							}
+, 							{
 								"patchline" : 								{
 									"destination" : [ "obj-11", 1 ],
 									"source" : [ "obj-10", 0 ]
@@ -758,6 +790,13 @@
 								"patchline" : 								{
 									"destination" : [ "obj-15", 1 ],
 									"source" : [ "obj-17", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-50", 0 ],
+									"source" : [ "obj-18", 0 ]
 								}
 
 							}
@@ -910,7 +949,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-52", 0 ],
+									"destination" : [ "obj-53", 0 ],
 									"source" : [ "obj-49", 0 ]
 								}
 
@@ -947,14 +986,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-53", 0 ],
-									"source" : [ "obj-52", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-50", 0 ],
+									"destination" : [ "obj-18", 0 ],
 									"source" : [ "obj-53", 0 ]
 								}
 
@@ -1019,7 +1051,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-13", 0 ],
+									"destination" : [ "obj-1", 0 ],
 									"source" : [ "obj-60", 0 ]
 								}
 
@@ -1044,7 +1076,7 @@
 ,
 					"patching_rect" : [ 31.5, 310.0, 194.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
+						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/notes/more_examples/",
 						"exportname" : "modfm"
 					}
 ,
@@ -1103,6 +1135,13 @@
 			}
  ],
 		"lines" : [ 			{
+				"patchline" : 				{
+					"destination" : [ "obj-3", 0 ],
+					"source" : [ "obj-1", 0 ]
+				}
+
+			}
+, 			{
 				"patchline" : 				{
 					"destination" : [ "obj-13", 1 ],
 					"source" : [ "obj-11", 1 ]
@@ -1180,6 +1219,7 @@
 			"obj-11" : [ "live.gain~", "live.gain~", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}
@@ -1190,35 +1230,35 @@
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.ctrl.smooth3.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
-				"patcherrelativepath" : "../code",
+				"patcherrelativepath" : "../../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.cv2hz.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
-				"patcherrelativepath" : "../code",
+				"patcherrelativepath" : "../../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.maxpat",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
+				"patcherrelativepath" : "../../patchers",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.snoop.js",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
+				"patcherrelativepath" : "../../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.node4max.js",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
+				"patcherrelativepath" : "../../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
