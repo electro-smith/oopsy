@@ -246,8 +246,10 @@ int main(void) {
 	// now try to make:
 	try {
 		try {
-			console.log(execSync("make clean", { cwd: build_path }).toString())
 			if (os.platform() == "win32") {
+                // Don't use `make clean`, as `rm` is not default on Windows
+                // /Q suppresses the Y/n prompt
+			    console.log(execSync("del /Q build", { cwd: build_path }).toString())
 				// Gather up make output to run command per line as child process
 				let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
 				build_cmd.forEach(line => {
@@ -256,6 +258,7 @@ int main(void) {
 						execSync(line, { cwd: build_path }).toString()
 				})
 			} else {
+			    console.log(execSync("make clean", { cwd: build_path }).toString())
 				console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
 			}
 

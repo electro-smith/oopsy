@@ -6,6 +6,10 @@
 - Samplerate selection (32/48/96kHz) in the oopsy interface
 - Dedicated continual MIDI outputs via e.g. [out 5 midi_cc1], [out 5 midi_cc1_ch3], [out 5 midi_drum36], etc.
 - Code generation cleanup
+## v0.2.2-beta
+
+- Fixes for windows compatibility
+
 ## v0.2.1-beta
 
 - Automatic zeroing / normalling of unused audio outputs
