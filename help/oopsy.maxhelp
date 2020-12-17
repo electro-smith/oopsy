@@ -4,7 +4,7 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 5,
+			"revision" : 8,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
@@ -70,8 +70,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 300.0, 155.0, 275.0, 64.0 ],
-					"text" : "Drop in an 'oopsy_builder' bpatcher in any Max patch with gen~ objects. Select the target from the drop down and bang (or save the patch) to compile!"
+					"patching_rect" : [ 300.0, 155.0, 278.0, 64.0 ],
+					"text" : "Drop in an 'oopsy.patch' / 'oopsy.field' / 'oopsy.petal' etc. bpatcher in any Max patch with gen~ objects. Send it a bang (or save the patch) to compile!"
 				}
 
 			}
@@ -106,7 +106,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 5,
+							"revision" : 8,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -299,7 +299,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 49.0, 213.0, 36.0, 22.0 ],
+					"patching_rect" : [ 13.0, 261.0, 88.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/help/",
 						"exportname" : "oopsymaxhelp"
@@ -339,6 +339,7 @@
 		"parameters" : 		{
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}
