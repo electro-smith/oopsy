@@ -2,6 +2,8 @@
 
 Exporting Max Gen patchers for the ElectroSmith Daisy hardware platforms.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/fbd1CASqUmI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media" allowfullscreen></iframe>
+
 Each Daisy binary can hold several gen~ patcher "apps", which can be switched between using the encoder (or switches on the DaisyField).
 
 ## How gen~ features map to Daisy
@@ -72,6 +74,11 @@ node oopsy.js field ../examples/simple.cpp
 ## Installing
 
 See the instructions [on the wiki page](https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration))
+
+## Discussion
+
+- Electrosmith: https://forum.electro-smith.com/t/meet-oopsy-daisy-object-for-max-msp-gen/944/30
+- MW: https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=242322
 
 -----
 
