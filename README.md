@@ -2,7 +2,7 @@
 
 Exporting Max Gen patchers for the ElectroSmith Daisy hardware platforms.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/fbd1CASqUmI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media" allowfullscreen></iframe>
+[![Oopsy on Youtube](https://img.youtube.com/vi/fbd1CASqUmI/0.jpg)](https://www.youtube.com/playlist?list=PLZbxc8QYjD1eJHJEjzDkNB_zshbnVN6CH)
 
 Each Daisy binary can hold several gen~ patcher "apps", which can be switched between using the encoder (or switches on the DaisyField).
 
