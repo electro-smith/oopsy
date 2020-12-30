@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 903.0, 136.0, 583.0, 369.0 ],
+		"rect" : [ 199.0, 220.0, 990.0, 700.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,102 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-22",
+					"linecount" : 4,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 553.600008249282837, 50.0, 173.20000034570694, 60.0 ],
+					"text" : "A midi-enabled multi-app Oopsy program will respond to program-change MIDI events to by switching between apps "
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-20",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 564.000008404254913, 263.0, 47.0, 22.0 ],
+					"text" : "midiout"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-19",
+					"maxclass" : "number",
+					"minimum" : 20,
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 639.500008404254913, 132.59999805688858, 50.0, 22.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-16",
+					"maxclass" : "toggle",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "int" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 595.500008404254913, 132.59999805688858, 24.0, 24.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-9",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "bang" ],
+					"patching_rect" : [ 595.500008404254913, 158.59999805688858, 63.0, 22.0 ],
+					"text" : "metro 250"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-8",
+					"maxclass" : "number",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 595.500008404254913, 209.39999920129776, 50.0, 22.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-4",
+					"maxclass" : "newobj",
+					"numinlets" : 5,
+					"numoutlets" : 4,
+					"outlettype" : [ "int", "", "", "int" ],
+					"patching_rect" : [ 595.500008404254913, 183.799998819828033, 69.0, 22.0 ],
+					"text" : "counter 1 8"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-2",
+					"maxclass" : "newobj",
+					"numinlets" : 7,
+					"numoutlets" : 2,
+					"outlettype" : [ "int", "" ],
+					"patching_rect" : [ 564.000008404254913, 235.799999594688416, 82.0, 22.0 ],
+					"text" : "midiformat"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-15",
 					"maxclass" : "newobj",
@@ -155,7 +251,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 84.0, 103.0, 688.0, 569.0 ],
+						"rect" : [ 221.0, 116.0, 1047.0, 826.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -5183,26 +5279,6 @@
 							}
 , 							{
 								"box" : 								{
-									"args" : [ "patch" ],
-									"bgmode" : 0,
-									"border" : 0,
-									"clickthrough" : 0,
-									"enablehscroll" : 0,
-									"enablevscroll" : 0,
-									"id" : "obj-1",
-									"lockeddragscroll" : 0,
-									"maxclass" : "bpatcher",
-									"name" : "oopsy.maxpat",
-									"numinlets" : 1,
-									"numoutlets" : 0,
-									"offset" : [ 0.0, 0.0 ],
-									"patching_rect" : [ 486.0, 158.0, 128.0, 128.0 ],
-									"viewvisibility" : 1
-								}
-
-							}
-, 							{
-								"box" : 								{
 									"attr" : "ctrl1_wet",
 									"id" : "obj-19",
 									"maxclass" : "attrui",
@@ -5428,26 +5504,6 @@
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
-								"box" : 								{
-									"args" : [ "patch" ],
-									"bgmode" : 0,
-									"border" : 0,
-									"clickthrough" : 0,
-									"enablehscroll" : 0,
-									"enablevscroll" : 0,
-									"id" : "obj-7",
-									"lockeddragscroll" : 0,
-									"maxclass" : "bpatcher",
-									"name" : "oopsy.maxpat",
-									"numinlets" : 1,
-									"numoutlets" : 0,
-									"offset" : [ 0.0, 0.0 ],
-									"patching_rect" : [ 480.0, 35.0, 128.0, 128.0 ],
-									"viewvisibility" : 1
-								}
-
-							}
-, 							{
 								"box" : 								{
 									"automatic" : 1,
 									"id" : "obj-6",
@@ -7065,7 +7121,49 @@
 
 			}
  ],
-		"lines" : [  ],
+		"lines" : [ 			{
+				"patchline" : 				{
+					"destination" : [ "obj-9", 0 ],
+					"source" : [ "obj-16", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-9", 1 ],
+					"source" : [ "obj-19", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-20", 0 ],
+					"source" : [ "obj-2", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-8", 0 ],
+					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-2", 3 ],
+					"source" : [ "obj-8", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-4", 0 ],
+					"source" : [ "obj-9", 0 ]
+				}
+
+			}
+ ],
 		"parameters" : 		{
 			"obj-11::obj-11" : [ "live.gain~[1]", "live.gain~", 0 ],
 			"obj-11::obj-9::obj-32" : [ "live.text[6]", "FILTER", 0 ],
@@ -7090,13 +7188,7 @@
 			"obj-15::obj-9::obj-32" : [ "live.text[10]", "FILTER", 0 ],
 			"obj-15::obj-9::obj-36" : [ "live.menu[15]", "live.menu", 0 ],
 			"obj-15::obj-9::obj-4" : [ "live.menu[16]", "live.menu", 0 ],
-			"obj-18::obj-7::obj-32" : [ "live.text[3]", "FILTER", 0 ],
-			"obj-18::obj-7::obj-36" : [ "live.menu[3]", "live.menu", 0 ],
-			"obj-18::obj-7::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"obj-1::obj-11" : [ "live.gain~", "live.gain~", 0 ],
-			"obj-1::obj-1::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-1::obj-1::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
-			"obj-1::obj-1::obj-4" : [ "live.menu[4]", "live.menu", 0 ],
 			"obj-1::obj-2::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-1::obj-2::obj-35" : [ "[5]", "Level", 0 ],
 			"obj-3::obj-32" : [ "live.text[5]", "FILTER", 0 ],
@@ -7203,18 +7295,6 @@
 					"parameter_longname" : "live.menu[16]"
 				}
 ,
-				"obj-18::obj-7::obj-32" : 				{
-					"parameter_longname" : "live.text[3]"
-				}
-,
-				"obj-18::obj-7::obj-36" : 				{
-					"parameter_longname" : "live.menu[3]"
-				}
-,
-				"obj-1::obj-1::obj-4" : 				{
-					"parameter_longname" : "live.menu[4]"
-				}
-,
 				"obj-3::obj-32" : 				{
 					"parameter_longname" : "live.text[5]"
 				}
@@ -7244,27 +7324,6 @@
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
@@ -7307,6 +7366,27 @@
 , 			{
 				"name" : "interfacecolor.js",
 				"bootpath" : "C74:/interfaces",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}

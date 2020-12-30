@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 96.0, 333.0, 890.0, 644.0 ],
+		"rect" : [ 433.0, 210.0, 1122.0, 774.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -165,8 +165,8 @@
 									"id" : "obj-16",
 									"maxclass" : "newobj",
 									"numinlets" : 5,
-									"numoutlets" : 7,
-									"outlettype" : [ "signal", "signal", "signal", "signal", "signal", "signal", "signal" ],
+									"numoutlets" : 8,
+									"outlettype" : [ "signal", "signal", "signal", "signal", "signal", "signal", "signal", "signal" ],
 									"patcher" : 									{
 										"fileversion" : 1,
 										"appversion" : 										{
@@ -178,7 +178,7 @@
 										}
 ,
 										"classnamespace" : "dsp.gen",
-										"rect" : [ 651.0, 178.0, 982.0, 532.0 ],
+										"rect" : [ 416.0, 178.0, 1217.0, 672.0 ],
 										"bglocked" : 0,
 										"openinpresentation" : 0,
 										"default_fontsize" : 12.0,
@@ -207,6 +207,29 @@
 										"subpatcher_template" : "",
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
+												"box" : 												{
+													"id" : "obj-8",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 793.600011825561523, 329.600004911422729, 86.0, 22.0 ],
+													"text" : "out 8 midi_cc1"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-6",
+													"maxclass" : "newobj",
+													"numinlets" : 0,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 793.600011825561523, 285.0, 37.0, 22.0 ],
+													"text" : "noise"
+												}
+
+											}
+, 											{
 												"box" : 												{
 													"id" : "obj-2",
 													"maxclass" : "newobj",
@@ -1552,6 +1575,13 @@
 												"patchline" : 												{
 													"destination" : [ "obj-12", 0 ],
 													"source" : [ "obj-5", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-8", 0 ],
+													"source" : [ "obj-6", 0 ]
 												}
 
 											}
@@ -3827,6 +3857,7 @@
 		"parameters" : 		{
 			"obj-20::obj-13::obj-32" : [ "live.text[2]", "FILTER", 0 ],
 			"obj-20::obj-13::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-20::obj-13::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"obj-6" : [ "live.gain~", "live.gain~", 0 ],
 			"parameterbanks" : 			{
 

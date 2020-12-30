@@ -1,5 +1,11 @@
 # Changelog
 
+- Param view added to Daisy Field; params not tweakable (because of no encoder)
+- 
+- Code generation cleanup
+
+## v0.3.0-beta
+
 - Added OLED parameter view, displaying input mapping, current value, and ability to modify non-mapped params via encoder/switches
 - Added more IO channel options to OLED display
 - Multi-app binaries will switch app according to MIDI program-change messages

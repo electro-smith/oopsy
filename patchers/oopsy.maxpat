@@ -711,6 +711,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -1022,13 +1024,6 @@
 					"destination" : [ "obj-37", 0 ],
 					"midpoints" : [ 348.5, 227.5, 231.5, 227.5 ],
 					"source" : [ "obj-21", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-7", 0 ],
-					"source" : [ "obj-21", 2 ]
 				}
 
 			}

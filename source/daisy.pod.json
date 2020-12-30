@@ -1,7 +1,8 @@
 {
     "max_apps":1,
 	"defines": {
-		"OOPSY_TARGET_POD": 1
+		"OOPSY_TARGET_POD": 1,
+		"OOPSY_HAS_ENCODER": 1
 	},
 	"labels": {
 		"params": {

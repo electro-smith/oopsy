@@ -161,6 +161,9 @@ namespace oopsy {
 		int param_count = 0;
 		#ifdef OOPSY_HAS_PARAM_VIEW
 		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
+		#ifdef OOPSY_PARAM_VIEW_EDITABLE
+
+		#endif
 		#endif
 
 		uint32_t t = 0, dt = 10, frames = 0;
@@ -470,10 +473,10 @@ namespace oopsy {
 						#ifdef OOPSY_TARGET_HAS_OLED
 						} else if (mode == MODE_SCOPE) {
 							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
-						#ifdef OOPSY_HAS_PARAM_VIEW
+						#if defined (OOPSY_HAS_PARAM_VIEW) && defined(OOPSY_CAN_PARAM_TWEAK)
 						} else if (mode == MODE_PARAMS) {
 							param_is_tweaking = !param_is_tweaking;
-						#endif //OOPSY_HAS_PARAM_VIEW
+						#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
 						#endif //OOPSY_TARGET_HAS_OLED
 						}
 					} 

@@ -1,7 +1,10 @@
 {
     "max_apps":8,
 	  "defines": {
-      "OOPSY_TARGET_PATCH": 1
+      "OOPSY_TARGET_HAS_OLED": 1,
+      "OOPSY_TARGET_PATCH": 1,
+      "OOPSY_HAS_PARAM_VIEW": 1,
+      "OOPSY_HAS_ENCODER": 1
     },
     "labels": {
       "params": {
@@ -99,6 +102,5 @@
     ],
     "midi_outs": [
       "dsy_midi_out1"
-    ],
-    "oled": true
+    ]
 }

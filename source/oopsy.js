@@ -127,6 +127,9 @@ function run() {
 		if (acc.indexOf(s) === -1) acc.push(s)
 		return acc
 	}, []);
+	cpps.sort((a,b)=>{
+		return path.basename(a) < path.basename(b) ? -1 : 0;
+	})
 
 	// configure target:
 	if (!target && !target_path) target = "patch";
@@ -143,7 +146,7 @@ function run() {
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (hardware.max_apps && cpps.length > hardware.max_apps) {
-		console.log(`this target does not support more than ${hardwre.max_apps} apps`)
+		console.log(`this target does not support more than ${hardware.max_apps} apps`)
 		cpps.length = hardware.max_apps
 	}
 	let apps = cpps.map(cpp_path => {
@@ -207,9 +210,10 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	console.log(`\t${bin_path}`)
 
 	let defines = Object.assign({}, hardware.defines);
-	if (target == "patch") defines.OOPSY_HAS_PARAM_VIEW = 1
 	if (apps.length > 1) defines.OOPSY_MULTI_APP = 1
-	if (hardware.oled) defines.OOPSY_TARGET_HAS_OLED = 1
+	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
+		defines.OOPSY_CAN_PARAM_TWEAK = 1
+	}
 
 	apps.map(app => {
 		generate_app(app, hardware, target, defines);
@@ -494,8 +498,7 @@ function generate_app(app, hardware, target, defines) {
 			let ch = +match[3] || 1;
 			let status = 224 + (ch-1)%16;
 			app.has_midi_out = true;
-			console.log(label, "MIDI BEND", ch, status)
-
+			
 			app.has_midi_out = true;
 			node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F)`;
 			//node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, uint8_t((${node.src}[size-1]+1.f)*8192.f) & 0x7F, 64)`;
@@ -536,7 +539,7 @@ function generate_app(app, hardware, target, defines) {
 
 	gen.params = app.patch.params.map((param, i)=>{
 		const varname = "gen_param_"+param.name;
-		let src, label;
+		let src, label, type="float";
 
 		// search for a matching [out] name / prefix:
 		Object.keys(hardware.labels.params).sort().forEach(k => {
@@ -544,12 +547,23 @@ function generate_app(app, hardware, target, defines) {
 			if (match = new RegExp(`^${k}_?(.+)?`).exec(param.name)) {
 				src = hardware.labels.params[k];
 				label = match[1] || param.name
+
+				// search for any type qualifiers:
+				//if (match = label.match(/^((.+)_)?(int|bool)(_(.*))?$/)) {
+				if (match = label.match(/^(int|bool)(_(.*))?$/)) {
+					//type = match[3];
+					type = match[1]
+					// trim type from label:
+					//label = (match[2] || "") + (match[5] || "") 
+					label = match[3] || label
+				}
 			}
 		})
 		
 		let node = Object.assign({
 			varname: varname,
 			label: label || param.name,
+			type: type,
 			src: src,
 		}, param);
 
@@ -558,18 +572,22 @@ function generate_app(app, hardware, target, defines) {
 		node.min = node.min || 0;
 		node.default = node.default || 0;
 		node.range = node.max - node.min;
-		// figure out a suitable encoder step division for this parameter
 		let ideal_steps = 100 // about 4 good twists of the encoder
-		if (node.range > 2 && Number.isInteger(node.max) && Number.isInteger(node.max) && Number.isInteger(node.default)) {
-			if (node.range < 10) {
-				// might be v/oct
-				node.stepsize = 1/12
-			} else {
-				// find a suitable subdivision:
-				let power = Math.round(Math.log2(node.range / ideal_steps))
-				node.stepsize = Math.pow(2, power)
-			}
-		} 
+		if (node.type == "bool" || node.type == "int") {
+			node.stepsize = 1
+		} else {
+			// figure out a suitable encoder step division for this parameter
+			if (node.range > 2 && Number.isInteger(node.max) && Number.isInteger(node.max) && Number.isInteger(node.default)) {
+				if (node.range < 10) {
+					// might be v/oct
+					node.stepsize = 1/12
+				} else {
+					// find a suitable subdivision:
+					let power = Math.round(Math.log2(node.range / ideal_steps))
+					node.stepsize = Math.pow(2, power)
+				}
+			} 
+		}
 		if (!node.stepsize) {
 			// general case:
 			node.stepsize = node.range / ideal_steps
@@ -667,7 +685,9 @@ function generate_app(app, hardware, target, defines) {
 
 struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
-		.concat(daisy.device_outs)
+		.map(name=>`
+	${nodes[name].type} ${name};`).join("")}
+	${daisy.device_outs
 		.map(name=>`
 	float ${name};`).join("")}
 	${app.audio_outs.map(name=>`
@@ -780,16 +800,18 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float setparam(int idx, float val) {
 		switch(idx) {
 			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return ${node.varname} = (val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
+			case ${i}: return ${node.varname} = (${node.type})(val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
 		}
 		return 0.f;	
 	}
 
-	#ifdef OOPSY_TARGET_HAS_OLED
+	#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW) 
 	void paramCallback(oopsy::GenDaisy& daisy, int idx, char * label, int len, bool tweak) {
 		switch(idx) { ${gen.params.map(name=>nodes[name]).map((node, i)=>`
 		case ${i}:
-		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr * ${toCfloat(node.stepsize)});
+		#ifdef OOPSY_CAN_PARAM_TWEAK
+		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr ${node.type == "float" ? '* ' + toCfloat(node.stepsize) : ""});
+		#endif //OOPSY_CAN_PARAM_TWEAK
 		snprintf(label, len, "${node.src ? 
 			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 ""` 
 			: 
@@ -798,7 +820,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		break;`).join("")}
 		}	
 	}
-	#endif
+	#endif //defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
 	` : ``}
 };`
 	app.cpp = {
