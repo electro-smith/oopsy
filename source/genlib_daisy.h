@@ -239,7 +239,7 @@ namespace oopsy {
 			// install new callbacks:
 			mainloopCallback = newapp.staticMainloopCallback;
 			displayCallback = newapp.staticDisplayCallback;
-			#ifdef OOPSY_HAS_PARAM_VIEW
+			#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
 			paramCallback = newapp.staticParamCallback;
 			#endif
 			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
@@ -381,7 +381,7 @@ namespace oopsy {
 					hardware.ClearLeds();
 					#endif
 				
-					#ifdef OOPSY_TARGET_PETAL 
+					#ifdef OOPSY_TARGET_PETAL
 					// has no mode selection
 					is_mode_selecting = 0;
 					#if defined(OOPSY_MULTI_APP)
@@ -639,9 +639,9 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
-					#if (OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
+					#if (OOPSY_TARGET_PETAL)
 					hardware.UpdateLeds();
-					#endif //(OOPSY_TARGET_PETAL || OOPSY_TARGET_VERSIO)
+					#endif //(OOPSY_TARGET_PETAL)
 
 
 				} // uitimer.ready
@@ -724,7 +724,7 @@ namespace oopsy {
 				}
 			}
 			#endif
-			#if (OOPSY_TARGET_POD)
+			#if (OOPSY_TARGET_POD || OOPSY_TARGET_VERSIO)
 				hardware.UpdateLeds();
 			#endif
 			frames++;
@@ -857,12 +857,12 @@ namespace oopsy {
 			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
 		}
 
-		#ifdef OOPSY_HAS_PARAM_VIEW
+		#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
 		static void staticParamCallback(int idx, char * label, int len, bool tweak) {
 			T& self = *(T *)daisy.app;
 			self.paramCallback(daisy, idx, label, len, tweak);
 		}
-		#endif //OOPSY_HAS_PARAM_VIEW
+		#endif //defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
 	};
 
 }; // oopsy::

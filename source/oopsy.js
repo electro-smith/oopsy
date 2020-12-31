@@ -39,7 +39,7 @@ function asCppNumber(n, type="float") {
 }
 
 const help = `
-<[cmds]> <[target]> <[cpps]> <watch>
+<[cmds]> <target> <[options]> <[cpps]> <watch>
 
 cmds: 	up/upload = (default) generate & upload
 	  	gen/generate = generate only
@@ -47,6 +47,11 @@ cmds: 	up/upload = (default) generate & upload
 target: path to a JSON for the hardware config, 
 		or simply "patch", "field", "petal", "pod" etc. 
 		Defaults to "patch"
+
+options: any of "32", "32kHz", "48", "48kHz", "96", "96kHz" 
+		will set the sampling rate of the binary
+		"nodisplay" will disable code generration for OLED 
+		(it will be blank)
 
 cpps: 	paths to the gen~ exported cpp files
 		first item will be the default app
@@ -73,6 +78,7 @@ function run() {
 	let watch = false
 	let cpps = []
 	let samplerate = 48
+	let options = {}
 
 	if (args.length == 0) {
 		console.log(help)
@@ -83,14 +89,14 @@ function run() {
 		switch (arg) {
 			case "help": {console.log(help); process.exit(0);} break;
 			case "generate":
-			case "gen": {action="generate";} break;
+			case "gen": action="generate"; break;
 			case "upload":
-			case "up": {action="upload";} break;
+			case "up": action="upload"; break;
 			case "pod":
 			case "field":
 			case "petal":
 			case "patch": 
-			case "versio": {target = arg;} break;
+			case "versio": target = arg; break;
 			case "watch": watch=true; break;
 			case "96": 
 			case "96kHz": samplerate = 96; break;
@@ -98,6 +104,7 @@ function run() {
 			case "48kHz": samplerate = 48; break;
 			case "32": 
 			case "32kHz": samplerate = 32; break;
+			case "nooled": options[arg] = true; break;
 
 			default: {
 
@@ -219,13 +226,17 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 		defines.OOPSY_CAN_PARAM_TWEAK = 1
 	}
 
+	if (options.nooled && defines.OOPSY_TARGET_HAS_OLED) {
+		delete defines.OOPSY_TARGET_HAS_OLED;
+	}
+
 	apps.map(app => {
 		generate_app(app, hardware, target, defines);
 		return app;
 	})
 
 	// store for debugging:
-	//fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
+	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
 
 	const cppcode = `${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}
@@ -749,13 +760,18 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${daisy.device_inputs.map(name => nodes[name])
 			.filter(node => node.to.length)
+			.filter(node => node.update && node.update.where == "audio")
+			.map(node=>`
+		${interpolate(node.update.code, node)}`).join("")}
+		${daisy.device_inputs.map(name => nodes[name])
+			.filter(node => node.to.length)
 			.map(node=>`
 		float ${node.name} = ${node.getter};`).join("")}
 		${gen.params
-			.filter(name => nodes[name].src)
 			.map(name=>nodes[name])
+			.filter(node => node.src)
 			.map(node=>`
-		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.max-node.min)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool") ? 0.5 : 0)});`).join("")}
+		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.max-node.min)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});`).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.map(node=>`

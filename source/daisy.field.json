@@ -172,24 +172,19 @@
 			"getter": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)"
 		},
 		"cv1": {
-			"nick": "cv1",
-        	"getter": "hardware.GetCvValue(0)"
+			"getter": "hardware.GetCvValue(0)"
 		},
 		"cv2": {
-			"nick": "cv2",
-        	"getter": "hardware.GetCvValue(1)"
+			"getter": "hardware.GetCvValue(1)"
 		},
 		"cv3": {
-			"nick": "cv3",
-        	"getter": "hardware.GetCvValue(2)"
+			"getter": "hardware.GetCvValue(2)"
 		},
 		"cv4": {
-			"nick": "cv4",
-        	"getter": "hardware.GetCvValue(3)"
+			"getter": "hardware.GetCvValue(3)"
 		},
 		"gt1": {
-			"nick": "gt1",
-        	"getter": "(hardware.gate_in.State()?1.f:0.f)"
+			"getter": "(hardware.gate_in.State()?1.f:0.f)"
 		}
 	},
 	"outputs": {

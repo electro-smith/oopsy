@@ -184,7 +184,7 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "field", "@target", "patch" ],
+					"args" : [ "@samplerate", "48kHz" ],
 					"bgmode" : 0,
 					"border" : 0,
 					"clickthrough" : 0,
@@ -8664,6 +8664,17 @@
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
 			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
+
+			}
+,
+			"parameter_overrides" : 			{
+				"obj-9::obj-36" : 				{
+					"parameter_longname" : "live.menu[1]"
+				}
+,
+				"obj-9::obj-4" : 				{
+					"parameter_longname" : "live.menu[2]"
+				}
 
 			}
 ,

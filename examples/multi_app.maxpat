@@ -45,7 +45,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 553.600008249282837, 50.0, 173.20000034570694, 60.0 ],
+					"patching_rect" : [ 553.600008249282837, 50.0, 175.0, 60.0 ],
 					"text" : "A midi-enabled multi-app Oopsy program will respond to program-change MIDI events to by switching between apps "
 				}
 
@@ -216,7 +216,7 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "patch" ],
+					"args" : [ "@samplerate", "48kHz" ],
 					"bgmode" : 0,
 					"border" : 0,
 					"clickthrough" : 0,

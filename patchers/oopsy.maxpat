@@ -82,7 +82,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 49.5, 204.0, 89.0, 22.0 ],
-					"text" : "loadmess set 1"
+					"text" : "loadmess set 0"
 				}
 
 			}
@@ -101,7 +101,7 @@
 						"valueof" : 						{
 							"parameter_enum" : [ "96kHz", "48kHz", "32kHz" ],
 							"parameter_initial" : [ 0 ],
-							"parameter_longname" : "live.menu[2]",
+							"parameter_longname" : "live.menu[6]",
 							"parameter_mmax" : 2,
 							"parameter_shortname" : "live.menu",
 							"parameter_type" : 2
@@ -514,9 +514,9 @@
 					"presentation_rect" : [ 31.0, 0.0, 45.0, 15.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_enum" : [ "patch", "field", "petal", "pod" ],
-							"parameter_longname" : "live.menu[1]",
-							"parameter_mmax" : 3,
+							"parameter_enum" : [ "patch", "field", "petal", "pod", "versio" ],
+							"parameter_longname" : "live.menu[5]",
+							"parameter_mmax" : 4,
 							"parameter_shortname" : "live.menu",
 							"parameter_type" : 2
 						}
@@ -1226,8 +1226,8 @@
  ],
 		"parameters" : 		{
 			"obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-36" : [ "live.menu[1]", "live.menu", 0 ],
-			"obj-4" : [ "live.menu[2]", "live.menu", 0 ],
+			"obj-36" : [ "live.menu[5]", "live.menu", 0 ],
+			"obj-4" : [ "live.menu[6]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}

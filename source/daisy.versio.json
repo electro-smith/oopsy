@@ -41,15 +41,16 @@
 			"switch": "sw1",
 			"gate": "gt1",
 
-
 			"tap": "bt1",
 			"fsu": "bt1",
 			"abc": "sw1",
-			"xyz": "sw2"
-			
+			"xyz": "sw2"			
 		},
 		"outs": {
-
+			"led1": "led1",
+			"led2": "led2",
+			"led3": "led3",
+			"led4": "led4"
 		},
 		"datas": {}
 	},
@@ -83,19 +84,40 @@
         	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
 		},
 		"sw1": {
-			"getter": "(hardware.sw_[0].Read())"
+			"getter": "(hardware.sw[0].Read()/2.f)"
 		},
 		"sw2": {
-			"getter": "(hardware.sw_[1].Read())"
+			"getter": "(hardware.sw[1].Read()/2.f)"
 		},
 		"bt1": {
-			"getter": "(hardware.SwitchPressed()?1.f:0.f)"
+			"getter": "(hardware.tap.Pressed()?1.f:0.f)",
+			"update": {
+				"where": "audio",
+				"code": "hardware.tap.Debounce();"
+			}
 		},
 		"gt1": {
 			"getter": "(hardware.Gate()?1.f:0.f)"
 		}
 	},
-	"outputs": {},
+	"outputs": {
+		"led1": {
+			"where": "audio",
+			"setter": "hardware.leds[0].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		},
+		"led2": {
+			"where": "audio",
+			"setter": "hardware.leds[1].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		},
+		"led3": {
+			"where": "audio",
+			"setter": "hardware.leds[2].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		},
+		"led4": {
+			"where": "audio",
+			"setter": "hardware.leds[3].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+		}
+	},
     "datahandlers": {},
 	"audio_ins": [
       "dsy_in1",
