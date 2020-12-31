@@ -22,15 +22,19 @@ function interpolate(str, data) {
 }
 
 // prints a number as a C-style float:
-function toCfloat(n) {
+function asCppNumber(n, type="float") {
 	let s = (+n).toString();
-	// add point if needed:
-	if (s.includes("e")) {
-		return s;
-	} else if (s.includes(".")) {
-		return s + "f";
+	if (type == "int" || type == "bool") {
+		return Math.trunc(n).toString()
 	} else {
-		return s + ".f";
+		// add point if needed:
+		if (s.includes("e")) {
+			return s;
+		} else if (s.includes(".")) {
+			return s + "f";
+		} else {
+			return s + ".f";
+		}
 	}
 }
 
@@ -700,7 +704,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${(defines.OOPSY_HAS_PARAM_VIEW) ? `daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};`:``}
 		${gen.params.map(name=>nodes[name])
 			.map(node=>`
-		${node.varname} = ${toCfloat(node.default)};`).join("")}
+		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
 		${daisy.datahandlers.map(name => nodes[name])
@@ -749,11 +753,13 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		float ${node.name} = ${node.getter};`).join("")}
 		${gen.params
 			.filter(name => nodes[name].src)
-			.map(name=>`
-		${name} = ${nodes[name].src}*${toCfloat(nodes[name].max-nodes[name].min)} + ${toCfloat(nodes[name].min)};`).join("")}
+			.map(name=>nodes[name])
+			.map(node=>`
+		${node.varname} = ${node.src}*${asCppNumber(node.max-node.min, node.type)} + ${asCppNumber(node.min, node.type)};`).join("")}
 		${gen.params
-			.map(name=>`
-		gen.set_${nodes[name].name}(${name});`).join("")}
+			.map(name=>nodes[name])
+			.map(node=>`
+		gen.set_${node.name}(${node.varname});`).join("")}
 		${daisy.audio_ins.map((name, i)=>`
 		float * ${name} = hardware_ins[${i}];`).join("")}
 		${daisy.audio_outs.map((name, i)=>`
@@ -799,8 +805,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${defines.OOPSY_HAS_PARAM_VIEW ? `
 	float setparam(int idx, float val) {
 		switch(idx) {
-			${gen.params.map(name=>nodes[name]).map((node, i)=>`
-			case ${i}: return ${node.varname} = (${node.type})(val > ${toCfloat(node.max)}) ? ${toCfloat(node.max)} : (val < ${toCfloat(node.min)}) ? ${toCfloat(node.min)} : val;`).join("")}
+			${gen.params
+				.map(name=>nodes[name])
+				.map((node, i)=>`
+			case ${i}: return ${node.varname} = (${node.type})(val > ${asCppNumber(node.max, node.type)}) ? ${asCppNumber(node.max, node.type)} : (val < ${asCppNumber(node.min, node.type)}) ? ${asCppNumber(node.min, node.type)} : val;`).join("")}
 		}
 		return 0.f;	
 	}
@@ -810,7 +818,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		switch(idx) { ${gen.params.map(name=>nodes[name]).map((node, i)=>`
 		case ${i}:
 		#ifdef OOPSY_CAN_PARAM_TWEAK
-		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr ${node.type == "float" ? '* ' + toCfloat(node.stepsize) : ""});
+		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr ${node.type == "float" ? '* ' + asCppNumber(node.stepsize, node.type) : ""});
 		#endif //OOPSY_CAN_PARAM_TWEAK
 		snprintf(label, len, "${node.src ? 
 			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 ""` 
