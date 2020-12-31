@@ -755,7 +755,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(name => nodes[name].src)
 			.map(name=>nodes[name])
 			.map(node=>`
-		${node.varname} = ${node.src}*${asCppNumber(node.max-node.min, node.type)} + ${asCppNumber(node.min, node.type)};`).join("")}
+		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.max-node.min)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool") ? 0.5 : 0)});`).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.map(node=>`

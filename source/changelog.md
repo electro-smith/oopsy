@@ -1,7 +1,7 @@
 # Changelog
 
 - Param view added to Daisy Field; params not tweakable (because of no encoder)
-- 
+- Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - Code generation cleanup
 
 ## v0.3.0-beta
