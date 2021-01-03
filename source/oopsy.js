@@ -128,6 +128,9 @@ function run() {
 							}
 						}
 					}
+				} else {
+					console.log(`oopsy error: ${arg} is not a recognized argument or a path that does not exist`)
+					process.exit(-1)
 				}
 			}
 		}
