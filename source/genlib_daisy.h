@@ -5,43 +5,22 @@
 #include "genlib.h"
 #include "genlib_ops.h"
 #include "genlib_exportfunctions.h"
+#include "daisy_seed.h"
 #include <math.h>
 #include <string>
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
 
-//#define OOPSY_USE_LOGGING 1
+#if defined(OOPSY_TARGET_SEED)
+	typedef struct {
+		daisy::DaisySeed seed;
 
-#if defined(OOPSY_TARGET_PATCH)
-	#include "daisy_patch.h"
-	#define OOPSY_IO_COUNT (4)
-	typedef daisy::DaisyPatch Daisy;
-
-#elif defined(OOPSY_TARGET_FIELD)
-	#include "daisy_field.h"
-	#define OOPSY_IO_COUNT (2)
-	typedef daisy::DaisyField Daisy;
-
-#elif defined(OOPSY_TARGET_PETAL)
-	#include "daisy_petal.h"
-	#define OOPSY_IO_COUNT (2)
-	typedef daisy::DaisyPetal Daisy;
-
-#elif defined(OOPSY_TARGET_POD)
-	#include "daisy_pod.h"
-	#define OOPSY_IO_COUNT (2)
-	typedef daisy::DaisyPod Daisy;
-
-#elif defined(OOPSY_TARGET_VERSIO)
-	#include "daisy_versio.h"
-	#define OOPSY_IO_COUNT (2)
-	typedef daisy::DaisyVersio Daisy;
-
-#else 
-	#include "daisy_seed.h"
-	#define OOPSY_IO_COUNT (2)
-	typedef daisy::DaisySeed Daisy;
-
+		void Init() {
+			seed.Configure();
+			seed.Init();
+			seed.SetAudioBlockSize(48);
+		}
+	} Daisy;
 #endif
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
@@ -229,7 +208,7 @@ namespace oopsy {
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
-			hardware.ChangeAudioCallback(nullAudioCallback);
+			hardware.seed.ChangeAudioCallback(nullAudioCallback);
 			while (!nullAudioCallbackRunning) dsy_system_delay(1);
 			// reset memory
 			oopsy::init();
@@ -242,7 +221,7 @@ namespace oopsy {
 			#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
 			paramCallback = newapp.staticParamCallback;
 			#endif
-			hardware.ChangeAudioCallback(newapp.staticAudioCallback);
+			hardware.seed.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("gen~ %s", appdefs[app_selected].name);
 			log("SR %dkHz / %dHz", (int)(samplerate/1000), (int)hardware.seed.AudioCallbackRate());
 			log("%d/%dK + %d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
@@ -257,15 +236,12 @@ namespace oopsy {
 			#endif
 		}
 
-		int run(AppDef * appdefs, int count, daisy::SaiHandle::Config::SampleRate SR) {
+		int run(AppDef * appdefs, int count) {
 			this->appdefs = appdefs;
 			app_count = count;
 			
 			mode_default = (Mode)(MODE_COUNT-1);
 			mode = mode_default;
-
-			hardware.Init(); 
-			hardware.seed.SetAudioSampleRate(SR);
 			samplerate = hardware.seed.AudioSampleRate(); 
 			blocksize = hardware.seed.AudioBlockSize();  // default 48
 
@@ -285,8 +261,8 @@ namespace oopsy {
 			console_line = console_rows-1;
 			#endif
 
-			hardware.StartAdc();
-			hardware.StartAudio(nullAudioCallback);
+			hardware.seed.adc.Start();
+			hardware.seed.StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
 
@@ -658,30 +634,21 @@ namespace oopsy {
 			midi_in_written = 0;
 			#endif
 
-            /*
-			#if (OOPSY_TARGET_FIELD || OOPSY_TARGET_VERSIO)
-				hardware.ProcessAnalogControls();
-				#if OOPSY_TARGET_FIELD
-				hardware.UpdateDigitalControls();
-				#endif
-			#else
-				hardware.DebounceControls();
-				hardware.UpdateAnalogControls();
-			#endif
-            */
-            hardware.ProcessAllControls();
 
-			#ifdef OOPSY_TARGET_FIELD
+			#if defined(OOPSY_TARGET_FIELD)
+            hardware.ProcessAllControls();
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
 			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
-			#elif OOPSY_TARGET_VERSIO
-			// menu_button_held = hardware.tap_.Pressed();
+			#elif defined(OOPSY_TARGET_VERSIO)
+            hardware.ProcessAllControls();
+			// menu_button_held = hardware.tap.Pressed();
 			// menu_button_incr += hardware.GetKnobValue(6) * app_count;
-			// menu_button_held_ms = hardware.tap_.TimeHeldMs();
+			// menu_button_held_ms = hardware.tap.TimeHeldMs();
 			// if (hardware.tap_.FallingEdge()) menu_button_released = 1;
-			#else
+			#elif defined(OOPSY_TARGET_POD) || defined(OOPSY_TARGET_PETAL) || defined(OOPSY_TARGET_PATCH)
+            hardware.ProcessAllControls();
 			menu_button_held = hardware.encoder.Pressed();
 			menu_button_incr += hardware.encoder.Increment();
 			menu_button_held_ms = hardware.encoder.TimeHeldMs();

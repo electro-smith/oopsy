@@ -154,11 +154,14 @@ function run() {
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
+	// consolidate hardware definition:
 	hardware.samplerate = samplerate
+	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
+	if (!hardware.max_apps) hardware.max_apps = 1;
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
-	if (hardware.max_apps && cpps.length > hardware.max_apps) {
+	if (cpps.length > hardware.max_apps) {
 		console.log(`this target does not support more than ${hardware.max_apps} apps`)
 		cpps.length = hardware.max_apps
 	}
@@ -242,6 +245,7 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 
 	const cppcode = `${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}
+${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
 ${apps.map(app => `#include "${posixify_path(path.relative(build_path, app.path))}"`).join("\n")}
@@ -257,7 +261,11 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	return oopsy::daisy.run(appdefs, ${apps.length}, daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
+	oopsy::daisy.hardware.Init(); 
+	oopsy::daisy.hardware.seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
+	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
+	// insert custom hardware initialization here
+	return oopsy::daisy.run(appdefs, ${apps.length});
 }
 `
 	fs.writeFileSync(maincpp_path, cppcode, "utf-8");	
@@ -342,52 +350,8 @@ function analyze_cpp(cpp) {
 	return gen;
 }
 
-function generate_daisy(hardware, nodes, target) {
+function generate_daisy(hardware, nodes) {
 	let daisy = {
-		audio_ins: hardware.audio_ins.map((v, i)=>{
-			let name = `dsy_in${i+1}`
-			nodes[name] = {
-				name: name,
-				// name: name,
-				// kind: "input_buffer",
-				// index: i,
-				to: [],
-			}
-			return name;
-		}),
-		audio_outs: hardware.audio_outs.map((v, i)=>{
-			let name = `dsy_out${i+1}`
-			nodes[name] = {
-				name: name,
-				// name: name,
-				// kind: "output_buffer",
-				// index: i,
-				to: [], // what non-audio outputs it maps to
-				src: null, // what audio content it draws from
-			}
-			return name;
-		}),
-		midi_ins: hardware.midi_ins.map((v, i)=>{
-			let name = `dsy_midi_in${i+1}`
-			nodes[name] = {
-				name: name,
-				// buffername: name,
-				// index: i,
-				to: [],
-			}
-			return name;
-		}),
-		midi_outs: hardware.midi_outs.map((v, i)=>{
-			let name = `dsy_midi_out${i+1}`
-			nodes[name] = {
-				name: name,
-				// buffername: name,
-				// index: i,
-				from: [],
-			}
-			return name;
-		}),
-
 		// DEVICE INPUTS:
 		device_inputs: Object.keys(hardware.inputs).map(v => {
 			let name = v
@@ -416,6 +380,48 @@ function generate_daisy(hardware, nodes, target) {
 			}
 			return name;
 		}),
+		// configured below
+		audio_ins: [],
+		audio_outs: [],
+	}
+	let input_count = hardware.defines.OOPSY_IO_COUNT;
+	let output_count = hardware.defines.OOPSY_IO_COUNT;
+	for (let i=0; i<input_count; i++) {
+		let name = `dsy_in${i+1}`
+		nodes[name] = {
+			name: name,
+			to: [],
+		}
+		daisy.audio_ins.push(name);
+	}
+	for (let i=0; i<output_count; i++) {
+		let name = `dsy_out${i+1}`
+		nodes[name] = {
+			name: name,
+			to: [],
+		}
+		daisy.audio_outs.push(name);
+	}
+	
+	if (hardware.defines.OOPSY_TARGET_HAS_MIDI_INPUT) {
+		let name = `dsy_midi_in`
+		nodes[name] = {
+			name: name,
+			to: [],
+		}
+		daisy.midi_ins = [name]
+	} else {
+		daisy.midi_ins = []
+	}
+	if (hardware.defines.OOPSY_TARGET_HAS_MIDI_OUTPUT) {
+		let name = `dsy_midi_out`
+		nodes[name] = {
+			name: name,
+			from: [],
+		}
+		daisy.midi_outs = [name]
+	} else {
+		daisy.midi_outs = []
 	}
 	return daisy
 }
@@ -648,7 +654,7 @@ function generate_app(app, hardware, target, defines) {
 		return varname;
 	})
 
-	if ((app.has_midi_in && hardware.midi_ins.length) || (app.has_midi_out && hardware.midi_outs.length)) {
+	if ((app.has_midi_in && hardware.defines.OOPSY_TARGET_HAS_MIDI_INPUT) || (app.has_midi_out && hardware.defines.OOPSY_TARGET_HAS_MIDI_OUTPUT)) {
 		defines.OOPSY_TARGET_USES_MIDI_UART = 1
 	}
 
@@ -730,6 +736,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${hardware.inserts.filter(o => o.where == "main").map(o => o.code).join("\n\t")}
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.where == "main")
 			.filter(node => node.data)
@@ -745,6 +752,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${hardware.inserts.filter(o => o.where == "display").map(o => o.code).join("\n\t")}
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.where == "display")
 			.filter(node => node.data)
@@ -760,6 +768,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${hardware.inserts.filter(o => o.where == "audio").map(o => o.code).join("\n\t")}
 		${daisy.device_inputs.map(name => nodes[name])
 			.filter(node => node.to.length)
 			.filter(node => node.update && node.update.where == "audio")

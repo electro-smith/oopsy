@@ -4,6 +4,10 @@
 		"OOPSY_TARGET_PETAL": 1,
 		"OOPSY_HAS_ENCODER": 1
 	},
+    "inserts": [
+		{ "where": "header", "code": "#include \"daisy_petal.h\"" },
+		{ "where": "header", "code": "typedef daisy::DaisyPetal Daisy;" }
+	],
 	"labels": {
 		"params": {
 			"knob1": "kn1",
@@ -117,15 +121,5 @@
 		}
 	},
     "datahandlers": {
-	},
-	"audio_ins": [
-      "dsy_in1",
-      "dsy_in2"
-    ],
-    "audio_outs": [
-      "dsy_out1",
-      "dsy_out2"
-    ],
-    "midi_ins": [],
-    "midi_outs": []
+	}
 }

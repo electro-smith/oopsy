@@ -2,8 +2,13 @@
     "max_apps":1,
 	"defines": {
 		"OOPSY_TARGET_POD": 1,
+		"OOPSY_TARGET_HAS_MIDI_INPUT": 1,
 		"OOPSY_HAS_ENCODER": 1
 	},
+    "inserts": [
+		{ "where": "header", "code": "#include \"daisy_pod.h\"" },
+		{ "where": "header", "code": "typedef daisy::DaisyPod Daisy;" }
+	],
 	"labels": {
 		"params": {
 			"knob1": "kn1",
@@ -63,17 +68,5 @@
 			"setter": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		}
 	},
-    "datahandlers": {},
-	"audio_ins": [
-      "dsy_in1",
-      "dsy_in2"
-    ],
-    "audio_outs": [
-      "dsy_out1",
-      "dsy_out2"
-    ],
-    "midi_ins": [
-      "dsy_midi_in1"
-    ],
-    "midi_outs": []
+    "datahandlers": {}
 }

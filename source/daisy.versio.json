@@ -3,6 +3,10 @@
 	"defines": {
 		"OOPSY_TARGET_VERSIO": 1
 	},
+    "inserts": [
+		{ "where": "header", "code": "#include \"daisy_versio.h\"" },
+		{ "where": "header", "code": "typedef daisy::DaisyVersio Daisy;" }
+	],
 	"labels": {
 		"params": {
 			"knob1": "kn1",
@@ -118,15 +122,5 @@
 			"setter": "hardware.leds[3].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
 		}
 	},
-    "datahandlers": {},
-	"audio_ins": [
-      "dsy_in1",
-      "dsy_in2"
-    ],
-    "audio_outs": [
-      "dsy_out1",
-      "dsy_out2"
-    ],
-    "midi_ins": [],
-    "midi_outs": []
+    "datahandlers": {}
 }
