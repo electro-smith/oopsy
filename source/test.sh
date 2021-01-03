@@ -1,3 +1,4 @@
+rm -rf build_* && \
 node oopsy.js ../templates/oopsy_patch.cpp patch && \
 node oopsy.js ../templates/oopsy_field.cpp field && \
 node oopsy.js ../templates/oopsy_petal.cpp petal && \
