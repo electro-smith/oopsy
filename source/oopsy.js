@@ -107,30 +107,29 @@ function run() {
 			case "nooled": options[arg] = true; break;
 
 			default: {
-
-				if (fs.existsSync(arg)) {
-					if (fs.lstatSync(arg).isDirectory()) {
-						// add a whole folder full of cpps:
-						cpps = cpps.concat(fs.readdirSync(arg)
-							.filter(s => path.parse(s).ext == ".cpp") 
-							.map(s => path.join(arg, s))
-						)
-					} else {	
-						let p = path.parse(arg);
-						switch(p.ext) {
-							case ".json": {target_path = arg; target = ""}; break;
-							case ".cpp": cpps.push(arg); break;
-							// case ".gendsp":
-							// case ".maxpat":
-							// case ".maxhelp": {pat_path = arg}; break;
-							default: {
-								console.warn("unexpected input", arg);
-							}
-						}
-					}
-				} else {
+				// assume anything else is a file path:
+				if (!fs.existsSync(arg)) {
 					console.log(`oopsy error: ${arg} is not a recognized argument or a path that does not exist`)
 					process.exit(-1)
+				}
+				if (fs.lstatSync(arg).isDirectory()) {
+					// add a whole folder full of cpps:
+					cpps = cpps.concat(fs.readdirSync(arg)
+						.filter(s => path.parse(s).ext == ".cpp") 
+						.map(s => path.join(arg, s))
+					)
+				} else {	
+					let p = path.parse(arg);
+					switch(p.ext) {
+						case ".json": {target_path = arg; target = ""}; break;
+						case ".cpp": cpps.push(arg); break;
+						// case ".gendsp":
+						// case ".maxpat":
+						// case ".maxhelp": {pat_path = arg}; break;
+						default: {
+							console.warn("unexpected input", arg);
+						}
+					}
 				}
 			}
 		}
