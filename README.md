@@ -78,6 +78,7 @@ See the instructions [on the wiki page](https://github.com/electro-smith/DaisyWi
 ## Discussion
 
 - Electrosmith: https://forum.electro-smith.com/t/meet-oopsy-daisy-object-for-max-msp-gen/944/30
+- Cycling '74: https://cycling74.com/forums/oopsy 
 - MW: https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=242322
 
 -----
