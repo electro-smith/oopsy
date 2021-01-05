@@ -3,6 +3,7 @@
 - Support for Noise Engineering's Versio, including all on-panel controls and LEDs, and template patch. 
 - Param view added to Daisy Field; params not tweakable (because of no encoder) but at least visible
 - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
+- fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - Code generation cleanup
 
 ## v0.3.0-beta
