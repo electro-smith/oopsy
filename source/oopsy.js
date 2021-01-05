@@ -3,7 +3,7 @@
 /*
 	Generates and compiles wrapper code for gen~ export to Daisy hardware
 
-	Oopsy was authored by Graham Wakefield in 2020.
+	Oopsy was authored by Graham Wakefield in 2020-2021.
 */
 const fs = require("fs"),
 	path = require("path"),
@@ -46,11 +46,11 @@ cmds: 	up/upload = (default) generate & upload
 
 target: path to a JSON for the hardware config, 
 		or simply "patch", "field", "petal", "pod" etc. 
-		Defaults to "patch"
+		Defaults to "daisy.patch.json"
 
 options: any of "32", "32kHz", "48", "48kHz", "96", "96kHz" 
 		will set the sampling rate of the binary
-		"nodisplay" will disable code generration for OLED 
+		"nooled" will disable code generration for OLED 
 		(it will be blank)
 
 cpps: 	paths to the gen~ exported cpp files
@@ -104,6 +104,7 @@ function run() {
 			case "48kHz": samplerate = 48; break;
 			case "32": 
 			case "32kHz": samplerate = 32; break;
+			case "writejson":
 			case "nooled": options[arg] = true; break;
 
 			default: {
@@ -174,6 +175,7 @@ function run() {
 	})
 	let build_name = apps.map(v=>v.patch.name).join("_")
 
+
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
 	console.log(`Building to ${build_path}`)
@@ -226,13 +228,19 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	console.log(`\t${bin_path}`)
 
 	let defines = Object.assign({}, hardware.defines);
-	if (apps.length > 1) defines.OOPSY_MULTI_APP = 1
-	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
-		defines.OOPSY_CAN_PARAM_TWEAK = 1
+	if (apps.length > 1) {
+		defines.OOPSY_MULTI_APP = 1
+		// generate midi-handling code for any multi-app on a midi-enabled platform
+		// so that program-change messages for apps will work:
+		if (hardware.defines.OOPSY_TARGET_HAS_MIDI_INPUT) {
+			hardware.defines.OOPSY_TARGET_USES_MIDI_UART = 1
+		}
 	}
-
 	if (options.nooled && defines.OOPSY_TARGET_HAS_OLED) {
 		delete defines.OOPSY_TARGET_HAS_OLED;
+	}
+	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
+		defines.OOPSY_CAN_PARAM_TWEAK = 1
 	}
 
 	apps.map(app => {
@@ -241,7 +249,7 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	})
 
 	// store for debugging:
-	fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
+	if (options.writejson) fs.writeFileSync(path.join(build_path, `${build_name}_${target}.json`), JSON.stringify(config,null,"  "),"utf8");
 
 	const cppcode = `${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}

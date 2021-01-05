@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 199.0, 220.0, 990.0, 700.0 ],
+		"rect" : [ 199.0, 220.0, 778.0, 375.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -136,61 +136,6 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-15",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 0,
-					"patching_rect" : [ 33.0, 271.0, 43.0, 22.0 ],
-					"text" : "reverb"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-14",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 0,
-					"patching_rect" : [ 104.0, 235.0, 50.0, 22.0 ],
-					"text" : "midside"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-13",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 0,
-					"patching_rect" : [ 33.0, 235.0, 61.0, 22.0 ],
-					"text" : "crossover"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-12",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 0,
-					"patching_rect" : [ 88.0, 197.0, 41.0, 22.0 ],
-					"text" : "pulsar"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-11",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 0,
-					"patching_rect" : [ 33.0, 197.0, 45.0, 22.0 ],
-					"text" : "modfm"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-7",
 					"linecount" : 3,
 					"maxclass" : "comment",
@@ -229,7 +174,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 296.0, 157.0, 128.0, 128.0 ],
+					"patching_rect" : [ 226.0, 157.0, 128.0, 128.0 ],
 					"viewvisibility" : 1
 				}
 
@@ -7108,7 +7053,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 104.0, 157.0, 82.0, 22.0 ],
+					"patching_rect" : [ 122.0, 157.0, 82.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -7165,29 +7110,6 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-11::obj-11" : [ "live.gain~[1]", "live.gain~", 0 ],
-			"obj-11::obj-9::obj-32" : [ "live.text[6]", "FILTER", 0 ],
-			"obj-11::obj-9::obj-36" : [ "live.menu[7]", "live.menu", 0 ],
-			"obj-11::obj-9::obj-4" : [ "live.menu[8]", "live.menu", 0 ],
-			"obj-12::obj-11" : [ "live.gain~[2]", "live.gain~", 0 ],
-			"obj-12::obj-9::obj-32" : [ "live.text[7]", "FILTER", 0 ],
-			"obj-12::obj-9::obj-36" : [ "live.menu[9]", "live.menu", 0 ],
-			"obj-12::obj-9::obj-4" : [ "live.menu[10]", "live.menu", 0 ],
-			"obj-13::obj-11" : [ "live.gain~[3]", "live.gain~", 0 ],
-			"obj-13::obj-12" : [ "live.gain~[4]", "live.gain~", 0 ],
-			"obj-13::obj-7::obj-21::obj-6" : [ "live.tab[1]", "live.tab[1]", 0 ],
-			"obj-13::obj-7::obj-35" : [ "[1]", "Level", 0 ],
-			"obj-13::obj-9::obj-32" : [ "live.text[8]", "FILTER", 0 ],
-			"obj-13::obj-9::obj-36" : [ "live.menu[11]", "live.menu", 0 ],
-			"obj-13::obj-9::obj-4" : [ "live.menu[12]", "live.menu", 0 ],
-			"obj-14::obj-4" : [ "live.gain~[5]", "live.gain~", 0 ],
-			"obj-14::obj-9::obj-32" : [ "live.text[9]", "FILTER", 0 ],
-			"obj-14::obj-9::obj-36" : [ "live.menu[13]", "live.menu", 0 ],
-			"obj-14::obj-9::obj-4" : [ "live.menu[14]", "live.menu", 0 ],
-			"obj-15::obj-4" : [ "live.gain~[6]", "live.gain~", 0 ],
-			"obj-15::obj-9::obj-32" : [ "live.text[10]", "FILTER", 0 ],
-			"obj-15::obj-9::obj-36" : [ "live.menu[15]", "live.menu", 0 ],
-			"obj-15::obj-9::obj-4" : [ "live.menu[16]", "live.menu", 0 ],
 			"obj-1::obj-11" : [ "live.gain~", "live.gain~", 0 ],
 			"obj-1::obj-2::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-1::obj-2::obj-35" : [ "[5]", "Level", 0 ],
@@ -7199,102 +7121,6 @@
 			}
 ,
 			"parameter_overrides" : 			{
-				"obj-11::obj-11" : 				{
-					"parameter_initial" : -70.0,
-					"parameter_initial_enable" : 1,
-					"parameter_longname" : "live.gain~[1]"
-				}
-,
-				"obj-11::obj-9::obj-32" : 				{
-					"parameter_longname" : "live.text[6]"
-				}
-,
-				"obj-11::obj-9::obj-36" : 				{
-					"parameter_longname" : "live.menu[7]"
-				}
-,
-				"obj-11::obj-9::obj-4" : 				{
-					"parameter_longname" : "live.menu[8]"
-				}
-,
-				"obj-12::obj-11" : 				{
-					"parameter_initial" : -70.0,
-					"parameter_initial_enable" : 1,
-					"parameter_longname" : "live.gain~[2]"
-				}
-,
-				"obj-12::obj-9::obj-32" : 				{
-					"parameter_longname" : "live.text[7]"
-				}
-,
-				"obj-12::obj-9::obj-36" : 				{
-					"parameter_longname" : "live.menu[9]"
-				}
-,
-				"obj-12::obj-9::obj-4" : 				{
-					"parameter_longname" : "live.menu[10]"
-				}
-,
-				"obj-13::obj-11" : 				{
-					"parameter_longname" : "live.gain~[3]"
-				}
-,
-				"obj-13::obj-12" : 				{
-					"parameter_longname" : "live.gain~[4]"
-				}
-,
-				"obj-13::obj-7::obj-21::obj-6" : 				{
-					"parameter_longname" : "live.tab[1]"
-				}
-,
-				"obj-13::obj-7::obj-35" : 				{
-					"parameter_longname" : "[1]"
-				}
-,
-				"obj-13::obj-9::obj-32" : 				{
-					"parameter_longname" : "live.text[8]"
-				}
-,
-				"obj-13::obj-9::obj-36" : 				{
-					"parameter_longname" : "live.menu[11]"
-				}
-,
-				"obj-13::obj-9::obj-4" : 				{
-					"parameter_longname" : "live.menu[12]"
-				}
-,
-				"obj-14::obj-4" : 				{
-					"parameter_longname" : "live.gain~[5]"
-				}
-,
-				"obj-14::obj-9::obj-32" : 				{
-					"parameter_longname" : "live.text[9]"
-				}
-,
-				"obj-14::obj-9::obj-36" : 				{
-					"parameter_longname" : "live.menu[13]"
-				}
-,
-				"obj-14::obj-9::obj-4" : 				{
-					"parameter_longname" : "live.menu[14]"
-				}
-,
-				"obj-15::obj-4" : 				{
-					"parameter_longname" : "live.gain~[6]"
-				}
-,
-				"obj-15::obj-9::obj-32" : 				{
-					"parameter_longname" : "live.text[10]"
-				}
-,
-				"obj-15::obj-9::obj-36" : 				{
-					"parameter_longname" : "live.menu[15]"
-				}
-,
-				"obj-15::obj-9::obj-4" : 				{
-					"parameter_longname" : "live.menu[16]"
-				}
-,
 				"obj-3::obj-32" : 				{
 					"parameter_longname" : "live.text[5]"
 				}
@@ -7388,41 +7214,6 @@
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
 				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "modfm.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/examples",
-				"patcherrelativepath" : ".",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "pulsar.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/examples",
-				"patcherrelativepath" : ".",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "crossover.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/examples",
-				"patcherrelativepath" : ".",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "midside.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/examples",
-				"patcherrelativepath" : ".",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "reverb.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/examples",
-				"patcherrelativepath" : ".",
-				"type" : "JSON",
 				"implicit" : 1
 			}
  ],
