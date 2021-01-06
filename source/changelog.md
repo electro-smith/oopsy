@@ -4,7 +4,7 @@
 - Param view added to Daisy Field; params not tweakable (because of no encoder) but at least visible
 - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - Added ability to select custom JSON config from within oopsy.maxpat via "browse" button or @target argument
-- Reconfigured config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
+- Modifiedg config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
 - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - Code generation cleanup
 
