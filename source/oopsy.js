@@ -519,7 +519,7 @@ function generate_app(app, hardware, target, defines) {
 		// [out 6 midi_cc74]	  // default channel 1
 		if (match = (/^midi_cc(\d+)(_(ch)?(\d+))?/g).exec(label)) {
 			app.has_midi_out = true;
-			node.midi_setter = `daisy.midi_message3(${176+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+			node.midi_setter = `daisy.midi_message3(${176+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
 		}
 
 		// e.g.
@@ -531,15 +531,14 @@ function generate_app(app, hardware, target, defines) {
 			app.has_midi_out = true;
 			
 			app.has_midi_out = true;
-			node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F)`;
-			//node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, uint8_t((${node.src}[size-1]+1.f)*8192.f) & 0x7F, 64)`;
+			node.midi_setter = `daisy.midi_message3(${224+(((+match[4])||1)-1)%16}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F);`;
 		}
 
 		// e.g.
 		// [out 5 midi_drum36]
 		else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
 			app.has_midi_out = true;
-			node.midi_setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+			node.midi_setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
 		}
 
 		// e.g.
@@ -547,7 +546,7 @@ function generate_app(app, hardware, target, defines) {
 		// [out 6 midi_note60]		// default channel 1
 		else if (match = (/^midi_note(\d+)(_(ch)?(\d+))?/g).exec(label)) {
 			app.has_midi_out = true;
-			node.midi_setter = `daisy.midi_message3(${144+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F)`;
+			node.midi_setter = `daisy.midi_message3(${144+(((+match[4])||1)-1)%16}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
 		}
 
 		else if (label == "midi") {
@@ -749,12 +748,12 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.where == "main")
 			.filter(node => node.data)
 			.map(node =>`
-		${interpolate(node.setter, node)};`).join("")}
+		${interpolate(node.code, node)}`).join("")}
 		${daisy.device_outs.map(name => nodes[name])
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "main")
 			.map(node=>`
-		${interpolate(node.config.setter, node)};`).join("")}
+		${interpolate(node.config.code, node)}`).join("")}
 	}
 
 	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -765,12 +764,12 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.where == "display")
 			.filter(node => node.data)
 			.map(node =>`
-		${interpolate(node.setter, node)};`).join("")}
+		${interpolate(node.code, node)}`).join("")}
 		${daisy.device_outs.map(name => nodes[name])
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "display")
 			.map(node=>`
-		${interpolate(node.config.setter, node)};`).join("")}
+		${interpolate(node.config.code, node)}`).join("")}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
@@ -815,18 +814,18 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "audio")
 			.map(node=>`
-		${interpolate(node.config.setter, node)};`).join("")}
+		${interpolate(node.config.code, node)}`).join("")}
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.where == "audio")
 			.filter(node => node.data)
 			.map(node =>`
-		${interpolate(node.setter, node)};`).join("")}
+		${interpolate(node.code, node)}`).join("")}
 		${(function() { 
 		let midisetters = gen.audio_outs.map(name=>nodes[name]).filter(node=>node.midi_setter);
 		return `${midisetters.length > 0 ? 
 		`if (daisy.frames % ${Math.ceil(midisetters.length*hardware.samplerate/32)} == 0){ // throttle output for MIDI baud limits
 				${midisetters.map(node=>`
-		${node.midi_setter};`).join(``)}
+		${node.midi_setter}`).join(``)}
 		}` : ``}` })()}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}

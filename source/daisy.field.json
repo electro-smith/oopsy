@@ -196,21 +196,21 @@
 	"outputs": {
 		"cvout1": {
 			"where":"main",
-			"setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
+			"code": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095);"
 		},
 		"cvout2": {
 			"where":"main",
-			"setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+			"code": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095);"
 		},
 		"gateout1": {
 			"where":"audio",
-			"setter": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f)"
+			"code": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f);"
 		}
 	},
 	"datahandlers": {
 		"dsy_leds": {
 			"where":"display",
-			"setter": "daisy.setFieldLedsFromData($<data>)"
+			"code": "daisy.setFieldLedsFromData($<data>);"
 		}
 	}
 }

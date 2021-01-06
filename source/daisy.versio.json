@@ -107,19 +107,19 @@
 	"outputs": {
 		"led1": {
 			"where": "audio",
-			"setter": "hardware.leds[0].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+			"code": "hardware.leds[0].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		},
 		"led2": {
 			"where": "audio",
-			"setter": "hardware.leds[1].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+			"code": "hardware.leds[1].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		},
 		"led3": {
 			"where": "audio",
-			"setter": "hardware.leds[2].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+			"code": "hardware.leds[2].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		},
 		"led4": {
 			"where": "audio",
-			"setter": "hardware.leds[3].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f)"
+			"code": "hardware.leds[3].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		}
 	},
     "datahandlers": {}

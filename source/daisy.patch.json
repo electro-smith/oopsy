@@ -74,22 +74,22 @@
     "outputs": {
       "cvout1": {
         "where": "main",
-        "setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
+        "code": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095);"
       },
       "cvout2": {
         "where": "main",
-        "setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+        "code": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095);"
       },
       "gateout1":  {
         "where": "audio",
-        "setter": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
+        "code": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f);"
       }
     },   
     "datahandlers": {
       "dsy_midi_out": {
         "where":"main",
         "init": "daisy.midi_nullData($<data>)",
-        "setter": "daisy.midi_fromData($<data>)"
+        "code": "daisy.midi_fromData($<data>);"
       }
     }
 }

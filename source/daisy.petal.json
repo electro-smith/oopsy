@@ -105,19 +105,19 @@
 	"outputs": {
 		"led1": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>);"
 		},
 		"led2": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>);"
 		},
 		"led3": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>);"
 		},
 		"led4": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>);"
 		}
 	},
     "datahandlers": {
