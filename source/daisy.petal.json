@@ -55,51 +55,51 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn3": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn4": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn5": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn6": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"sw1": {
-			"getter": "(hardware.switches[0].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[0].Pressed()?1.f:0.f);"
 		},
 		"sw2": {
-			"getter": "(hardware.switches[1].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[1].Pressed()?1.f:0.f);"
 		},
 		"sw3": {
-			"getter": "(hardware.switches[2].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[2].Pressed()?1.f:0.f);"
 		},
 		"sw4": {
-			"getter": "(hardware.switches[3].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[3].Pressed()?1.f:0.f);"
 		},
 		"sw5": {
-			"getter": "(hardware.switches[4].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[4].Pressed()?1.f:0.f);"
 		},
 		"sw6": {
-			"getter": "(hardware.switches[5].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[5].Pressed()?1.f:0.f);"
 		},
 		"sw7": {
-			"getter": "(hardware.switches[6].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[6].Pressed()?1.f:0.f);"
 		},
 		"exp": {
-			"getter": "(hardware.GetExpression())"
+			"code": "(hardware.GetExpression());"
 		}
 	},
 	"outputs": {

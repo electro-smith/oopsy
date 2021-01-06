@@ -39,23 +39,23 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"sw1": {
-			"getter": "(hardware.button1.Pressed()?1.f:0.f)"
+			"code": "(hardware.button1.Pressed()?1.f:0.f);"
 		},
 		"sw2": {
-			"getter": "(hardware.button2.Pressed()?1.f:0.f)"
+			"code": "(hardware.button2.Pressed()?1.f:0.f);"
 		},
 		"enc": {
-			"getter": "(hardware.encoder.Increment())"
+			"code": "(hardware.encoder.Increment());"
 		},
 		"enp": {
-			"getter": "(hardware.encoder.Pressed())"
+			"code": "(hardware.encoder.Pressed());"
 		}
 	},
 	"outputs": {

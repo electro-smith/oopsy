@@ -50,25 +50,25 @@
     "inputs": {
       "kn1": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_1)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_1);"
       },
       "kn2": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_2)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_2);"
       },
       "kn3": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_3)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_3);"
       },
       "kn4": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_4)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_4);"
       },
       "gt1": {
-        "getter": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)"
+        "code": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f);"
       },
       "gt2": {
-        "getter": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
+        "code": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f);"
       }
     },
     "outputs": {

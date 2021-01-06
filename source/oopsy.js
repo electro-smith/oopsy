@@ -785,7 +785,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${daisy.device_inputs.map(name => nodes[name])
 			.filter(node => node.to.length)
 			.map(node=>`
-		float ${node.name} = ${node.getter};`).join("")}
+		float ${node.name} = ${node.code}`).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.filter(node => node.src)

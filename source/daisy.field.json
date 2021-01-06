@@ -93,104 +93,104 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn3": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn4": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn5": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn6": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"kn7": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_7)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_7);"
 		},
 		"kn8": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_8)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_8);"
 		},
 		"kA1": {
-			"getter": "(hardware.KeyboardState(0)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(0)?1.f:0.f);"
 		},
 		"kA2": {
-			"getter": "(hardware.KeyboardState(1)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(1)?1.f:0.f);"
 		},
 		"kA3": {
-			"getter": "(hardware.KeyboardState(2)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(2)?1.f:0.f);"
 		},
 		"kA4": {
-			"getter": "(hardware.KeyboardState(3)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(3)?1.f:0.f);"
 		},
 		"kA5": {
-			"getter": "(hardware.KeyboardState(4)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(4)?1.f:0.f);"
 		},
 		"kA6": {
-			"getter": "(hardware.KeyboardState(5)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(5)?1.f:0.f);"
 		},
 		"kA7": {
-			"getter": "(hardware.KeyboardState(6)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(6)?1.f:0.f);"
 		},
 		"kA8": {
-			"getter": "(hardware.KeyboardState(7)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(7)?1.f:0.f);"
 		},
 		"kB1": {
-			"getter": "(hardware.KeyboardState(8)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(8)?1.f:0.f);"
 		},
 		"kB2": {
-			"getter": "(hardware.KeyboardState(9)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(9)?1.f:0.f);"
 		},
 		"kB3": {
-			"getter": "(hardware.KeyboardState(10)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(10)?1.f:0.f);"
 		},
 		"kB4": {
-			"getter": "(hardware.KeyboardState(11)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(11)?1.f:0.f);"
 		},
 		"kB5": {
-			"getter": "(hardware.KeyboardState(12)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(12)?1.f:0.f);"
 		},
 		"kB6": {
-			"getter": "(hardware.KeyboardState(13)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(13)?1.f:0.f);"
 		},
 		"kB7": {
-			"getter": "(hardware.KeyboardState(14)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(14)?1.f:0.f);"
 		},
 		"kB8": {
-			"getter": "(hardware.KeyboardState(15)?1.f:0.f)"
+			"code": "(hardware.KeyboardState(15)?1.f:0.f);"
 		},
 		"sw1": {
-			"getter": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f)"
+			"code": "(hardware.GetSwitch(0)->Pressed()?1.f:0.f);"
 		},
 		"sw2": {
-			"getter": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f)"
+			"code": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f);"
 		},
 		"cv1": {
-			"getter": "hardware.GetCvValue(0)"
+			"code": "hardware.GetCvValue(0);"
 		},
 		"cv2": {
-			"getter": "hardware.GetCvValue(1)"
+			"code": "hardware.GetCvValue(1);"
 		},
 		"cv3": {
-			"getter": "hardware.GetCvValue(2)"
+			"code": "hardware.GetCvValue(2);"
 		},
 		"cv4": {
-			"getter": "hardware.GetCvValue(3)"
+			"code": "hardware.GetCvValue(3);"
 		},
 		"gt1": {
-			"getter": "(hardware.gate_in.State()?1.f:0.f)"
+			"code": "(hardware.gate_in.State()?1.f:0.f);"
 		}
 	},
 	"outputs": {

@@ -61,47 +61,47 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_0)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_0);"
 		},
 		"kn2": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn3": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn4": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn5": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn6": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn7": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"sw1": {
-			"getter": "(hardware.sw[0].Read()/2.f)"
+			"code": "(hardware.sw[0].Read()/2.f);"
 		},
 		"sw2": {
-			"getter": "(hardware.sw[1].Read()/2.f)"
+			"code": "(hardware.sw[1].Read()/2.f);"
 		},
 		"bt1": {
-			"getter": "(hardware.tap.Pressed()?1.f:0.f)",
+			"code": "(hardware.tap.Pressed()?1.f:0.f);",
 			"update": {
 				"where": "audio",
 				"code": "hardware.tap.Debounce();"
 			}
 		},
 		"gt1": {
-			"getter": "(hardware.Gate()?1.f:0.f)"
+			"code": "(hardware.Gate()?1.f:0.f);"
 		}
 	},
 	"outputs": {
