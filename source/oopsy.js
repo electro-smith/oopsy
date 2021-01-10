@@ -650,6 +650,21 @@ function generate_app(app, hardware, target, config) {
 				where: "post_audio",
 				code: `${node.varname} = 0.f;`
 			})
+		} else if (param.name == "midi_play") {
+			app.has_midi_in = true;
+			node.where = "midi_status"
+			// need to set "src" to something to prevent this being automapped
+			src = node.where
+			node.code = `if (byte == 250 || byte == 251) { 
+					${node.varname} = 1.f;
+				} else if (byte == 252) { 
+					${node.varname} = 0.f;
+				}`;
+			// reset:
+			app.inserts.push({
+				where: "post_audio",
+				code: `${node.varname} = 0.f;`
+			})
 		} else {
 			// search for a matching [out] name / prefix:
 			Object.keys(hardware.labels.params).sort().forEach(k => {

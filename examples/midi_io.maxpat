@@ -40,13 +40,26 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-73",
+					"linecount" : 3,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 602.166655999999989, 141.0, 36.0, 47.0 ],
+					"presentation_linecount" : 3,
+					"text" : "test midi clock"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-68",
 					"maxclass" : "toggle",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 601.0, 78.0, 24.0, 24.0 ]
+					"patching_rect" : [ 567.0, 164.0, 24.0, 24.0 ]
 				}
 
 			}
@@ -57,7 +70,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 598.0, 112.0, 56.0, 22.0 ],
+					"patching_rect" : [ 567.0, 201.0, 56.0, 22.0 ],
 					"text" : "metro 10"
 				}
 
@@ -69,7 +82,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 575.0, 177.0, 29.5, 22.0 ],
+					"patching_rect" : [ 567.0, 236.0, 29.5, 22.0 ],
 					"text" : "248"
 				}
 
@@ -80,8 +93,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 525.0, 147.0, 36.0, 20.0 ],
-					"text" : "cc1"
+					"patching_rect" : [ 502.0, 88.0, 54.0, 20.0 ],
+					"text" : "test cc1"
 				}
 
 			}
@@ -180,7 +193,6 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
-						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"bgmode" : 0,
@@ -304,13 +316,25 @@
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
 												"box" : 												{
+													"id" : "obj-17",
+													"linecount" : 9,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 665.0, 15.5, 189.0, 127.0 ],
+													"text" : "[param midi_clock] will give a brief trigger at 24ppqn. Use [change] -> [> 0] for a single-sample trigger. \n\n[param midi_play] is a 0 or 1 signal if the transport is running or not; you may wish to latch it to midi_clock"
+												}
+
+											}
+, 											{
+												"box" : 												{
 													"id" : "obj-14",
 													"maxclass" : "newobj",
-													"numinlets" : 1,
+													"numinlets" : 2,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 384.0, 266.5, 43.0, 22.0 ],
-													"text" : "* 1000"
+													"patching_rect" : [ 665.0, 258.5, 103.0, 22.0 ],
+													"text" : "scale 0 1 200 800"
 												}
 
 											}
@@ -321,19 +345,8 @@
 													"numinlets" : 1,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 509.0, 256.25, 73.0, 22.0 ],
+													"patching_rect" : [ 665.0, 232.5, 73.0, 22.0 ],
 													"text" : "slide 1 1000"
-												}
-
-											}
-, 											{
-												"box" : 												{
-													"id" : "obj-12",
-													"maxclass" : "newobj",
-													"numinlets" : 1,
-													"numoutlets" : 0,
-													"patching_rect" : [ 509.0, 310.0, 35.0, 22.0 ],
-													"text" : "out 2"
 												}
 
 											}
@@ -344,7 +357,7 @@
 													"numinlets" : 0,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 509.0, 202.5, 102.0, 22.0 ],
+													"patching_rect" : [ 665.0, 202.5, 102.0, 22.0 ],
 													"text" : "param midi_clock"
 												}
 
@@ -356,7 +369,7 @@
 													"numinlets" : 1,
 													"numoutlets" : 2,
 													"outlettype" : [ "", "" ],
-													"patching_rect" : [ 384.0, 304.25, 36.0, 22.0 ],
+													"patching_rect" : [ 415.0, 287.5, 36.0, 22.0 ],
 													"text" : "cycle"
 												}
 
@@ -367,7 +380,7 @@
 													"maxclass" : "newobj",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 273.5, 328.0, 35.0, 22.0 ],
+													"patching_rect" : [ 404.5, 349.0, 35.0, 22.0 ],
 													"text" : "out 1"
 												}
 
@@ -379,7 +392,7 @@
 													"numinlets" : 2,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 273.5, 298.0, 29.5, 22.0 ],
+													"patching_rect" : [ 404.5, 319.0, 29.5, 22.0 ],
 													"text" : "*"
 												}
 
@@ -491,16 +504,7 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-12", 0 ],
-													"order" : 0,
-													"source" : [ "obj-13", 0 ]
-												}
-
-											}
-, 											{
-												"patchline" : 												{
 													"destination" : [ "obj-14", 0 ],
-													"order" : 1,
 													"source" : [ "obj-13", 0 ]
 												}
 
@@ -1080,16 +1084,15 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
-						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-7",
-									"linecount" : 21,
+									"linecount" : 19,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 481.0, 36.0, 343.0, 288.0 ],
-									"text" : "This example demonstrates how raw MIDI input and output can be handled. MIDI bytes received by the Daisy hardware will sent to any [in] object that is tagged \"midi\", and midi bytes sent to any [out] object tagged \"midi\" will be forwarded to the Daisy midi output. \n\nWithin gen~, the MIDI bytes are scaled by 1/256, so that accidental patching to audio output will not cause problems. A negative number means no MIDI bytes are available/pending.\n\nInside the gen~ patcher there are subpatchers demonstrating how to  parse and generate most of the common kinds of MIDI data, from notes, CCs, pressure, bend, program changes etc. up to midi clock and sysex. Copy these subpatchers & delete any parts you don't need to save on processing!\n\nAs a demo, the gen~ patcher also implements a very simple midinote to monophonic CV/gate/gain conversion, with last note priority, as well as a very simple midinote generator. \n\nNote: the hardware TRS jacks are type A"
+									"patching_rect" : [ 481.0, 36.0, 343.0, 261.0 ],
+									"text" : "This example demonstrates how raw MIDI input and output can be handled. MIDI bytes received by the Daisy hardware will sent to any [in] object that is tagged \"midi\", and midi bytes sent to any [out] object tagged \"midi\" will be forwarded to the Daisy midi output. \n\nWithin gen~, the MIDI bytes are scaled by 1/256, so that accidental patching to audio output will not cause problems. A negative number means no MIDI bytes are available/pending.\n\nInside the gen~ patcher there are subpatchers demonstrating how to  parse and generate most of the common kinds of MIDI data, from notes, CCs, pressure, bend, program changes etc. up to midi clock and sysex. Copy these subpatchers & delete any parts you don't need to save on processing!\n\nAs a demo, the gen~ patcher also implements a very simple midinote to monophonic CV/gate/gain conversion, with last note priority, as well as a very simple midinote generator. "
 								}
 
 							}
@@ -3910,12 +3913,11 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-7",
-					"linecount" : 21,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 739.0, 33.5, 343.0, 288.0 ],
-					"text" : "This example demonstrates how raw MIDI input and output can be handled. MIDI bytes received by the Daisy hardware will sent to any [in] object that is tagged \"midi\", and midi bytes sent to any [out] object tagged \"midi\" will be forwarded to the Daisy midi output. \n\nWithin gen~, the MIDI bytes are scaled by 1/256, so that accidental patching to audio output will not cause problems. A negative number means no MIDI bytes are available/pending.\n\nInside the gen~ patcher there are subpatchers demonstrating how to  parse and generate most of the common kinds of MIDI data, from notes, CCs, pressure, bend, program changes etc. up to midi clock and sysex. Copy these subpatchers & delete any parts you don't need to save on processing!\n\nAs a demo, the gen~ patcher also implements a very simple midinote to monophonic CV/gate/gain conversion, with last note priority, as well as a very simple midinote generator. \n\nNote: the hardware TRS jacks are type A"
+					"patching_rect" : [ 739.0, 33.5, 343.0, 20.0 ],
+					"text" : "Note: the hardware TRS jacks are type A"
 				}
 
 			}
@@ -5066,6 +5068,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-50", 0 ],
+					"midpoints" : [ 576.5, 262.0, 461.5, 262.0 ],
 					"source" : [ "obj-65", 0 ]
 				}
 
