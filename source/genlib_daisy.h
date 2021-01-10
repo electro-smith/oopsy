@@ -310,38 +310,7 @@ namespace oopsy {
 				// 	log("midi %d", midi_out_written);
 				// 	for (int i=0; i<midi_out_written; i+=3) log("%d %d %d", midi_out_data[i], midi_out_data[i+1], midi_out_data[i+2]);
 				// }
-				if (0) {
-					// input:
-					while(uart.Readable()) {
-						uint8_t byte = uart.PopRx();
-						//log("midi in %d", byte);
-						// Oopsy-level handling here
-						#ifdef OOPSY_MULTI_APP
-						if (byte >= 128 && byte < 240) {
-							// status byte:
-							midi_parse_state = (byte/16)-7;
-						} else if (midi_parse_state == 5) {
-							midi_parse_state = 0;
-							// program change => load a new app
-							schedule_app_load(byte); //appdefs[app_selected].load();
-							//continue;
-						} else {
-							// ignored:
-							midi_parse_state = 0;
-						}
-						#endif // OOPSY_MULTI_APP
-
-						// gen~ level handling here:
-						if (midi_in_written < OOPSY_BUFFER_SIZE) {
-							// scale (0, 255) to (0.0, 1.0)
-							// to protect hardware from accidental patching
-							midi_in_data[midi_in_written] = byte / 256.0f;
-							midi_in_written++;
-						}
-						midi_in_active = 1;
-					}
-				}
-
+				
 				// output:
 				if (midi_out_written) {
 					midi_out_active = 1;

@@ -613,7 +613,7 @@ function generate_app(app, hardware, target, config) {
 				node.where = "midi_msg"
 				// need to set "src" to something to prevent this being automapped
 				src = node.where
-				node.code = `if (${ch != null ? `daisy.midi.status == ${176+ch}` : `daisy.midi.status/16 == 11`} && daisy.midi.byte[0] == ${cc}) { 
+				node.code = `if (daisy.midi.lastbyte == 1 && ${ch != null ? `daisy.midi.status == ${176+ch}` : `daisy.midi.status/16 == 11`} && daisy.midi.byte[0] == ${cc}) { 
 					${node.varname} = (daisy.midi.byte[1]/127.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
 				} else `;
 			} else 
@@ -624,7 +624,7 @@ function generate_app(app, hardware, target, config) {
 				node.where = "midi_msg"
 				// need to set "src" to something to prevent this being automapped
 				src = node.where
-				node.code = `if (${ch != null ? `(daisy.midi.status == ${128+ch} || daisy.midi.status == ${144+ch})` : `(daisy.midi.status/16 == 8 || daisy.midi.status/16 == 9)`} && daisy.midi.byte[0] == ${note}) { 
+				node.code = `if (daisy.midi.lastbyte == 1 && ${ch != null ? `(daisy.midi.status == ${128+ch} || daisy.midi.status == ${144+ch})` : `(daisy.midi.status/16 == 8 || daisy.midi.status/16 == 9)`} && daisy.midi.byte[0] == ${note}) { 
 					${node.varname} = (daisy.midi.byte[1]/127.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
 				} else `;
 			} else 
@@ -634,7 +634,7 @@ function generate_app(app, hardware, target, config) {
 				node.where = "midi_msg"
 				// need to set "src" to something to prevent this being automapped
 				src = node.where
-				node.code = `if (${ch != null ? `daisy.midi.status == ${224+ch}` : `daisy.midi.status/16 == 14`}) { 
+				node.code = `if (daisy.midi.lastbyte == 1 && ${ch != null ? `daisy.midi.status == ${224+ch}` : `daisy.midi.status/16 == 14`}) { 
 					${node.varname} = ((daisy.midi.byte[0] + daisy.midi.byte[1]/128.f)/128.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
 				} else `;
 			} else 
@@ -810,23 +810,17 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.config.where == "main")
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
-
 		${defines.OOPSY_TARGET_USES_MIDI_UART ? `
 		while(daisy.uart.Readable()) {
 			uint8_t byte = daisy.uart.PopRx();
 			if (byte >= 128) { // status byte
 				if (byte <= 240 || byte == 247) {
 					daisy.midi.status = byte; 
-					daisy.midi.lastbyte = 255; // "no bytes received yet"
-				}
-				// midiclock, activesensing, etc. handling here
-				// e.g. 
-				// if (daisy.midi.status == 248) { gen_param_midi_clock = 1.f; } // also needs gen_param_midi_clock = 0.f; in the post-audio 
-			} 
-			else {
+					daisy.midi.lastbyte = 255; // means 'no bytes received'
+				} // TODO midiclock, activesensing, etc. handling here
+			} else {
 				daisy.midi.lastbyte = !daisy.midi.lastbyte; 
 				daisy.midi.byte[daisy.midi.lastbyte] = byte;
-				// handle any [param midi] here
 				${gen.params
 					.map(name=>nodes[name])
 					.filter(node => node.where == "midi_msg")
@@ -844,7 +838,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 				// scale (0, 255) to (0.0, 1.0) to protect hardware from accidental patching
 				daisy.midi_in_data[daisy.midi_in_written] = byte / 256.0f;
 				daisy.midi_in_written++;
-			}` : "// no generic midi input"}
+			}` : ""}
 			daisy.midi_in_active = 1;
 		}` : "// no midi input handling"}
 	}
