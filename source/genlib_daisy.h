@@ -144,25 +144,19 @@ namespace oopsy {
 		AppDef * appdefs = nullptr;
 
 		int mode, mode_default;
-		int app_count = 1, app_selected = 0, app_selecting = 0;
+		int app_count = 1, app_selected = 0, app_selecting = 0, app_load_scheduled = 0;
 		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
 		int param_count = 0;
 		#ifdef OOPSY_HAS_PARAM_VIEW
 		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
-		#ifdef OOPSY_PARAM_VIEW_EDITABLE
-
-		#endif
 		#endif
 
 		uint32_t t = 0, dt = 10, frames = 0;
 		Timer uitimer;
 
-		// microseconds spent in audio callback
-		float audioCpuUs = 0; 
-
-		float samplerate; // default 48014
-		size_t blocksize; // default 48
+		// percent (0-100) of available processing time used
+		float audioCpuUsage = 0; 
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
 		void (*displayCallback)(uint32_t t, uint32_t dt);
@@ -203,6 +197,12 @@ namespace oopsy {
 		#endif // OOPSY_TARGET_HAS_OLED
 
 		#ifdef OOPSY_TARGET_USES_MIDI_UART
+		struct {
+			uint8_t status=0;
+			uint8_t lastbyte=0;
+			uint8_t byte[2];
+		} midi;
+
 		daisy::UartHandler uart;
 		uint8_t midi_in_written = 0, midi_out_written = 0;
 		uint8_t midi_in_active = 0, midi_out_active = 0;
@@ -233,7 +233,7 @@ namespace oopsy {
 			#endif
 			hardware.seed.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("gen~ %s", appdefs[app_selected].name);
-			log("SR %dkHz / %dHz", (int)(samplerate/1000), (int)hardware.seed.AudioCallbackRate());
+			log("SR %dkHz / %dHz", (int)(hardware.seed.AudioSampleRate()/1000), (int)hardware.seed.AudioCallbackRate());
 			log("%d/%dK + %d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
 
 			// reset some state:
@@ -252,8 +252,6 @@ namespace oopsy {
 			
 			mode_default = (Mode)(MODE_COUNT-1);
 			mode = mode_default;
-			samplerate = hardware.seed.AudioSampleRate(); 
-			blocksize = hardware.seed.AudioBlockSize();  // default 48
 
 			#ifdef OOPSY_USE_LOGGING
 			hardware.seed.StartLog(true);
@@ -291,23 +289,28 @@ namespace oopsy {
 			console_display();
 			#endif 
 
-			static bool blink;
 			while(1) {
 				uint32_t t1 = dsy_system_getnow();
 				dt = t1-t;
 				t = t1;
 
 				// pulse seed LED for status according to CPU usage:
-				hardware.seed.SetLed((t % 1000)/10 <= uint32_t(0.0001f*audioCpuUs*samplerate/blocksize));
+				hardware.seed.SetLed((t % 1000)/10 <= uint32_t(audioCpuUsage));
+
+				if (app_load_scheduled) {
+					app_load_scheduled = 0;
+					appdefs[app_selected].load();
+					continue;
+				}
 				
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
-				if (midi_out_written) {
-					//log("midi %d", midi_out_written);
-					//for (int i=0; i<midi_out_written; i+=3) log("%d %d %d", midi_out_data[i], midi_out_data[i+1], midi_out_data[i+2]);
-				}
-				{
+				// if (midi_out_written) {
+				// 	log("midi %d", midi_out_written);
+				// 	for (int i=0; i<midi_out_written; i+=3) log("%d %d %d", midi_out_data[i], midi_out_data[i+1], midi_out_data[i+2]);
+				// }
+				if (0) {
 					// input:
 					while(uart.Readable()) {
 						uint8_t byte = uart.PopRx();
@@ -320,9 +323,8 @@ namespace oopsy {
 						} else if (midi_parse_state == 5) {
 							midi_parse_state = 0;
 							// program change => load a new app
-							app_selected = app_selecting = byte % app_count;
-							appdefs[app_selected].load();
-							continue;
+							schedule_app_load(byte); //appdefs[app_selected].load();
+							//continue;
 						} else {
 							// ignored:
 							midi_parse_state = 0;
@@ -338,12 +340,13 @@ namespace oopsy {
 						}
 						midi_in_active = 1;
 					}
-					// output:
-					if (midi_out_written) {
-						midi_out_active = 1;
-						if (0 == uart.PollTx(midi_out_data, midi_out_written)) {
-							midi_out_written = 0;
-						}
+				}
+
+				// output:
+				if (midi_out_written) {
+					midi_out_active = 1;
+					if (0 == uart.PollTx(midi_out_data, midi_out_written)) {
+						midi_out_written = 0;
 					}
 				}
 				#endif
@@ -452,8 +455,8 @@ namespace oopsy {
 								#ifndef OOPSY_TARGET_HAS_OLED
 								mode = mode_default;
 								#endif
-								appdefs[app_selected].load();
-								continue;
+								schedule_app_load(app_selected); //appdefs[app_selected].load();
+								//continue;
 							}
 						#endif
 						#ifdef OOPSY_TARGET_HAS_OLED
@@ -584,7 +587,7 @@ namespace oopsy {
 								} break;
 								case SCOPEOPTION_ZOOM: {
 									// each pixel is zoom samples; zoom/samplerate seconds
-									float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/samplerate);
+									float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
 									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
 									hardware.display.SetCursor(0, h - font.FontHeight);
 									hardware.display.WriteString(scope_label, font, true);
@@ -610,7 +613,7 @@ namespace oopsy {
 						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
 						midi_in_active = midi_out_active = 0;
 						#endif
-						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(0.0001f*audioCpuUs*(samplerate)/blocksize));
+						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
 						// stats:
 						hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 						hardware.display.WriteString(console_stats, font, true);
@@ -634,6 +637,11 @@ namespace oopsy {
 				
 			}
 			return 0;
+		}
+
+		void schedule_app_load(int which) {
+			app_selected = app_selecting = which % app_count;
+			app_load_scheduled = 1;
 		}
 
 		void audio_preperform(size_t size) {
@@ -830,8 +838,11 @@ namespace oopsy {
 			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_outs[0], hardware_outs[1]};
 			#endif
 			daisy.audio_postperform(buffers, size);
-			// convert elapsed time (200Mhz ticks) to CPU percentage (with a slew to capture fluctuations)
-			daisy.audioCpuUs += 0.03f*(((dsy_tim_get_tick() - start) / 200.f) - daisy.audioCpuUs);
+			// convert elapsed time (200Mhz ticks) to CPU percentage (0-100) of available processing time
+			float percent = (dsy_tim_get_tick() - start)*0.0000005f*daisy.hardware.seed.AudioCallbackRate();
+			// with a falling-only slew to capture spikes, since we care most about worst-case performance
+			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent 
+				: daisy.audioCpuUsage + 0.02f*(percent - daisy.audioCpuUsage);
 		}
 
 		#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
