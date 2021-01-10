@@ -6,6 +6,8 @@
 - Added ability to select custom JSON config from within oopsy.maxpat via "browse" button or @target argument
 - Modifiedg config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
 - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
+- moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
+- added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
 - Code generation cleanup
 
 ## v0.3.0-beta
