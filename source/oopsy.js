@@ -24,7 +24,7 @@ function interpolate(str, data) {
 // prints a number as a C-style float:
 function asCppNumber(n, type="float") {
 	let s = (+n).toString();
-	if (type == "int" || type == "bool") {
+	if (type == "int" || type == "uint8_t" || type == "bool") {
 		return Math.trunc(n).toString()
 	} else {
 		// add point if needed:
@@ -350,9 +350,23 @@ function analyze_cpp(cpp) {
 		outs: (/gen_kernel_outnames\[\]\s=\s{\s([^}]*)/g).exec(cpp)[1].split(",").map(s => s.replace(/"/g, "").trim()),
 		params: [],
 		datas: [],
+
+		// search for history outs:
+		histories: (cpp.match(/t_sample\s+(m_(midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?)_out_\d+);/gm) || [])
+			.map(s=>{
+			const match = /t_sample\s+(m_(midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?)_out_\d+);/gm.exec(s);
+			return {
+				cname: match[1], 
+				name: match[2],
+				midi_type: match[3],
+				midi_num: +match[4] || 1,
+				midi_chan: +match[6] || 1,
+			}
+		}),
 	}
+
 	let paramdefinitions = (cpp.match(/pi = self->__commonstate.params([^\/]+)/gm) || []);
-	paramdefinitions.forEach((s, i)=>{
+	paramdefinitions.forEach((s)=>{
 		let type = /pi->paramtype\s+=\s+([^;]+)/gm.exec(s)[1];
 		let param = {
 			name: /pi->name\s+=\s+"([^"]+)/gm.exec(s)[1],
@@ -494,6 +508,7 @@ function generate_app(app, hardware, target, config) {
 		return name;
 	})
 
+
 	gen.audio_outs = app.patch.outs.map((s, i)=>{
 		let name = "gen_out"+(i+1)
 		let label = s.replace(/"/g, "").trim();
@@ -583,6 +598,38 @@ function generate_app(app, hardware, target, config) {
 			nodes[map].from.push(src);
 			nodes[src].to.push(map)
 		}
+		return name;
+	})
+
+	gen.histories = app.patch.histories.map(history=>{
+		const name = history.name
+		const varname = "gen_history_"+name;
+		let node = Object.assign({
+			varname: varname,
+		}, history);
+		//let map;
+		nodes[name] = node
+
+		if (node.midi_type == "cc") {
+			app.has_midi_out = true;
+			let statusbyte = 176+((node.midi_chan)-1)%16;
+			node.midi_setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ${node.varname});`; //& 0x7F
+			node.type = "uint8_t";
+		} else 
+		if (node.midi_type == "drum") {
+			app.has_midi_out = true;
+			node.midi_setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, ${node.varname});`;
+			node.type = "uint8_t";
+		}
+
+
+		// // was this out mapped to something?
+		// if (map) {
+		// 	nodes[map].from.push(src);
+		// 	nodes[src].to.push(map)
+		// }
+
+		console.log(node)
 		return name;
 	})
 
@@ -804,6 +851,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.map(name=>`
 	${nodes[name].type} ${name};`).join("")}
+	${gen.histories.map(name=>nodes[name]).map(node=>`
+	${node.type} ${node.varname};`).join("")}
 	${daisy.device_outs
 		.map(name=>`
 	float ${name};`).join("")}
@@ -820,12 +869,88 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
+		${gen.histories.map(name=>nodes[name]).map(node=>`
+		${node.varname} = ${asCppNumber(0, node.type)};`).join("")}
+	
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.init)
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.init, node)};`).join("")}
 	}
+
+	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
+		Daisy& hardware = daisy.hardware;
+		${name}::State& gen = *(${name}::State *)daisy.gen;
+		${app.inserts.concat(hardware.inserts).filter(o => o.where == "audio").map(o => o.code).join("\n\t")}
+		${daisy.device_inputs.map(name => nodes[name])
+			.filter(node => node.to.length)
+			.filter(node => node.update && node.update.where == "audio")
+			.map(node=>`
+		${interpolate(node.update.code, node)}`).join("")}
+		${daisy.device_inputs.map(name => nodes[name])
+			.filter(node => node.to.length)
+			.map(node=>`
+		float ${node.name} = ${node.code}`).join("")}
+		${gen.params
+			.map(name=>nodes[name])
+			.filter(node => node.src)
+			.filter(node => node.where == "audio" || node.where == undefined)
+			.map(node=>`
+		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});`).join("")}
+		${gen.params
+			.map(name=>nodes[name])
+			.map(node=>`
+		gen.set_${node.name}(${node.varname});`).join("")}
+		${daisy.audio_ins.map((name, i)=>`
+		float * ${name} = hardware_ins[${i}];`).join("")}
+		${daisy.audio_outs.map((name, i)=>`
+		float * ${name} = hardware_outs[${i}];`).join("")}
+		${app.has_midi_in ? daisy.midi_ins.map(name=>`
+		float * ${name} = daisy.midi_in_data;`).join("") : ''}
+		// ${gen.audio_ins.map(name=>nodes[name].label).join(", ")}:
+		float * inputs[] = { ${gen.audio_ins.map(name=>nodes[name].src).join(", ")} }; 
+		// ${gen.audio_outs.map(name=>nodes[name].label).join(", ")}:
+		float * outputs[] = { ${gen.audio_outs.map(name=>nodes[name].src).join(", ")} };
+		gen.perform(inputs, outputs, size);
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.map(node => node.src ? `
+		${node.name} = ${node.src};` : `
+		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")};`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.filter(node => node.config.where == "audio")
+			.map(node=>`
+		${interpolate(node.config.code, node)}`).join("")}
+		${daisy.datahandlers.map(name => nodes[name])
+			.filter(node => node.where == "audio")
+			.filter(node => node.data)
+			.map(node =>`
+		${interpolate(node.code, node)}`).join("")}
+		${gen.histories.map(name=>nodes[name]).map(node=>`
+		if (${node.varname} != gen.${node.cname}) {
+			${node.varname} = gen.${node.cname};
+			${node.midi_setter}
+		}`).join("")}
+		${(function() { 
+		let midisetters = gen.audio_outs
+			.map(name=>nodes[name])
+			.filter(node=>node.midi_setter);
+		return `${midisetters.length > 0 ? 
+		`if (daisy.frames % ${Math.ceil(midisetters.length*hardware.samplerate/32)} == 0){ // throttle output for MIDI baud limits
+			${midisetters.map(node=>`
+			${node.midi_setter}`).join(``)}
+		}` : ``}` })()}
+		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
+		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}
+		${daisy.audio_outs.map(name=>nodes[name])
+			.filter(node => node.src != node.name)
+			.map(node=>node.src ? `
+		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
+		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
+		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
+	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
 		Daisy& hardware = daisy.hardware;
@@ -892,72 +1017,6 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
 	}
-
-	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
-		Daisy& hardware = daisy.hardware;
-		${name}::State& gen = *(${name}::State *)daisy.gen;
-		${app.inserts.concat(hardware.inserts).filter(o => o.where == "audio").map(o => o.code).join("\n\t")}
-		${daisy.device_inputs.map(name => nodes[name])
-			.filter(node => node.to.length)
-			.filter(node => node.update && node.update.where == "audio")
-			.map(node=>`
-		${interpolate(node.update.code, node)}`).join("")}
-		${daisy.device_inputs.map(name => nodes[name])
-			.filter(node => node.to.length)
-			.map(node=>`
-		float ${node.name} = ${node.code}`).join("")}
-		${gen.params
-			.map(name=>nodes[name])
-			.filter(node => node.src)
-			.filter(node => node.where == "audio" || node.where == undefined)
-			.map(node=>`
-		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});`).join("")}
-		${gen.params
-			.map(name=>nodes[name])
-			.map(node=>`
-		gen.set_${node.name}(${node.varname});`).join("")}
-		${daisy.audio_ins.map((name, i)=>`
-		float * ${name} = hardware_ins[${i}];`).join("")}
-		${daisy.audio_outs.map((name, i)=>`
-		float * ${name} = hardware_outs[${i}];`).join("")}
-		${app.has_midi_in ? daisy.midi_ins.map(name=>`
-		float * ${name} = daisy.midi_in_data;`).join("") : ''}
-		// ${gen.audio_ins.map(name=>nodes[name].label).join(", ")}:
-		float * inputs[] = { ${gen.audio_ins.map(name=>nodes[name].src).join(", ")} }; 
-		// ${gen.audio_outs.map(name=>nodes[name].label).join(", ")}:
-		float * outputs[] = { ${gen.audio_outs.map(name=>nodes[name].src).join(", ")} };
-		gen.perform(inputs, outputs, size);
-		${daisy.device_outs.map(name => nodes[name])
-			.filter(node => node.src || node.from.length)
-			.map(node => node.src ? `
-		${node.name} = ${node.src};` : `
-		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")};`).join("")}
-		${daisy.device_outs.map(name => nodes[name])
-			.filter(node => node.src || node.from.length)
-			.filter(node => node.config.where == "audio")
-			.map(node=>`
-		${interpolate(node.config.code, node)}`).join("")}
-		${daisy.datahandlers.map(name => nodes[name])
-			.filter(node => node.where == "audio")
-			.filter(node => node.data)
-			.map(node =>`
-		${interpolate(node.code, node)}`).join("")}
-		${(function() { 
-		let midisetters = gen.audio_outs.map(name=>nodes[name]).filter(node=>node.midi_setter);
-		return `${midisetters.length > 0 ? 
-		`if (daisy.frames % ${Math.ceil(midisetters.length*hardware.samplerate/32)} == 0){ // throttle output for MIDI baud limits
-				${midisetters.map(node=>`
-		${node.midi_setter}`).join(``)}
-		}` : ``}` })()}
-		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
-		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}
-		${daisy.audio_outs.map(name=>nodes[name])
-			.filter(node => node.src != node.name)
-			.map(node=>node.src ? `
-		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
-		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
-		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
-	}	
 
 	${defines.OOPSY_HAS_PARAM_VIEW ? `
 	float setparam(int idx, float val) {
