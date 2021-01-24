@@ -46,7 +46,7 @@
 			"getter": "(hardware.button2.Pressed()?1.f:0.f)"
 		},
 		"enc": {
-			"getter": "(hardware.encoder.Increment())"
+			"getter": "(hardware.encoder.Increment()*0.5f+0.5f)"
 		},
 		"enp": {
 			"getter": "(hardware.encoder.Pressed())"

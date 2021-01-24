@@ -115,7 +115,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 225.5, 378.0, 189.0, 47.0 ],
+									"patching_rect" : [ 225.5, 378.0, 192.0, 47.0 ],
 									"text" : "LED outputs range -1 to 1; where output will be green when positive and red when negative"
 								}
 
@@ -161,7 +161,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 492.5, 157.0, 108.0, 60.0 ],
+									"patching_rect" : [ 493.5, 150.0, 108.0, 60.0 ],
 									"text" : "Pod encoder will be +1, -1 or 0;\nencoder press will be 0 or 1"
 								}
 
@@ -173,7 +173,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 472.5, 120.0, 75.0, 22.0 ],
+									"patching_rect" : [ 473.5, 120.0, 75.0, 22.0 ],
 									"text" : "param press"
 								}
 
@@ -185,8 +185,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 453.5, 96.0, 89.0, 22.0 ],
-									"text" : "param encoder"
+									"patching_rect" : [ 453.5, 96.0, 186.0, 22.0 ],
+									"text" : "param encoder @min -1 @max 1"
 								}
 
 							}
@@ -254,7 +254,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 631.0, 62.5, 139.0, 20.0 ],
+									"patching_rect" : [ 651.0, 62.5, 139.0, 20.0 ],
 									"text" : "MIDI:"
 								}
 
@@ -266,7 +266,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 631.0, 96.0, 53.0, 22.0 ],
+									"patching_rect" : [ 651.0, 96.0, 53.0, 22.0 ],
 									"text" : "in 3 midi"
 								}
 
@@ -278,7 +278,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 651.0, 157.0, 139.0, 100.0 ],
+									"patching_rect" : [ 651.0, 150.0, 139.0, 100.0 ],
 									"text" : "\"midi\" input/output is converted to/from normalized byte streams. See the MIDI examples more info on how to read and write these. "
 								}
 
@@ -718,6 +718,7 @@
 			"obj-7::obj-35" : [ "[5]", "Level", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}
