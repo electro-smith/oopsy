@@ -219,7 +219,7 @@ namespace oopsy {
 			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
 			hardware.seed.ChangeAudioCallback(nullAudioCallback);
-			while (!nullAudioCallbackRunning) dsy_system_delay(1);
+			while (!nullAudioCallbackRunning) daisy::System::Delay(1);
 			// reset memory
 			oopsy::init();
 			// install new app:
@@ -290,7 +290,7 @@ namespace oopsy {
 			#endif 
 
 			while(1) {
-				uint32_t t1 = dsy_system_getnow();
+				uint32_t t1 = daisy::System::GetNow();
 				dt = t1-t;
 				t = t1;
 
@@ -798,7 +798,7 @@ namespace oopsy {
 		}
 
 		static void staticAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
-			uint32_t start = dsy_tim_get_tick(); // 200MHz
+			uint32_t start = daisy::System::GetUs(); 
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
 			#if (OOPSY_IO_COUNT == 4)
@@ -807,8 +807,9 @@ namespace oopsy {
 			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_outs[0], hardware_outs[1]};
 			#endif
 			daisy.audio_postperform(buffers, size);
-			// convert elapsed time (200Mhz ticks) to CPU percentage (0-100) of available processing time
-			float percent = (dsy_tim_get_tick() - start)*0.0000005f*daisy.hardware.seed.AudioCallbackRate();
+			// convert elapsed time (us) to CPU percentage (0-100) of available processing time
+			// 100 (%) * (0.000001 * used_us) * callbackrateHz
+			float percent = (daisy::System::GetUs() - start)*0.0001f*daisy.hardware.seed.AudioCallbackRate();
 			// with a falling-only slew to capture spikes, since we care most about worst-case performance
 			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent 
 				: daisy.audioCpuUsage + 0.02f*(percent - daisy.audioCpuUsage);
@@ -827,7 +828,7 @@ namespace oopsy {
 void genlib_report_error(const char *s) { oopsy::daisy.log(s); }
 void genlib_report_message(const char *s) { oopsy::daisy.log(s); }
 
-unsigned long genlib_ticks() { return dsy_system_getnow(); }
+unsigned long genlib_ticks() { return daisy::System::GetTick(); }
 
 t_ptr genlib_sysmem_newptr(t_ptr_size size) {
 	return (t_ptr)oopsy::allocate(size);

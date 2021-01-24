@@ -52,7 +52,7 @@
 			"code": "(hardware.button2.Pressed()?1.f:0.f);"
 		},
 		"enc": {
-			"code": "(hardware.encoder.Increment()*0.5f+0.5f)"
+			"code": "(hardware.encoder.Increment()*0.5f+0.5f);"
 		},
 		"enp": {
 			"code": "(hardware.encoder.Pressed());"
