@@ -234,7 +234,15 @@ namespace oopsy {
 			hardware.seed.ChangeAudioCallback(newapp.staticAudioCallback);
 			log("gen~ %s", appdefs[app_selected].name);
 			log("SR %dkHz / %dHz", (int)(hardware.seed.AudioSampleRate()/1000), (int)hardware.seed.AudioCallbackRate());
-			log("%d/%dK + %d/%dM", oopsy::sram_used/1024, OOPSY_SRAM_SIZE/1024, oopsy::sdram_used/1048576, OOPSY_SDRAM_SIZE/1048576);
+			{
+				log("%d%s/%dKB+%d%s/%dMB", 
+					oopsy::sram_used > 1024 ? oopsy::sram_used/1024 : oopsy::sram_used, 
+					(oopsy::sram_used > 1024 || oopsy::sram_used == 0) ? "" : "B", 
+					OOPSY_SRAM_SIZE/1024, 
+					oopsy::sdram_used > 1048576 ? oopsy::sdram_used/1048576 : oopsy::sdram_used/1024, 
+					(oopsy::sdram_used > 1048576 || oopsy::sdram_used == 0) ? "" : "KB", 
+					OOPSY_SDRAM_SIZE/1048576);
+			}
 
 			// reset some state:
 			menu_button_incr = 0;
@@ -810,6 +818,7 @@ namespace oopsy {
 			// convert elapsed time (us) to CPU percentage (0-100) of available processing time
 			// 100 (%) * (0.000001 * used_us) * callbackrateHz
 			float percent = (daisy::System::GetUs() - start)*0.0001f*daisy.hardware.seed.AudioCallbackRate();
+			percent = percent > 100.f ? 100.f : percent;
 			// with a falling-only slew to capture spikes, since we care most about worst-case performance
 			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent 
 				: daisy.audioCpuUsage + 0.02f*(percent - daisy.audioCpuUsage);
