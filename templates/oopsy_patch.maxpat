@@ -802,7 +802,13 @@
 					}
 ,
 					"patching_rect" : [ 24.0, 267.0, 194.0, 35.0 ],
-					"text" : "gen~"
+					"saved_object_attributes" : 					{
+						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportname" : "oopsy_patch"
+					}
+,
+					"text" : "gen~",
+					"varname" : "oopsy_patch"
 				}
 
 			}
@@ -1001,7 +1007,6 @@
 			"obj-7::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-7::obj-35" : [ "[5]", "Level", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}

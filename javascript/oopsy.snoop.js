@@ -3,10 +3,11 @@ autowatch = 1;
 inlets = 2;
 outlets = 3;
 
-var path = ""
-var target = "patch"
-var samplerate = "48"
-var sep = "/"
+var path = "";
+var target = "patch";
+var samplerate = "48";
+var boost = 0;
+var sep = "/";
 
 function bang() {
 	configure(true);
@@ -86,6 +87,7 @@ function configure(doExport) {
 	outlet(1, name)
 
 	var args = [target, samplerate].concat(cpps);
+	if (boost) args.push("boost");
 	outlet(0, args)
 }
 
