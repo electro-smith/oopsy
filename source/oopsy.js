@@ -105,7 +105,8 @@ function run() {
 			case "32": 
 			case "32kHz": samplerate = 32; break;
 			case "writejson":
-			case "nooled": options[arg] = true; break;
+			case "nooled": 
+			case "boost": options[arg] = true; break;
 
 			default: {
 				// assume anything else is a file path:
@@ -286,7 +287,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	oopsy::daisy.hardware.Init(); 
+	oopsy::daisy.hardware.Init(${options.boost|false}); 
 	oopsy::daisy.hardware.seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
 	// insert custom hardware initialization here
