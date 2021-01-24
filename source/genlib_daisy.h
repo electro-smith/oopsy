@@ -828,7 +828,9 @@ namespace oopsy {
 void genlib_report_error(const char *s) { oopsy::daisy.log(s); }
 void genlib_report_message(const char *s) { oopsy::daisy.log(s); }
 
-unsigned long genlib_ticks() { return daisy::System::GetTick(); }
+unsigned long genlib_ticks() { 
+	return 0; //daisy::System::GetTick(); 
+}
 
 t_ptr genlib_sysmem_newptr(t_ptr_size size) {
 	return (t_ptr)oopsy::allocate(size);

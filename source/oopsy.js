@@ -317,7 +317,7 @@ int main(void) {
 				console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
 			}
 
-			console.log("oopsy compiled code")
+			//console.log(`oopsy created binary ${Math.ceil(fs.statSync(posixify_path(path.join(build_path, "build", build_name+".bin")))["size"]/1024)}KB`)
 		} catch (e) {
 			// errors from make here
 			console.error("make failed");
@@ -334,13 +334,13 @@ int main(void) {
 				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
 				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' })
 			}
-
 			console.log("oopsy flashed")
 		}
 	} catch (e) {
 		// errors from make here
 		console.log("upload failed");
 	}
+
 	console.log("oopsy done")
 }
 
