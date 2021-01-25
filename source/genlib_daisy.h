@@ -21,17 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
 
-
-#ifdef GENLIB_USE_FLOAT32
-#pragma message "USING GENLIB_USE_FLOAT32"
-#endif
-#ifdef ARM_MATH_CM7
-#pragma message "USING ARM_MATH_CM7"
-#endif
-#ifdef ARM_MATH_CM7
-#pragma message "USING GENLIB_USE_FASTMATH"
-#endif
-
 #if defined(OOPSY_TARGET_SEED)
 	typedef struct {
 		daisy::DaisySeed seed;
@@ -39,15 +28,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 		void Init() {
 			seed.Configure();
 			seed.Init();
-			seed.SetAudioBlockSize(48);
 		}
 	} Daisy;
 #endif
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
-#define OOPSY_BUFFER_SIZE 48
-#define OOPSY_MIDI_BUFFER_SIZE 256
+#define OOPSY_MIDI_BUFFER_SIZE (OOPSY_BLOCK_SIZE*4)
 #define OOPSY_LONG_PRESS_MS 250
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
@@ -218,7 +205,7 @@ namespace oopsy {
 		uint8_t midi_in_written = 0, midi_out_written = 0;
 		uint8_t midi_in_active = 0, midi_out_active = 0;
 		uint8_t midi_out_data[OOPSY_MIDI_BUFFER_SIZE];
-		float midi_in_data[OOPSY_BUFFER_SIZE];
+		float midi_in_data[OOPSY_BLOCK_SIZE];
 		int midi_data_idx = 0;
 		int midi_parse_state = 0;
 		#endif //OOPSY_TARGET_USES_MIDI_UART

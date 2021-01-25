@@ -78,6 +78,7 @@ function run() {
 	let watch = false
 	let cpps = []
 	let samplerate = 48
+	let blocksize = 24
 	let options = {}
 
 	if (args.length == 0) {
@@ -98,12 +99,27 @@ function run() {
 			case "patch": 
 			case "versio": target = arg; break;
 			case "watch": watch=true; break;
-			case "96": 
-			case "96kHz": samplerate = 96; break;
-			case "48": 
-			case "48kHz": samplerate = 48; break;
-			case "32": 
-			case "32kHz": samplerate = 32; break;
+
+			case "96kHz": 
+			case "48kHz": 
+			case "32kHz": samplerate = +(arg.match(/(\d+)kHz/)[1]); break; 
+
+			case "block1":
+			case "block2":
+			case "block4":
+			case "block6":
+			case "block8":
+			case "block12":
+			case "block16":
+			case "block24":
+			case "block32":
+			case "block48": 
+			case "block64": 
+			case "block96": 
+			case "block128":
+			case "block256": 
+			case "block512": blocksize = +(arg.match(/block(\d+)/)[1]); break;
+
 			case "writejson":
 			case "nooled": 
 			case "boost": 
@@ -161,6 +177,7 @@ function run() {
 	hardware.samplerate = samplerate
 	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
 	if (!hardware.max_apps) hardware.max_apps = 1;
+	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
@@ -294,6 +311,7 @@ oopsy::AppDef appdefs[] = {
 int main(void) {
 	oopsy::daisy.hardware.Init(${options.boost|false}); 
 	oopsy::daisy.hardware.seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
+	oopsy::daisy.hardware.seed.SetAudioBlockSize(OOPSY_BLOCK_SIZE);
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
 	// insert custom hardware initialization here
 	return oopsy::daisy.run(appdefs, ${apps.length});
@@ -862,7 +880,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		.map(name=>`
 	float ${name};`).join("")}
 	${app.audio_outs.map(name=>`
-	float ${name}[OOPSY_BUFFER_SIZE];`).join("")}
+	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
@@ -998,7 +1016,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 					.join(" else ")}
 			}
 			${app.has_generic_midi_in ? `
-			if (daisy.midi_in_written < OOPSY_BUFFER_SIZE) {
+			if (daisy.midi_in_written < OOPSY_BLOCK_SIZE) {
 				// scale (0, 255) to (0.0, 1.0) to protect hardware from accidental patching
 				daisy.midi_in_data[daisy.midi_in_written] = byte / 256.0f;
 				daisy.midi_in_written++;
