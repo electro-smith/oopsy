@@ -6,7 +6,8 @@ outlets = 3;
 var path = "";
 var target = "patch";
 var samplerate = "48";
-var boost = 0;
+var boost = 1;
+var fastmath = 0;
 var sep = "/";
 
 function bang() {
@@ -88,6 +89,7 @@ function configure(doExport) {
 
 	var args = [target, samplerate].concat(cpps);
 	if (boost) args.push("boost");
+	if (fastmath) args.push("fastmath");
 	outlet(0, args)
 }
 

@@ -21,6 +21,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
 
+
+#ifdef GENLIB_USE_FLOAT32
+#pragma message "USING GENLIB_USE_FLOAT32"
+#endif
+#ifdef ARM_MATH_CM7
+#pragma message "USING ARM_MATH_CM7"
+#endif
+#ifdef ARM_MATH_CM7
+#pragma message "USING GENLIB_USE_FASTMATH"
+#endif
+
 #if defined(OOPSY_TARGET_SEED)
 	typedef struct {
 		daisy::DaisySeed seed;

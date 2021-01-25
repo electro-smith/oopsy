@@ -106,7 +106,8 @@ function run() {
 			case "32kHz": samplerate = 32; break;
 			case "writejson":
 			case "nooled": 
-			case "boost": options[arg] = true; break;
+			case "boost": 
+			case "fastmath": options[arg] = true; break;
 
 			default: {
 				// assume anything else is a file path:
@@ -243,6 +244,9 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
 		defines.OOPSY_CAN_PARAM_TWEAK = 1
 	}
+	if (options.fastmath) {
+		hardware.defines.GENLIB_USE_FASTMATH = 1;
+	}
 
 	apps.map(app => {
 		generate_app(app, hardware, target, config);
@@ -268,6 +272,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 /*
 	For details of the licensing terms of code exported from gen~ see https://support.cycling74.com/hc/en-us/articles/360050779193-Gen-Code-Export-Licensing-FAQ
 */
+
 ${Object.keys(defines).map(k => `
 #define ${k} (${defines[k]})`).join("")}
 ${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
