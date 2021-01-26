@@ -45,7 +45,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 276.0, 35.0, 150.0, 181.0 ],
+					"patching_rect" : [ 304.0, 35.0, 150.0, 181.0 ],
 					"text" : "A 3-pole lowpass filter at 30Hz seems to effectively silence any noise from hardware input ADCs.\n\nMost of the time this level of aggressive smoothing is probably unnecessary, but for some applications that are very sensitive (e.g. setting long delay line lengths) it might be needed."
 				}
 
@@ -137,20 +137,6 @@
 				"box" : 				{
 					"fontname" : "Lato",
 					"fontsize" : 12.0,
-					"id" : "obj-10",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 127.5, 53.0, 109.0, 23.0 ],
-					"text" : "* twopi/samplerate"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"fontname" : "Lato",
-					"fontsize" : 12.0,
 					"id" : "obj-14",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -167,11 +153,11 @@
 					"fontsize" : 12.0,
 					"id" : "obj-5",
 					"maxclass" : "newobj",
-					"numinlets" : 1,
+					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 127.5, 84.0, 26.0, 23.0 ],
-					"text" : "sin"
+					"patching_rect" : [ 127.5, 84.0, 158.0, 23.0 ],
+					"text" : "fastsin 30*twopi/samplerate"
 				}
 
 			}
@@ -189,32 +175,11 @@
 				}
 
 			}
-, 			{
-				"box" : 				{
-					"fontname" : "Lato",
-					"fontsize" : 12.0,
-					"id" : "obj-2",
-					"maxclass" : "newobj",
-					"numinlets" : 0,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"patching_rect" : [ 127.5, 23.0, 22.0, 23.0 ],
-					"text" : "30"
-				}
-
-			}
  ],
 		"lines" : [ 			{
 				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
 					"source" : [ "obj-1", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-5", 0 ],
-					"source" : [ "obj-10", 0 ]
 				}
 
 			}
@@ -246,13 +211,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-6", 0 ],
 					"source" : [ "obj-14", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-10", 0 ],
-					"source" : [ "obj-2", 0 ]
 				}
 
 			}
@@ -324,8 +282,7 @@
 				}
 
 			}
- ],
-		"autosave" : 0
+ ]
 	}
 
 }
