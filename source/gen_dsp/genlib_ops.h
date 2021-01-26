@@ -609,11 +609,13 @@ inline T1 ltep(T1 x, T2 y) { return ((((x) <= T1(y))) ? (x) : T1(0)); }
 
 inline t_sample fract(t_sample x) { double unused; return (t_sample)modf((double)x, &unused); }
 
+#ifndef __arm__
 // log2(x) = log(x)/log(2)
 template<typename T>
 inline T log2(T x) {
 	return log(x)*GENLIB_1_OVER_LOG_2;
 }
+#endif
 
 inline t_sample atodb(t_sample in) {
 	return t_sample((in <= 0.) ? -999. : (20. * log10(in)));

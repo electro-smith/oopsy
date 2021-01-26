@@ -69,7 +69,7 @@
 			}
 , 			{
 				"box" : 				{
-					"activebgcolor" : [ 0.0, 0.763332932182498, 0.0, 1.0 ],
+					"activebgcolor" : [ -0.0, 0.0, 0.0, 1.0 ],
 					"bgcolor" : [ 1.0, 0.0, 0.0, 1.0 ],
 					"blinktime" : 20,
 					"id" : "obj-86",
@@ -97,7 +97,7 @@
 			}
 , 			{
 				"box" : 				{
-					"activebgcolor" : [ 0.332553497276143, 0.0, 0.0, 1.0 ],
+					"activebgcolor" : [ -0.0, 0.0, 0.0, 1.0 ],
 					"bgcolor" : [ 1.0, 0.0, 0.0, 1.0 ],
 					"blinktime" : 20,
 					"id" : "obj-83",
@@ -126,7 +126,7 @@
 			}
 , 			{
 				"box" : 				{
-					"activebgcolor" : [ 0.332553497276143, 0.0, 0.0, 1.0 ],
+					"activebgcolor" : [ -0.0, 0.0, 0.0, 1.0 ],
 					"bgcolor" : [ 1.0, 0.0, 0.0, 1.0 ],
 					"blinktime" : 20,
 					"id" : "obj-73",
@@ -2659,6 +2659,13 @@
 			}
 , 			{
 				"name" : "oopsy.ctrl.smooth2.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.trig.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
