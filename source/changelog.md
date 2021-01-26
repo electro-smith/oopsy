@@ -9,7 +9,8 @@
 - moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
 - added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
 - added "boost" option to Max and Node.js which boosts CPU frequency from 400 to 480MHz
-- added "fastmath" option to Max and Node.js interface to replace transcendental functions with cheaper and smaller approximations
+- added "fastmath" option to Max and Node.js interfaces to replace transcendental functions with cheaper and smaller approximations
+- added blocksize selection to Max and Node.js interfaces
 - oopsy reports total binary size
 - Code generation cleanup
 

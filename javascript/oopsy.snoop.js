@@ -5,7 +5,8 @@ outlets = 3;
 
 var path = "";
 var target = "patch";
-var samplerate = "48";
+var samplerate = "48kHz";
+var blocksize = "48";
 var boost = 1;
 var fastmath = 0;
 var sep = "/";
@@ -87,7 +88,7 @@ function configure(doExport) {
 	var name = names.join("_")
 	outlet(1, name)
 
-	var args = [target, samplerate].concat(cpps);
+	var args = [target, samplerate, "block"+blocksize].concat(cpps);
 	if (boost) args.push("boost");
 	if (fastmath) args.push("fastmath");
 	outlet(0, args)
