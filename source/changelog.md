@@ -12,6 +12,7 @@
 - added "fastmath" option to Max and Node.js interfaces to replace transcendental functions with cheaper and smaller approximations
 - added blocksize selection to Max and Node.js interfaces
 - oopsy reports total binary size
+- Template patcher cosmetics
 - Code generation cleanup
 
 ## v0.3.0-beta

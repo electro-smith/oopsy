@@ -117,8 +117,7 @@ function run() {
 			case "block64": 
 			case "block96": 
 			case "block128":
-			case "block256": 
-			case "block512": blocksize = +(arg.match(/block(\d+)/)[1]); break;
+			case "block256": blocksize = +(arg.match(/block(\d+)/)[1]); break;
 
 			case "writejson":
 			case "nooled": 
