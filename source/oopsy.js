@@ -38,6 +38,35 @@ function asCppNumber(n, type="float") {
 	}
 }
 
+let build_tools_path;
+let has_dfu_util;
+function checkBuildEnvironment() {
+	// check for available build tools:
+	if (os.platform == "win32") {
+		// TODO
+		// assume true for now, until we know how to test for it:
+		has_dfu_util = true;
+	} else {
+		// OSX:
+		let locations = ["/opt/homebrew/bin", "/usr/local/bin"]
+		for (loc of locations) {
+			if (fs.existsSync(`${loc}/arm-none-eabi-gcc`)) {
+				build_tools_path = loc;
+				console.log(`using build tools found in ${build_tools_path}`);
+				break;
+			}
+		}
+		if (!build_tools_path) {
+			console.log("oopsy can't find an ARM-GCC toolchain. Please check https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration) for installation instructions.")
+			process.exit(-1);
+		}
+		if (fs.existsSync(`${build_tools_path}/dfu-util`)) {
+			has_dfu_util = false;
+			console.warn(`oopsy can't find the dfu-util binary in ${build_tools_path}, will not be able to upload binary to the Daisy. Please check https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration) for installation instructions.`)
+		}
+	}
+}
+
 const help = `
 <[cmds]> <target> <[options]> <[cpps]> <watch>
 
@@ -81,6 +110,8 @@ function run() {
 	let blocksize = 24
 	let options = {}
 
+	checkBuildEnvironment();
+	
 	if (args.length == 0) {
 		console.log(help)
 		return;
@@ -336,7 +367,7 @@ int main(void) {
 				})
 			} else {
 			    console.log(execSync("make clean", { cwd: build_path }).toString())
-				console.log(execSync("export PATH=$PATH:/usr/local/bin && make", { cwd: build_path }).toString())
+				console.log(execSync(`export PATH=$PATH:${build_tools_path} && make`, { cwd: build_path }).toString())
 			}
 			console.log(`oopsy created binary ${Math.ceil(fs.statSync(posixify_path(path.join(build_path, "build", build_name+".bin")))["size"]/1024)}KB`)
 		} catch (e) {
@@ -344,16 +375,14 @@ int main(void) {
 			console.error("make failed");
 		}
 		// if successful, try to upload to hardware:
-		if (fs.existsSync(bin_path) && action=="upload") {
+		if (has_dfu_util && action=="upload") {
 			
 			console.log("oopsy flashing...")
 			
 			if (os.platform() == "win32") {
-				console.log(execSync("set PATH=%PATH%;/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
+				console.log(execSync(`set PATH=%PATH%;${build_tools_path} && make program-dfu`, { cwd: build_path }).toString())
 			} else {
-				console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' }).toString())
-				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path }).toString())
-				//console.log(execSync("export PATH=$PATH:/usr/local/bin && make program-dfu", { cwd: build_path, stdio:'inherit' })
+				console.log(execSync(`export PATH=$PATH:${build_tools_path} && make program-dfu`, { cwd: build_path, stdio:'inherit' }).toString())
 			}
 			console.log("oopsy flashed")
 		}
