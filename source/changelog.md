@@ -4,7 +4,7 @@
 - Param view added to Daisy Field; params not tweakable (because of no encoder) but at least visible
 - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - Added ability to select custom JSON config from within oopsy.maxpat via "browse" button or @target argument
-- Modifiedg config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
+- Modified config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
 - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
 - added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
@@ -12,6 +12,8 @@
 - added "fastmath" option to Max and Node.js interfaces to replace transcendental functions with cheaper and smaller approximations
 - added blocksize selection to Max and Node.js interfaces
 - oopsy reports total binary size
+- oopsy checks for gcc/dfu-util in /opt/homebrew or /usr/local and flags an error if neither are found
+- code generation now uses the xoshiro PRNG for [noise], to match MSP's [noise~]
 - Template patcher cosmetics
 - Code generation cleanup
 
