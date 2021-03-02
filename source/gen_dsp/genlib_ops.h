@@ -800,29 +800,121 @@ struct DCBlock {
 	}
 };
 
+#ifdef GENLIB_USE_FLOAT32
 struct Noise {
-	unsigned long last;
-	static long uniqueTickCount(void) {
-		static long lasttime = 0;
-		long time = genlib_ticks();
+    uint32_t state[4];
+
+	// uses system clock to generate a random seed
+	// ensures distinct seeds even if creating several Noise objects at the same clock value
+	static uint64_t uniqueTickCount(void) {
+		static uint64_t lasttime = 0;
+		uint64_t time = genlib_ticks();
 		return (time <= lasttime) ? (++lasttime) : (lasttime = time);
 	}
-
-	Noise() { reset(); }
-	Noise(t_sample seed) { reset(seed); }
-	void reset() { last = uniqueTickCount() * uniqueTickCount(); }
-	void reset(t_sample seed) { last = (unsigned long)(seed); }
-
-	inline t_sample operator()() {
-		last = 1664525L * last + 1013904223L;
-		union {
-			uint32_t ui32;
-			float f;
-		} u = { uint32_t(0x3f800000 | (0x007fffff & last)) }; // type-punning
-
-		return (u.f * 2.f) - 3.f;
+    
+    Noise() { reset(); }
+	Noise(t_sample seed) { reset(seed); } 
+    
+	void reset(t_sample seed) { 
+	   uint64_t x = (uint64_t)(ldexp((double)seed, 53));
+	   state[3] = splitmix32(state[2] = splitmix32(state[1] = splitmix32(state[0] = splitmix32(x))));
 	}
+	void reset() { reset( uniqueTickCount() ); }
+	
+	// adapted from the xoshiro128+ PRNG, see http://prng.di.unimi.it
+    /*  xoshiro128+: Written in 2018 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+    To the extent possible under law, the author has dedicated all copyright
+    and related and neighboring rights to this software to the public domain
+    worldwide. This software is distributed without any warranty.
+    See <http://creativecommons.org/publicdomain/zero/1.0/>. */
+	inline t_sample operator()() {
+		const uint32_t result = state[0] + state[3];
+        const uint32_t t = state[1] << 9;
+        state[2] ^= state[0];
+        state[3] ^= state[1];
+        state[1] ^= state[2];
+        state[0] ^= state[3];
+        state[2] ^= t;
+        state[3] = (state[3] << 11) | (state[3] >> 21); // rotl(s[3], 11) => (x << k) | (x >> (32 - k))
+        // discard lower 8 bits (exponent), convert to double in 0..2, map to -1..1:
+        // exactly quivalent to ldexpf((t_sample)(result >> 8), -23) - 1.0;
+		// but much cheaper on ARM CPU
+		static const t_sample EXP2_NEG23 = exp2f(-23.f);
+		return ((result >> 8)*EXP2_NEG23) - 1.f; 
+	}
+	
+    // splitmix32 suggested by David Blackman and Sebastiano Vigna as a good seed for xoshiro256+:
+	/* This is a fixed-increment version of Java 8's SplittableRandom generator
+    See http://dx.doi.org/10.1145/2714064.2660195 and 
+    http://docs.oracle.com/javase/8/docs/api/java/util/SplittableRandom.html
+    It is a very fast generator passing BigCrush, and it can be useful if
+    for some reason you absolutely want 64 bits of state. */
+    uint32_t splitmix32(uint64_t seed) {
+	    uint64_t z = (seed += 0x9e3779b97f4a7c15);
+	    z = (z ^ (z >> 33)) * 0x62a9d9ed799705f5;
+	    z = (z ^ (z >> 28)) * 0xcb24d0a5c88c35b3;
+	    return z >> 32;
+    } 
 };
+#else
+struct Noise {
+    uint64_t state[4];
+
+	// uses system clock to generate a random seed
+	// ensures distinct seeds even if creating several Noise objects at the same clock value
+	static uint64_t uniqueTickCount(void) {
+		static uint64_t lasttime = 0;
+		uint64_t time = genlib_ticks();
+		return (time <= lasttime) ? (++lasttime) : (lasttime = time);
+	}
+    
+    Noise() { reset(); }
+	Noise(t_sample seed) { reset(seed); } 
+    
+	void reset(t_sample seed) { 
+	   uint64_t x = (uint64_t)(ldexp((double)seed, 53));
+	   state[3] = splitmix64(state[2] = splitmix64(state[1] = splitmix64(state[0] = splitmix64(x))));
+	}
+	void reset() { reset( uniqueTickCount() ); }
+	
+	// adapted from the xoshiro256+ PRNG, see http://prng.di.unimi.it
+    /*  xoshiro256+: Written in 2018 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+    To the extent possible under law, the author has dedicated all copyright
+    and related and neighboring rights to this software to the public domain
+    worldwide. This software is distributed without any warranty.
+    See <http://creativecommons.org/publicdomain/zero/1.0/>. */
+	inline t_sample operator()() {
+		const uint64_t result = state[0] + state[3];
+        const uint64_t t = state[1] << 17;
+        state[2] ^= state[0];
+        state[3] ^= state[1];
+        state[1] ^= state[2];
+        state[0] ^= state[3];
+        state[2] ^= t;
+        state[3] = (state[3] << 45) | (state[3] >> 19); // rotl(s[3], 45) => (x << k) | (x >> (64 - k))
+        // discard lower 11 bits, convert to double in 0..2, map to -1..1:
+        return ldexp((double)(result >> 11), -52) - 1.0;
+
+		// exactly quivalent to ldexp((double)(result >> 11), -52) - 1.0;
+		// but much cheaper on ARM CPU
+		static const t_sample EXP2_NEG52 = exp2(-52);
+		return ((result >> 11)*EXP2_NEG52) - 1.0; 
+	}
+	
+    // splitmix64 suggested by David Blackman and Sebastiano Vigna as a good seed for xoshiro256+:
+	/* This is a fixed-increment version of Java 8's SplittableRandom generator
+    See http://dx.doi.org/10.1145/2714064.2660195 and 
+    http://docs.oracle.com/javase/8/docs/api/java/util/SplittableRandom.html
+    It is a very fast generator passing BigCrush, and it can be useful if
+    for some reason you absolutely want 64 bits of state. */
+    uint64_t splitmix64(uint64_t seed) {
+	    uint64_t z = (seed += 0x9e3779b97f4a7c15);
+	    z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
+	    z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
+	    return z ^ (z >> 31);
+    }  
+};
+#endif
 
 struct Phasor {
 	t_sample phase;
