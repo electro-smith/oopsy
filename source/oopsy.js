@@ -61,7 +61,7 @@ function checkBuildEnvironment() {
 			process.exit(-1);
 		}
 		if (fs.existsSync(`${build_tools_path}/dfu-util`)) {
-			has_dfu_util = false;
+			has_dfu_util = true;
 			console.warn(`oopsy can't find the dfu-util binary in ${build_tools_path}, will not be able to upload binary to the Daisy. Please check https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration) for installation instructions.`)
 		}
 	}
