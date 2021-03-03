@@ -207,6 +207,8 @@ function run() {
 	hardware.samplerate = samplerate
 	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
 	if (!hardware.max_apps) hardware.max_apps = 1;
+
+	hardware.defines.OOPSY_SAMPLERATE = samplerate * 1000
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 
 	// verify and analyze cpps:
@@ -219,7 +221,7 @@ function run() {
 		assert(fs.existsSync(cpp_path), `couldn't find source C++ file ${cpp_path}`);
 		return {
 			path: cpp_path,
-			patch: analyze_cpp(fs.readFileSync(cpp_path, "utf8"))
+			patch: analyze_cpp(fs.readFileSync(cpp_path, "utf8"), hardware)
 		}
 	})
 	let build_name = apps.map(v=>v.patch.name).join("_")
@@ -394,7 +396,7 @@ int main(void) {
 	console.log("oopsy done")
 }
 
-function analyze_cpp(cpp) {
+function analyze_cpp(cpp, hardware) {
 	let gen = {
 		name: /namespace\s+(\w+)\s+{/gm.exec(cpp)[1],
 		ins: (/gen_kernel_innames\[\]\s=\s{\s([^}]*)/g).exec(cpp)[1].split(",").map(s => s.replace(/"/g, "").trim()),
@@ -432,9 +434,63 @@ function analyze_cpp(cpp) {
 			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
-			let match = new RegExp(`\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`, 'gm').exec(cpp)
-			param.cname = match[1], param.dim = match[2], param.chans = match[3]
-			gen.datas.push(param)
+			/*
+				General form:
+				m_huge_7.reset("huge", <constexpr>, <constexpr>);
+
+				Some possible variant forms of <constexpr>:
+				// (note: same format can appear in length and channels clauses)
+				m_huge_7.reset("huge", ((int)16384), ((int)1));
+				m_huge_7.reset("huge", samplerate, ((int)1));
+				m_huge_7.reset("huge", (samplerate * 2), ((int)1));
+				m_huge_7.reset("huge", ((t_sample)3.1415926535898), ((int)1));
+				m_huge_7.reset("huge", (3.1415926535898 * 10), ((int)1));
+				m_huge_7.reset("huge", (vectorsize * 8), ((int)1));
+				m_huge_7.reset("huge", ((16 * 16) * 4096), ((int)1));
+
+				Ignore any (int) or (t_sample)
+				Replace any samplerate or vectorsize
+				Compute any math
+
+				\s([\w]+)\.reset\("huge",\s+\(\(int\)(\d+)\), \(\(int\)(\d+)\)\);
+
+
+				\s([\w]+)\.reset\("huge",\s+[^,]+,\s+[^,]+);
+			*/
+
+			//let pat = `\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`;
+			let pat = `\\s([\\w]+)\\.reset\\("${param.name}",([^;]+);`
+			let match = new RegExp(pat, 'gm').exec(cpp)
+			console.log(pat, param.name)
+			if (match) {
+				param.cname = match[1]
+				// for the length & channel arguments:
+				// first trim of the trailing ")"
+				// then split by the comma to [length, channel]
+				// then apply a series of replacements and finally eval() the result
+				let args = match[2].slice(0, -1).split(",").map(s => 
+					eval(s
+						// remove any (int) or (t_sample) casts
+						.replace("(int)", "")
+						.replace("(t_sample)", "")
+						// then replace any samplerate or vectorsize constants
+						.replace("samplerate", hardware.defines.OOPSY_SAMPLERATE)
+						.replace("vectorsize", hardware.defines.OOPSY_BLOCK_SIZE)
+						// remove extraneous whitespace
+						.trim()
+						// then compute the result via eval
+					)
+				)
+
+				assert(typeof args[0] == "number" && args[0] > 0, `failed to derive length of data ${param.name}`)
+				assert(typeof args[1] == "number" && args[0] > 0, `failed to derive channels of data ${param.name}`)
+
+				param.dim = Math.round(args[0])
+				param.chans = Math.round(args[1])
+				gen.datas.push(param)
+			} else {
+				console.error("failed to match details of data "+param.name)
+			}
 		}
 	})
 	return gen;
