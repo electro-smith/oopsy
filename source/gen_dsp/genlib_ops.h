@@ -816,8 +816,9 @@ struct Noise {
 	Noise(t_sample seed) { reset(seed); } 
     
 	void reset(t_sample seed) { 
-	   uint64_t x = (uint64_t)(ldexp((double)seed, 53));
-	   state[3] = splitmix32(state[2] = splitmix32(state[1] = splitmix32(state[0] = splitmix32(x))));
+		//uint64_t x = (uint64_t)(ldexp((double)seed, 53));
+		uint64_t x = (uint64_t)(seed*exp2f(53.f));
+		state[3] = splitmix32(state[2] = splitmix32(state[1] = splitmix32(state[0] = splitmix32(x))));
 	}
 	void reset() { reset( uniqueTickCount() ); }
 	
@@ -872,7 +873,8 @@ struct Noise {
 	Noise(t_sample seed) { reset(seed); } 
     
 	void reset(t_sample seed) { 
-	   uint64_t x = (uint64_t)(ldexp((double)seed, 53));
+	   //uint64_t x = (uint64_t)(ldexp((double)seed, 53));
+	   uint64_t x = (uint64_t)(seed*exp2(53.0));
 	   state[3] = splitmix64(state[2] = splitmix64(state[1] = splitmix64(state[0] = splitmix64(x))));
 	}
 	void reset() { reset( uniqueTickCount() ); }
@@ -893,10 +895,7 @@ struct Noise {
         state[2] ^= t;
         state[3] = (state[3] << 45) | (state[3] >> 19); // rotl(s[3], 45) => (x << k) | (x >> (64 - k))
         // discard lower 11 bits, convert to double in 0..2, map to -1..1:
-        return ldexp((double)(result >> 11), -52) - 1.0;
-
-		// exactly quivalent to ldexp((double)(result >> 11), -52) - 1.0;
-		// but much cheaper on ARM CPU
+        // exactly quivalent to ldexp((double)(result >> 11), -52) - 1.0;
 		static const t_sample EXP2_NEG52 = exp2(-52);
 		return ((result >> 11)*EXP2_NEG52) - 1.0; 
 	}
