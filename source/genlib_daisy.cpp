@@ -187,7 +187,7 @@ void genlib_data_resize(t_genlib_data *b, long s, long c) {
 
 		// check allocation:
 		if (replaced == 0) {
-			genlib_report_error("allocating [data]: out of memory");
+			genlib_report_error("data: out of memory");
 			// try to reallocate with a default/minimal size instead:
 			if (s > 512 || c > 1) {
 				genlib_data_resize((t_genlib_data *)self, 512, 1);
