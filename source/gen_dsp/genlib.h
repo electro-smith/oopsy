@@ -24,11 +24,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #ifndef GENLIB_H
 #define GENLIB_H 1
 
-#if defined(ARM_MATH_CM4) || defined(ARM_MATH_CM7) // embedded ARM cortex support
-#define GENLIB_NO_STDLIB
-#define GENLIB_USE_ARMMATH
-#define GENLIB_USE_FASTMATH
-#endif // defined(ARM_MATH_CM4) || defined(ARM_MATH_CM7)
+// #if defined(ARM_MATH_CM4) || defined(ARM_MATH_CM7) // embedded ARM cortex support
+// #define GENLIB_USE_ARMMATH
+// #define GENLIB_USE_FASTMATH
+// #endif // defined(ARM_MATH_CM4) || defined(ARM_MATH_CM7)
 
 #if defined (__arm__) // general ARM support
 #define GENLIB_USE_FLOAT32
@@ -212,18 +211,18 @@ extern "C" {
 #endif // MSP_ON_CLANG
 
 
-#if defined(GENLIB_USE_ARMMATH) // ARM embedded support
-#	include "arm_math.h"
-#	define sin(x)		arm_sin_f32(x)
-#	define sinf(x)		arm_sin_f32(x)
-#	define cos(x)		arm_cos_f32(x)
-#	define cosf(x)		arm_cos_f32(x)
-#	define sqrt(x)		arm_sqrtf(x)
-#	define sqrtf(x)		arm_sqrtf(x)
-#	define rand(...)	arm_rand32()
-#	undef RAND_MAX
-#	define RAND_MAX		UINT32_MAX
-#endif // GENLIB_USE_ARMMATH
+// #if defined(GENLIB_USE_ARMMATH) // ARM embedded support
+// #	include "arm_math.h"
+// #	define sin(x)		arm_sin_f32(x)
+// #	define sinf(x)		arm_sin_f32(x)
+// #	define cos(x)		arm_cos_f32(x)
+// #	define cosf(x)		arm_cos_f32(x)
+// #	define sqrt(x)		arm_sqrtf(x)
+// #	define sqrtf(x)		arm_sqrtf(x)
+// #	define rand(...)	arm_rand32()
+// #	undef RAND_MAX
+// #	define RAND_MAX		UINT32_MAX
+// #endif // GENLIB_USE_ARMMATH
 
 #if defined(GENLIB_USE_FASTMATH)
 #	include <math.h>
