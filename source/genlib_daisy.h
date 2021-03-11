@@ -16,9 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "genlib_ops.h"
 #include "genlib_exportfunctions.h"
 #include "daisy_seed.h"
-#ifdef OOPSY_TARGET_USES_SDMMC
-//#include "fatfs.h"
-#endif
 
 #include <math.h>
 #include <string>
@@ -373,6 +370,8 @@ namespace oopsy {
 					oopsy::sdram_used > 1048576 ? oopsy::sdram_used/1048576 : oopsy::sdram_used/1024, 
 					(oopsy::sdram_used > 1048576 || oopsy::sdram_used == 0) ? "" : "KB", 
 					OOPSY_SDRAM_SIZE/1048576);
+				// console_display();
+				// hardware.display.Update();
 			}
 
 			// reset some state:
