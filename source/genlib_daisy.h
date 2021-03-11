@@ -16,6 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "genlib_ops.h"
 #include "genlib_exportfunctions.h"
 #include "daisy_seed.h"
+#ifdef OOPSY_TARGET_USES_SDMMC
+//#include "fatfs.h"
+#endif
+
 #include <math.h>
 #include <string>
 #include <cstring> // memset
@@ -210,6 +214,135 @@ namespace oopsy {
 		int midi_parse_state = 0;
 		#endif //OOPSY_TARGET_USES_MIDI_UART
 
+		#ifdef OOPSY_TARGET_USES_SDMMC
+		#define WAVLOADER_WORKSPACE_BYTES (1024)
+		//daisy::SdmmcHandler::Config sdconfig;
+		struct {
+			daisy::SdmmcHandler handler;
+			float workspace[WAVLOADER_WORKSPACE_BYTES/4];
+
+			void init() {
+				daisy::SdmmcHandler::Config sdconfig;
+				sdconfig.Defaults(); // 4-bit, 50MHz
+				// sdconfig.clock_powersave = false;
+				// sdconfig.speed           = daisy::SdmmcHandler::Speed::FAST;
+				// sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_4;
+				// handler.Init(sdconfig);
+				// link libdaisy i/o to fatfs driver.
+				handler.Init(sdconfig);
+				dsy_fatfs_init();
+				f_mount(&SDFatFS, SDPath, 1);
+
+				// quick test:
+				load(nullptr);
+			}
+
+			// TODO: case insensitivity?
+			// TODO: handle different channel counts (e.g. load mono buf into stereo [data], vice versa)
+			int load(float * buffer, size_t len=512, size_t channels=0, const char * filename="sound.wav") {
+				daisy::WAV_FormatTypeDef format;
+				size_t bytesread;
+				float * pout = buffer;
+
+				// open 
+				// if (!buffer) return;
+				if(filename && f_open(&SDFile, filename, (FA_OPEN_EXISTING | FA_READ)) == FR_OK) {
+					// Populate the WAV Info
+					if(f_read(&SDFile, (void *)&format, sizeof(daisy::WAV_FormatTypeDef), &bytesread) == FR_OK
+					&& format.AudioFormat == 1) { // PCM only sorry
+						// now read in data
+						size_t chans = format.NbrChannels;
+						size_t bytespersample = format.BitPerSample / 8;
+						// Assumes data is tightly packed -- is this true?
+						size_t bytesperframe = bytespersample * chans; 
+						size_t datasize = format.SubCHunk2Size;
+						size_t numsamples = datasize / bytespersample;
+						size_t samplesloaded = 0;
+
+						// read data in chunks of WAVLOADER_WORKSPACE_BYTES until we have enough 
+						// or we reach the end of the file
+						do {
+            				f_read(&SDFile, workspace, WAVLOADER_WORKSPACE_BYTES, &bytesread);
+							size_t samplesread = bytesread / bytespersample;
+							size_t samplecount = WAVLOADER_WORKSPACE_BYTES/bytespersample;
+
+							// now convert workspace into whatever the layout required by the [data] object
+							switch(bytespersample) {
+								case 2: { // 16-bit integer PCM
+									int16_t * wsp = (int16_t *)workspace;
+									for (size_t i=0; i < samplecount; i++) {
+										*pout++ = wsp[i] * 0.000030517578125f;
+									}
+									samplesloaded += samplecount;	
+								} break;
+								case 3: { // 24-bit integer PCM
+									uint8_t * wsp = (uint8_t *)workspace;
+									for (size_t i=0; i < samplecount; i++) {
+										uint32_t a = ((uint32_t)(wsp[i*3+0]) <<  8);
+										uint32_t b = ((uint32_t)(wsp[i*3+1]) << 16);
+										uint32_t c = ((uint32_t)(wsp[i*3+2]) << 24);
+										double x = (double)((int32_t)(a | b | c) >> 8);
+										*pout++ = (float)(x * 0.00000011920928955078125);
+									}
+									samplesloaded += samplecount;	
+								} break;
+								case 4: { // 32-bit integer PCM
+									int32_t * wsp = (int32_t *)workspace;
+									for (size_t i = 0; i < samplecount; ++i) {
+										*pout++ = (float)(wsp[i] / 2147483648.0);
+									}
+									samplesloaded += samplecount;
+
+								} break;
+								default: {
+									// format not handled; 
+								}
+							}
+            
+
+						} while (!f_eof(&SDFile) && bytesread > 0); // && samples read < samples requested
+					}
+					f_close(&SDFile);
+				}
+				return 0;
+			}
+
+			// void test() {
+			// 	DIR dir;
+			// 	FRESULT result = FR_OK;
+			// 	FILINFO fno;
+			// 	char *  fn;
+			// 	size_t file_sel_ = 0;
+			// 	size_t file_cnt_ = 0;
+			// 	if(f_opendir(&dir, SDPath) != FR_OK) return;
+			// 	do {
+			// 		result = f_readdir(&dir, &fno);
+			// 		// Exit if bad read or NULL fname
+			// 		if(result != FR_OK || fno.fname[0] == 0) break;
+			// 		// Skip if its a directory or a hidden file.
+			// 		if(fno.fattrib & (AM_HID | AM_DIR)) continue;
+			// 		// Now we'll check if its .wav and add to the list.
+			// 		fn = fno.fname;
+			// 		if(strstr(fn, ".wav") || strstr(fn, ".WAV")) {
+			// 			//strcpy(file_info_[file_cnt_].name, fn);
+			// 			file_cnt_++;
+
+			// 			size_t bytesread;
+			// 			if(f_open(&SDFile, fn, (FA_OPEN_EXISTING | FA_READ)) == FR_OK) {
+			// 				// Populate the WAV Info
+			// 				WAV_FormatTypeDef raw_data; 
+			// 				if(f_read(&SDFile, (void *)&raw_data, sizeof(WAV_FormatTypeDef), &bytesread) == FR_OK) {
+			// 					// success
+			// 				}
+			// 				f_close(&SDFile);
+			// 			}
+			// 		}
+			// 	} while(result == FR_OK);
+			// 	f_closedir(&dir);
+			// }
+		} sdcard;
+		#endif
+
 		template<typename A>
 		void reset(A& newapp) {
 			// first, remove callbacks:
@@ -273,6 +406,10 @@ namespace oopsy {
 				console_lines[i] = &console_memory[i*console_cols];
 			}
 			console_line = console_rows-1;
+			#endif
+
+			#ifdef OOPSY_TARGET_USES_SDMMC
+			sdcard.init();
 			#endif
 
 			hardware.seed.adc.Start();

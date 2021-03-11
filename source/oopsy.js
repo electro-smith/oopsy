@@ -212,6 +212,8 @@ function run() {
 	hardware.defines.OOPSY_SAMPLERATE = samplerate * 1000
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 
+	//hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
+
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (cpps.length > hardware.max_apps) {
@@ -269,6 +271,7 @@ CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_d
 # Silence irritating warnings:
 CFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
 CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
+
 `, "utf-8");
 
 	// didn't seem to be working:
