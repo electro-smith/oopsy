@@ -4,6 +4,34 @@
 	Generates and compiles wrapper code for gen~ export to Daisy hardware
 
 	Oopsy was authored by Graham Wakefield in 2020-2021.
+
+	Main entry-point is `run(...args)`
+
+	Args are a command-line style argument list, see `help` below
+	At minimum they should include at least one path to a .cpp file exported from gen~
+
+	`run`:
+	- parses these args
+	- configures a target (JSON definition, #defines, samplerate, etc)
+	- visits each .cpp file via `analyze_cpp()` to define "app" data structures
+	- further configuration according to cpp analysis
+	- visits each "app" via `generate_app()` to prepare data for code generation
+	- generates a .cpp file according to the apps and options
+	- invokes arm-gcc to compile .cpp to binary, then dfu-util to upload to daisy
+
+	`analyze_cpp`:
+	- defines a "gen" data structure representing features in the gen patcher
+
+	`generate_app`:
+	- configure an "daisy" object representing features in the hardware
+	- configure a "gen" object representing features in the .cpp patch
+
+	The general idea here is that there is a list of named "nodes" making a graph
+	most nodes are sources, 
+		they may have a list of `to` destinations
+		they may have a `src` field naming another node they map from
+	some nodes are sinks, and have a list of 'from' sources
+
 */
 const fs = require("fs"),
 	path = require("path"),
@@ -185,7 +213,6 @@ function run() {
 		}
 	});
 
-
 	// remove duplicates:
 	cpps = cpps.reduce(function (acc, s) {
 		if (acc.indexOf(s) === -1) acc.push(s)
@@ -275,9 +302,6 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 
 `, "utf-8");
 
-	// didn't seem to be working:
-	//# Enable printing of floats (for OLED display)
-	//LDFLAGS+=-u _printf_float
 	console.log(`Will ${action} from ${cpps.join(", ")} by writing to:`)
 	console.log(`\t${maincpp_path}`)
 	console.log(`\t${makefile_path}`)
@@ -402,6 +426,22 @@ int main(void) {
 }
 
 function analyze_cpp(cpp, hardware) {
+
+	// helper function to parse initializers:
+	function constexpr(s) {
+		return eval(s
+			// remove any (int) or (t_sample) casts
+			.replace("(int)", "")
+			.replace("(t_sample)", "")
+			// then replace any samplerate or vectorsize constants
+			.replace("samplerate", hardware.defines.OOPSY_SAMPLERATE)
+			.replace("vectorsize", hardware.defines.OOPSY_BLOCK_SIZE)
+			// remove extraneous whitespace
+			.trim()
+			// then compute the result via eval
+		)
+	}
+
 	let gen = {
 		name: /namespace\s+(\w+)\s+{/gm.exec(cpp)[1],
 		ins: (/gen_kernel_innames\[\]\s=\s{\s([^}]*)/g).exec(cpp)[1].split(",").map(s => s.replace(/"/g, "").trim()),
@@ -410,16 +450,29 @@ function analyze_cpp(cpp, hardware) {
 		datas: [],
 
 		// search for history outs:
-		histories: (cpp.match(/t_sample\s+(m_(midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?)_out_\d+);/gm) || [])
-			.map(s=>{
-			const match = /t_sample\s+(m_(midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?)_out_\d+);/gm.exec(s);
-			return {
-				cname: match[1], 
-				name: match[2],
-				midi_type: match[3],
-				midi_num: +match[4] || 1,
-				midi_chan: +match[6] || 1,
+		// i.e. any history with "_out" on its name
+		histories: (cpp.match(/t_sample\s+(m_([\w]+)_out_\d+);/gm) || []).map(s=>{
+			
+			const match = /t_sample\s+(m_([\w]+)_out_\d+);/gm.exec(s);
+			let cname = match[1]
+			let name = match[2];
+			let result = {
+				cname: cname,
+				name: name,
 			}
+
+			// if this is a midi output, decode the features
+			let midimatch = /midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?/g.exec(name)
+			if (midimatch) {
+				result.midi_type = midimatch[1];
+				result.midi_num = midimatch[2] != "" ? +midimatch[2] : 1;
+				result.midi_chan = +midimatch[4] || 1;
+			}
+
+			// find the initializer:
+			result.default = constexpr( new RegExp(`\\s${cname}\\s+=\\s+([^;]+);`, "gm").exec(cpp)[1] );
+
+			return result;
 		}),
 	}
 
@@ -473,19 +526,7 @@ function analyze_cpp(cpp, hardware) {
 				// first trim of the trailing ")"
 				// then split by the comma to [length, channel]
 				// then apply a series of replacements and finally eval() the result
-				let args = match[2].slice(0, -1).split(",").map(s => 
-					eval(s
-						// remove any (int) or (t_sample) casts
-						.replace("(int)", "")
-						.replace("(t_sample)", "")
-						// then replace any samplerate or vectorsize constants
-						.replace("samplerate", hardware.defines.OOPSY_SAMPLERATE)
-						.replace("vectorsize", hardware.defines.OOPSY_BLOCK_SIZE)
-						// remove extraneous whitespace
-						.trim()
-						// then compute the result via eval
-					)
-				)
+				let args = match[2].slice(0, -1).split(",").map(s => constexpr(s))
 
 				assert(typeof args[0] == "number" && args[0] > 0, `failed to derive length of data ${param.name}`)
 				assert(typeof args[1] == "number" && args[0] > 0, `failed to derive channels of data ${param.name}`)
@@ -513,7 +554,6 @@ function generate_daisy(hardware, nodes) {
 			return name;
 		}),
 
-		// DEVICE OUTPUTS:
 		datahandlers: Object.keys(hardware.datahandlers).map(name => {
 			nodes[name] = Object.assign({
 				name: name,
@@ -719,29 +759,47 @@ function generate_app(app, hardware, target, config) {
 		let node = Object.assign({
 			varname: varname,
 		}, history);
-		//let map;
-		nodes[name] = node
+		
+		if (node.midi_type) {
+			if (node.midi_type == "cc") {
+				app.has_midi_out = true;
+				let statusbyte = 176+((node.midi_chan)-1)%16;
+				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ${node.varname});`; //& 0x7F
+				node.type = "uint8_t";
+				nodes[name] = node
+			} else 
+			if (node.midi_type == "drum") {
+				app.has_midi_out = true;
+				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, ${node.varname});`;
+				node.type = "uint8_t";
+				nodes[name] = node		
+			} 
+		} else {
 
-		if (node.midi_type == "cc") {
-			app.has_midi_out = true;
-			let statusbyte = 176+((node.midi_chan)-1)%16;
-			node.midi_setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ${node.varname});`; //& 0x7F
-			node.type = "uint8_t";
-		} else 
-		if (node.midi_type == "drum") {
-			app.has_midi_out = true;
-			node.midi_setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, ${node.varname});`;
-			node.type = "uint8_t";
+			// search for a matching [out] name / prefix:
+			let map
+			let maplabel
+			Object.keys(hardware.labels.outs).sort().forEach(k => {
+				let match
+				if (match = new RegExp(`^${k}_?(.+)?`).exec(name)) {
+					map = hardware.labels.outs[k];
+					maplabel = match[1] || name
+				}
+			})
+
+			// was this history mapped to something?
+			if (map) {
+
+				console.log("MAPPED", map, maplabel)
+				nodes[name] = node	
+				node.type = "t_sample";
+				//node.setter = `// no action defined`
+
+				nodes[map].src = "gen."+node.cname; //from.push(src);
+				// nodes[src].to.push(map)
+			}
+			
 		}
-
-
-		// // was this out mapped to something?
-		// if (map) {
-		// 	nodes[map].from.push(src);
-		// 	nodes[src].to.push(map)
-		// }
-
-		console.log(node)
 		return name;
 	})
 
@@ -963,7 +1021,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.map(name=>`
 	${nodes[name].type} ${name};`).join("")}
-	${gen.histories.map(name=>nodes[name]).map(node=>`
+	${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 	${node.type} ${node.varname};`).join("")}
 	${daisy.device_outs
 		.map(name=>`
@@ -981,8 +1039,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
 		${daisy.device_outs.map(name=>`
 		${name} = 0.f;`).join("")}
-		${gen.histories.map(name=>nodes[name]).map(node=>`
-		${node.varname} = ${asCppNumber(0, node.type)};`).join("")}
+		${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
+		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
 	
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.init)
@@ -1040,10 +1098,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.code, node)}`).join("")}
-		${gen.histories.map(name=>nodes[name]).map(node=>`
+		${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 		if (${node.varname} != gen.${node.cname}) {
 			${node.varname} = gen.${node.cname};
-			${node.midi_setter}
+			${node.setter}
 		}`).join("")}
 		${(function() { 
 		let midisetters = gen.audio_outs

@@ -196,11 +196,11 @@
 	"outputs": {
 		"cvout1": {
 			"where":"main",
-			"code": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095);"
+			"code": "hardware.SetCvOut1($<name> * 4095);"
 		},
 		"cvout2": {
 			"where":"main",
-			"code": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095);"
+			"code": "hardware.SetCvOut2($<name> * 4095);"
 		},
 		"gateout1": {
 			"where":"audio",
