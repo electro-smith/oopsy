@@ -106,10 +106,15 @@ target: path to a JSON for the hardware config,
 		or simply "patch", "field", "petal", "pod" etc. 
 		Defaults to "daisy.patch.json"
 
-options: any of "32", "32kHz", "48", "48kHz", "96", "96kHz" 
-		will set the sampling rate of the binary
-		"nooled" will disable code generration for OLED 
-		(it will be blank)
+32kHz, 48kHz, "96kHz" will set the sampling rate of the binary
+
+block1, block2, etc. up to block256 will set the block size
+
+fastmath will replace some expensive math operations with faster approximations
+
+boost will increase the CPU from 400Mhz to 480Mhz
+
+nooled will disable code generration for OLED (it will be blank)
 
 cpps: 	paths to the gen~ exported cpp files
 		first item will be the default app
@@ -789,12 +794,8 @@ function generate_app(app, hardware, target, config) {
 
 			// was this history mapped to something?
 			if (map) {
-
-				console.log("MAPPED", map, maplabel)
 				nodes[name] = node	
 				node.type = "t_sample";
-				//node.setter = `// no action defined`
-
 				nodes[map].src = "gen."+node.cname; //from.push(src);
 				// nodes[src].to.push(map)
 			}
