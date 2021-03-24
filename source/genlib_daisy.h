@@ -238,7 +238,10 @@ namespace oopsy {
 			f_mount(&SDFatFS, SDPath, 1);
 		}
 
-		int sdcard_load(const char * filename, float * buffer, size_t buffer_frames, size_t buffer_channels) {
+		int sdcard_load_wav(const char * filename, Data& gendata) {
+			float * buffer = gendata.mData;
+			size_t buffer_frames = gendata.dim;
+			size_t buffer_channels = gendata.channels;
 			size_t bytesread = 0;
 			WavFormatChunk format;
 			uint32_t header[3];

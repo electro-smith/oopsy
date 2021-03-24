@@ -389,45 +389,65 @@ int main(void) {
 
 	// now try to make:
 	try {
-		try {
-			if (os.platform() == "win32") {
-                // Don't use `make clean`, as `rm` is not default on Windows
-                // /Q suppresses the Y/n prompt
-			    console.log(execSync("del /Q build", { cwd: build_path }).toString())
-				// Gather up make output to run command per line as child process
-				let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
-				build_cmd.forEach(line => {
-					// Silently execute the commands line-by-line.
-					if (line.length > 0)
-						execSync(line, { cwd: build_path }).toString()
-				})
-			} else {
-			    console.log(execSync("make clean", { cwd: build_path }).toString())
-				console.log(execSync(`export PATH=$PATH:${build_tools_path} && make`, { cwd: build_path }).toString())
-			}
+		console.log("oopsy compiling...")
+		if (os.platform() == "win32") {
+			// Don't use `make clean`, as `rm` is not default on Windows
+			// /Q suppresses the Y/n prompt
+			console.log(execSync("del /Q build", { cwd: build_path }).toString())
+			// Gather up make output to run command per line as child process
+			let build_cmd = execSync("make -n", { cwd: build_path }).toString().split(os.EOL)
+			build_cmd.forEach(line => {
+				// Silently execute the commands line-by-line.
+				if (line.length > 0)
+					execSync(line, { cwd: build_path }).toString()
+			})
 			console.log(`oopsy created binary ${Math.ceil(fs.statSync(posixify_path(path.join(build_path, "build", build_name+".bin")))["size"]/1024)}KB`)
-		} catch (e) {
-			// errors from make here
-			console.error("make failed");
-		}
-		// if successful, try to upload to hardware:
-		if (has_dfu_util && action=="upload") {
-			
-			console.log("oopsy flashing...")
-			
-			if (os.platform() == "win32") {
-				console.log(execSync(`set PATH=%PATH%;${build_tools_path} && make program-dfu`, { cwd: build_path }).toString())
-			} else {
-				console.log(execSync(`export PATH=$PATH:${build_tools_path} && make program-dfu`, { cwd: build_path, stdio:'inherit' }).toString())
+			// if successful, try to upload to hardware:
+			if (has_dfu_util && action=="upload") {
+				console.log("oopsy flashing...")
+				if (os.platform() == "win32") {
+					console.log(execSync(`set PATH=%PATH%;${build_tools_path} && make program-dfu`, { cwd: build_path }).toString())
+				}
 			}
-			console.log("oopsy flashed")
+		} else {
+			exec(`export PATH=$PATH:${build_tools_path} && make clean && make`, { cwd: build_path }, (err, stdout, stderr)=>{
+				if (err || stderr) {
+					console.log("oopsy compiler error")
+					console.log(err);
+					console.log(stderr);
+					return;
+				}
+				console.log(`oopsy created binary ${Math.ceil(fs.statSync(posixify_path(path.join(build_path, "build", build_name+".bin")))["size"]/1024)}KB`)
+				// if successful, try to upload to hardware:
+				if (has_dfu_util && action=="upload") {
+					console.log("oopsy flashing...")
+					exec(`export PATH=$PATH:${build_tools_path} && make program-dfu`, { cwd: build_path }, (err, stdout, stderr)=>{
+						console.log("stdout", stdout)
+						console.log("stderr", stderr)
+						if (err) {
+							if (err.message.includes("No DFU capable USB device available")) {
+								console.log("oopsy flashable daisy not found on USB")
+								return;
+							} else if (stdout.includes("File downloaded successfully")) {
+								console.log("oopsy flashed")
+							} else {
+								console.log("oopsy dfu error")
+								console.log(err.message);
+								return;
+							}
+						} else if (stderr) {
+							console.log("oopsy dfu error")
+							console.log(stderr);
+							return;
+						}
+					});
+				}
+			});
 		}
 	} catch (e) {
 		// errors from make here
-		console.log("upload failed");
+		console.log("oopsy build failed", e);
 	}
-
-	console.log("oopsy done")
 }
 
 function analyze_cpp(cpp, hardware, cpp_path) {
@@ -1056,17 +1076,15 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${name} = 0.f;`).join("")}
 		${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
-	
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.init)
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.init, node)};`).join("")}
-
 		${gen.datas.map(name=>nodes[name])
 			.filter(node => node.wavname)
 			.map(node=>`
-		daisy.sdcard_load("${node.wavname}", gen.${node.cname}.mData, ${node.dim}, ${node.chans}); `)}
+		daisy.sdcard_load_wav("${node.wavname}", gen.${node.cname});`)}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
