@@ -238,6 +238,7 @@ namespace oopsy {
 			f_mount(&SDFatFS, SDPath, 1);
 		}
 
+		// TODO: resizing without wasting memory
 		int sdcard_load_wav(const char * filename, Data& gendata) {
 			float * buffer = gendata.mData;
 			size_t buffer_frames = gendata.dim;

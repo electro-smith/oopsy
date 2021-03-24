@@ -426,7 +426,7 @@ int main(void) {
 						console.log("stderr", stderr)
 						if (err) {
 							if (err.message.includes("No DFU capable USB device available")) {
-								console.log("oopsy flashable daisy not found on USB")
+								console.log("oopsy daisy not ready on USB")
 								return;
 							} else if (stdout.includes("File downloaded successfully")) {
 								console.log("oopsy flashed")
@@ -561,14 +561,20 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 				param.chans = Math.round(args[1])
 				gen.datas.push(param)
 
-				// is there a corresponding .wav file?
-				let wavname = param.name+".wav";
-				let wavpath = path.join(cpp_path, "..", wavname)
-				if (fs.existsSync(wavpath)) {
-					console.log(`[data ${param.name}] has possible source: ${wavpath}`)
+				let wavname
+				let wavmatch = /(\w+)_wav$/g.exec(param.name)
+				if (wavmatch) {
+					wavname = wavmatch[1]+".wav";
+				} else {
+					let wavpath = path.join(cpp_path, "..", param.name+".wav")
+					if (fs.existsSync(wavpath)) {
+						console.log(`[data ${param.name}] has possible source: ${path.resolve( wavpath )}`)
+						wavname = param.name+".wav";
+						//wavpath = path.resolve( wavpath )
+					} 
+				}
+				if (wavname) {
 					param.wavname = wavname
-					param.wavpath = path.resolve( wavpath )
-
 					// mark hardware accordingly:
 					hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
 				}
