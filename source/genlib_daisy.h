@@ -36,7 +36,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (OOPSY_BLOCK_SIZE*4)
-#define OOPSY_LONG_PRESS_MS 250
+#define OOPSY_LONG_PRESS_MS 333
+#define OOPSY_SUPER_LONG_PRESS_MS 2000
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
 static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
@@ -121,19 +122,16 @@ namespace oopsy {
 		void (*load)();
 	};
 	typedef enum {
-		MODE_NONE = 0,
-		#ifdef OOPSY_MULTI_APP
-		MODE_MENU,
-		#endif
-
 		#ifdef OOPSY_TARGET_HAS_OLED
-		MODE_CONSOLE,
+		MODE_SCOPE,
 		#ifdef OOPSY_HAS_PARAM_VIEW
 		MODE_PARAMS,
 		#endif
-		MODE_SCOPE,
+		MODE_CONSOLE,
 		#endif
-
+		#ifdef OOPSY_MULTI_APP
+		MODE_MENU,
+		#endif
 		MODE_COUNT
 	} Mode;
 
@@ -142,7 +140,7 @@ namespace oopsy {
 		Daisy hardware;
 		AppDef * appdefs = nullptr;
 
-		int mode, mode_default;
+		int mode, screensave=0;
 		int app_count = 1, app_selected = 0, app_selecting = 0, app_load_scheduled = 0;
 		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
@@ -212,132 +210,123 @@ namespace oopsy {
 		#endif //OOPSY_TARGET_USES_MIDI_UART
 
 		#ifdef OOPSY_TARGET_USES_SDMMC
-		#define WAVLOADER_WORKSPACE_BYTES (1024)
-		//daisy::SdmmcHandler::Config sdconfig;
-		struct {
-			daisy::SdmmcHandler handler;
-			float workspace[WAVLOADER_WORKSPACE_BYTES/4];
+		struct WavFormatChunk {
+			uint32_t size; 			// 16
+			uint16_t format;   		// 1=PCM
+			uint16_t chans;   		// e.g. 2
+			uint32_t samplerate;    // e.g. 44100
+			uint32_t bytespersecond;      // bytes per second, = sr * bitspersample * chans/8
+			uint16_t bytesperframe;    // bytes per frame, = bitspersample * chans/8
+			uint16_t bitspersample;  // e.g. 16 for 16-bit
+		};
 
-			void init() {
-				daisy::SdmmcHandler::Config sdconfig;
-				sdconfig.Defaults(); // 4-bit, 50MHz
-				// sdconfig.clock_powersave = false;
-				// sdconfig.speed           = daisy::SdmmcHandler::Speed::FAST;
-				// sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_4;
-				// handler.Init(sdconfig);
-				// link libdaisy i/o to fatfs driver.
-				handler.Init(sdconfig);
-				dsy_fatfs_init();
-				f_mount(&SDFatFS, SDPath, 1);
+		// at minimum this should fit one frame of 4 bytes-per-sample x numchans
+		#define OOPSY_WAV_WORKSPACE_BYTES (256)
 
-				// quick test:
-				load(nullptr);
+		daisy::SdmmcHandler handler;
+		uint8_t workspace[OOPSY_WAV_WORKSPACE_BYTES];
+		
+		void sdcard_init() {
+			daisy::SdmmcHandler::Config sdconfig;
+			sdconfig.Defaults(); // 4-bit, 50MHz
+			// sdconfig.clock_powersave = false;
+			// sdconfig.speed           = daisy::SdmmcHandler::Speed::FAST;
+			// sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_4;
+			// handler.Init(sdconfig);
+			handler.Init(sdconfig);
+			dsy_fatfs_init();
+			f_mount(&SDFatFS, SDPath, 1);
+		}
+
+		int sdcard_load(const char * filename, float * buffer, size_t buffer_frames, size_t buffer_channels) {
+			size_t bytesread = 0;
+			WavFormatChunk format;
+			uint32_t header[3];
+			uint32_t marker, frames, chunksize, frames_per_read, frames_to_read, frames_read, total_frames_to_read;
+			uint32_t buffer_index = 0;
+			size_t bytespersample;
+			if(f_open(&SDFile, filename, (FA_OPEN_EXISTING | FA_READ)) != FR_OK) {
+				log("no %s", filename);
+				return -1;
 			}
-
-			// TODO: case insensitivity?
-			// TODO: handle different channel counts (e.g. load mono buf into stereo [data], vice versa)
-			int load(float * buffer, size_t len=512, size_t channels=0, const char * filename="sound.wav") {
-				daisy::WAV_FormatTypeDef format;
-				size_t bytesread;
-				float * pout = buffer;
-
-				// open 
-				// if (!buffer) return;
-				if(filename && f_open(&SDFile, filename, (FA_OPEN_EXISTING | FA_READ)) == FR_OK) {
-					// Populate the WAV Info
-					if(f_read(&SDFile, (void *)&format, sizeof(daisy::WAV_FormatTypeDef), &bytesread) == FR_OK
-					&& format.AudioFormat == 1) { // PCM only sorry
-						// now read in data
-						size_t chans = format.NbrChannels;
-						size_t bytespersample = format.BitPerSample / 8;
-						// Assumes data is tightly packed -- is this true?
-						size_t bytesperframe = bytespersample * chans; 
-						size_t datasize = format.SubCHunk2Size;
-						size_t numsamples = datasize / bytespersample;
-						size_t samplesloaded = 0;
-
-						// read data in chunks of WAVLOADER_WORKSPACE_BYTES until we have enough 
-						// or we reach the end of the file
-						do {
-            				f_read(&SDFile, workspace, WAVLOADER_WORKSPACE_BYTES, &bytesread);
-							size_t samplesread = bytesread / bytespersample;
-							size_t samplecount = WAVLOADER_WORKSPACE_BYTES/bytespersample;
-
-							// now convert workspace into whatever the layout required by the [data] object
-							switch(bytespersample) {
-								case 2: { // 16-bit integer PCM
-									int16_t * wsp = (int16_t *)workspace;
-									for (size_t i=0; i < samplecount; i++) {
-										*pout++ = wsp[i] * 0.000030517578125f;
-									}
-									samplesloaded += samplecount;	
-								} break;
-								case 3: { // 24-bit integer PCM
-									uint8_t * wsp = (uint8_t *)workspace;
-									for (size_t i=0; i < samplecount; i++) {
-										uint32_t a = ((uint32_t)(wsp[i*3+0]) <<  8);
-										uint32_t b = ((uint32_t)(wsp[i*3+1]) << 16);
-										uint32_t c = ((uint32_t)(wsp[i*3+2]) << 24);
-										double x = (double)((int32_t)(a | b | c) >> 8);
-										*pout++ = (float)(x * 0.00000011920928955078125);
-									}
-									samplesloaded += samplecount;	
-								} break;
-								case 4: { // 32-bit integer PCM
-									int32_t * wsp = (int32_t *)workspace;
-									for (size_t i = 0; i < samplecount; ++i) {
-										*pout++ = (float)(wsp[i] / 2147483648.0);
-									}
-									samplesloaded += samplecount;
-
-								} break;
-								default: {
-									// format not handled; 
-								}
+			if (f_eof(&SDFile) 
+				|| f_read(&SDFile, (void *)&header, sizeof(header), &bytesread) != FR_OK
+				|| header[0] != daisy::kWavFileChunkId 
+				|| header[2] != daisy::kWavFileWaveId) goto badwav;
+			// find the format chunk:
+			do {
+				if (f_eof(&SDFile) || f_read(&SDFile, (void *)&marker, sizeof(marker), &bytesread) != FR_OK) break;
+			} while (marker != daisy::kWavFileSubChunk1Id);
+			if (f_eof(&SDFile) 
+				|| f_read(&SDFile, (void *)&format, sizeof(format), &bytesread) != FR_OK
+				|| format.chans == 0 
+				|| format.samplerate == 0 
+				|| format.bitspersample == 0) goto badwav;
+			// find the data chunk:
+			do {
+				if (f_eof(&SDFile) || f_read(&SDFile, (void *)&marker, sizeof(marker), &bytesread) != FR_OK) break;
+			} while (marker != daisy::kWavFileSubChunk2Id);
+			bytespersample = format.bytesperframe / format.chans;
+			if (f_eof(&SDFile) 
+				|| f_read(&SDFile, (void *)&chunksize, sizeof(chunksize), &bytesread) != FR_OK
+				|| format.format != 1 
+				|| bytespersample < 2 
+				|| bytespersample > 4) goto badwav; // only 16/24/32-bit PCM, sorry
+			// make sure we read in (multiples of) whole frames
+			frames = chunksize / format.bytesperframe;
+			frames_per_read = OOPSY_WAV_WORKSPACE_BYTES / format.bytesperframe;
+			frames_to_read = frames_per_read;
+			total_frames_to_read = buffer_frames;
+			// log("b=%u c=%u t=%u", buffer_frames, buffer_channels, total_frames_to_read);
+			// log("f=%u c=%u p=%u", frames, format.chans, frames_per_read);
+			// log("bp=%u c=%u p=%u", frames_to_read * format.bytesperframe);
+			do {
+				if (frames_to_read > total_frames_to_read) frames_to_read = total_frames_to_read;
+				f_read(&SDFile, workspace, frames_to_read * format.bytesperframe, &bytesread);
+				frames_read = bytesread / format.bytesperframe;
+				//log("_r=%u t=%u", frames_read, frames_to_read);
+				switch (bytespersample) {
+					case 2:  { // 16 bit
+						for (size_t f=0; f<frames_read; f++) {
+							for (size_t c=0; c<buffer_channels; c++) {
+								uint8_t * frame = workspace + f*format.bytesperframe + (c % format.chans)*bytespersample;
+								buffer[(buffer_index+f)*buffer_channels + c] = ((int16_t *)frame)[0] * 0.000030517578125f;
 							}
-            
-
-						} while (!f_eof(&SDFile) && bytesread > 0); // && samples read < samples requested
-					}
-					f_close(&SDFile);
+						}
+					} break;
+					case 3: { // 24 bit
+						for (size_t f=0; f<frames_read; f++) {
+							for (size_t c=0; c<buffer_channels; c++) {
+								uint8_t * frame = workspace + f*format.bytesperframe + (c % format.chans)*bytespersample;
+								int32_t b = (int32_t)(
+									((uint32_t)(frame[0]) <<  8) | 
+									((uint32_t)(frame[1]) << 16) | 
+									((uint32_t)(frame[2]) << 24)
+								) >> 8;
+								buffer[(buffer_index+f)*buffer_channels + c] = (float)(((double)b) * 0.00000011920928955078125);
+							}
+						}
+					} break;
+					case 4: { // 32 bit
+						for (size_t f=0; f<frames_read; f++) {
+							for (size_t c=0; c<buffer_channels; c++) {
+								uint8_t * frame = workspace + f*format.bytesperframe + (c % format.chans)*bytespersample;
+								buffer[(buffer_index+f)*buffer_channels + c] = ((int32_t *)frame)[0] / 2147483648.f;
+							}
+						}
+					} break;
 				}
-				return 0;
-			}
-
-			// void test() {
-			// 	DIR dir;
-			// 	FRESULT result = FR_OK;
-			// 	FILINFO fno;
-			// 	char *  fn;
-			// 	size_t file_sel_ = 0;
-			// 	size_t file_cnt_ = 0;
-			// 	if(f_opendir(&dir, SDPath) != FR_OK) return;
-			// 	do {
-			// 		result = f_readdir(&dir, &fno);
-			// 		// Exit if bad read or NULL fname
-			// 		if(result != FR_OK || fno.fname[0] == 0) break;
-			// 		// Skip if its a directory or a hidden file.
-			// 		if(fno.fattrib & (AM_HID | AM_DIR)) continue;
-			// 		// Now we'll check if its .wav and add to the list.
-			// 		fn = fno.fname;
-			// 		if(strstr(fn, ".wav") || strstr(fn, ".WAV")) {
-			// 			//strcpy(file_info_[file_cnt_].name, fn);
-			// 			file_cnt_++;
-
-			// 			size_t bytesread;
-			// 			if(f_open(&SDFile, fn, (FA_OPEN_EXISTING | FA_READ)) == FR_OK) {
-			// 				// Populate the WAV Info
-			// 				WAV_FormatTypeDef raw_data; 
-			// 				if(f_read(&SDFile, (void *)&raw_data, sizeof(WAV_FormatTypeDef), &bytesread) == FR_OK) {
-			// 					// success
-			// 				}
-			// 				f_close(&SDFile);
-			// 			}
-			// 		}
-			// 	} while(result == FR_OK);
-			// 	f_closedir(&dir);
-			// }
-		} sdcard;
+				total_frames_to_read -= frames_read;
+				buffer_index += frames_read;
+			} while (!f_eof(&SDFile) && bytesread > 0 && total_frames_to_read > 0);
+			f_close(&SDFile);
+			log("read %s", filename);
+			return buffer_index;
+		badwav:
+			f_close(&SDFile);
+			log("bad %s", filename);
+			return -1;
+		}
 		#endif
 
 		template<typename A>
@@ -387,9 +376,7 @@ namespace oopsy {
 		int run(AppDef * appdefs, int count) {
 			this->appdefs = appdefs;
 			app_count = count;
-			
-			mode_default = (Mode)(MODE_COUNT-1);
-			mode = mode_default;
+			mode = 0;
 
 			#ifdef OOPSY_USE_LOGGING
 			hardware.seed.StartLog(true);
@@ -407,14 +394,14 @@ namespace oopsy {
 			console_line = console_rows-1;
 			#endif
 
-			#ifdef OOPSY_TARGET_USES_SDMMC
-			sdcard.init();
-			#endif
-
 			hardware.seed.adc.Start();
 			hardware.seed.StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
+
+			#ifdef OOPSY_TARGET_USES_SDMMC
+			sdcard_init();
+			#endif
 
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
 			midi_data_idx = 0;
@@ -464,14 +451,8 @@ namespace oopsy {
 				
 				if (uitimer.ready(dt)) {
 					#ifdef OOPSY_USE_LOGGING
-					//hardware.seed.PrintLine("helo %d", t);
-					hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
+					//hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
 					#endif
-
-					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
-						// LONG PRESS
-						is_mode_selecting = 1;
-					}
 
 					// CLEAR DISPLAY
 					#ifdef OOPSY_TARGET_HAS_OLED
@@ -480,269 +461,280 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_PETAL 
 					hardware.ClearLeds();
 					#endif
-				
-					#ifdef OOPSY_TARGET_PETAL
-					// has no mode selection
-					is_mode_selecting = 0;
-					#if defined(OOPSY_MULTI_APP)
-					// multi-app is always in menu mode:
-					mode = MODE_MENU;
-					#endif
-					for(int i = 0; i < 8; i++) {
-						float white = (i == app_selecting || menu_button_released);
-						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
-							(i == app_selected || white) * 1.f,
-							white * 1.f,
-							(i < app_count) * 0.3f + white * 1.f
-						);
-					}
-					#endif //OOPSY_TARGET_PETAL
 
-					#ifdef OOPSY_TARGET_VERSIO
-					// has no mode selection
-					is_mode_selecting = 0;
-					#if defined(OOPSY_MULTI_APP)
-					// multi-app is always in menu mode:
-					mode = MODE_MENU;
-					#endif
-					for(int i = 0; i < 4; i++) {
-						float white = (i == app_selecting || menu_button_released);
-						hardware.SetLed(i, 
-							(i == app_selected || white) * 1.f,
-							white * 1.f,
-							(i < app_count) * 0.3f + white * 1.f
-						);
-					}
-					#endif //OOPSY_TARGET_VERSIO
-
-					// Handle encoder increment actions:
-					if (is_mode_selecting) {
-						mode += menu_button_incr;
-						if (mode >= MODE_COUNT) mode = 0;
-						if (mode < 0) mode = MODE_COUNT-1;	
-					#ifdef OOPSY_MULTI_APP
-					} else if (mode == MODE_MENU) {
-						#ifdef OOPSY_TARGET_VERSIO
-						app_selecting = menu_button_incr;
-						#else
-						app_selecting += menu_button_incr;
-						#endif
-						if (app_selecting >= app_count) app_selecting -= app_count;
-						if (app_selecting < 0) app_selecting += app_count;
-					#endif // OOPSY_MULTI_APP
-					#ifdef OOPSY_TARGET_HAS_OLED
-					} else if (mode == MODE_SCOPE) {
-						switch (scope_option) {
-							case SCOPEOPTION_STYLE: {
-								scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
-							} break;
-							case SCOPEOPTION_SOURCE: {
-								scope_source = (scope_source + menu_button_incr) % (OOPSY_IO_COUNT*2);
-							} break;
-							case SCOPEOPTION_ZOOM: {
-								scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
-							} break;
-						}
-					#ifdef OOPSY_HAS_PARAM_VIEW
-					} else if (mode == MODE_PARAMS) {
-						if (!param_is_tweaking) {
-							param_selected += menu_button_incr;
-							if (param_selected >= param_count) param_selected = 0;
-							if (param_selected < 0) param_selected = param_count-1;
+					// if (menu_button_held_ms > OOPSY_SUPER_LONG_PRESS_MS) {
+					// 	screensave = 1;
+					// } else if (screensave && (menu_button_incr || menu_button_held)) {
+					// 	screensave = 0;
+					// 	menu_button_incr = 0;
+					// }
+					// // bypass UI and display?
+					// if (!screensave) {
+						if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
+							is_mode_selecting = 1;
 						} 
-					#endif //OOPSY_HAS_PARAM_VIEW
-					#endif //OOPSY_TARGET_HAS_OLED
-					}
+						#ifdef OOPSY_TARGET_PETAL
+						// has no mode selection
+						is_mode_selecting = 0;
+						#if defined(OOPSY_MULTI_APP)
+						// multi-app is always in menu mode:
+						mode = MODE_MENU;
+						#endif
+						for(int i = 0; i < 8; i++) {
+							float white = (i == app_selecting || menu_button_released);
+							hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
+								(i == app_selected || white) * 1.f,
+								white * 1.f,
+								(i < app_count) * 0.3f + white * 1.f
+							);
+						}
+						#endif //OOPSY_TARGET_PETAL
 
-					// SHORT PRESS	
-					if (menu_button_released) {
-						menu_button_released = 0;
+						#ifdef OOPSY_TARGET_VERSIO
+						// has no mode selection
+						is_mode_selecting = 0;
+						#if defined(OOPSY_MULTI_APP)
+						// multi-app is always in menu mode:
+						mode = MODE_MENU;
+						#endif
+						for(int i = 0; i < 4; i++) {
+							float white = (i == app_selecting || menu_button_released);
+							hardware.SetLed(i, 
+								(i == app_selected || white) * 1.f,
+								white * 1.f,
+								(i < app_count) * 0.3f + white * 1.f
+							);
+						}
+						#endif //OOPSY_TARGET_VERSIO
+
+						// Handle encoder increment actions:
 						if (is_mode_selecting) {
-							is_mode_selecting = 0;
+							mode += menu_button_incr;
+							if (mode >= MODE_COUNT) mode = MODE_COUNT-1; //0;
+							if (mode <= 0) mode = 0; //MODE_COUNT-1;	
 						#ifdef OOPSY_MULTI_APP
 						} else if (mode == MODE_MENU) {
-							if (app_selected != app_selecting) {
-								app_selected = app_selecting;
-								#ifndef OOPSY_TARGET_HAS_OLED
-								mode = mode_default;
-								#endif
-								schedule_app_load(app_selected); //appdefs[app_selected].load();
-								//continue;
-							}
-						#endif
+							#ifdef OOPSY_TARGET_VERSIO
+							app_selecting = menu_button_incr;
+							#else
+							app_selecting += menu_button_incr;
+							#endif
+							if (app_selecting >= app_count) app_selecting -= app_count;
+							if (app_selecting < 0) app_selecting += app_count;
+						#endif // OOPSY_MULTI_APP
 						#ifdef OOPSY_TARGET_HAS_OLED
 						} else if (mode == MODE_SCOPE) {
-							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
-						#if defined (OOPSY_HAS_PARAM_VIEW) && defined(OOPSY_CAN_PARAM_TWEAK)
-						} else if (mode == MODE_PARAMS) {
-							param_is_tweaking = !param_is_tweaking;
-						#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
-						#endif //OOPSY_TARGET_HAS_OLED
-						}
-					} 
-
-					// OLED DISPLAY:
-					#ifdef OOPSY_TARGET_HAS_OLED
-					int showstats = 0;
-					switch(mode) {
-						#ifdef OOPSY_MULTI_APP
-						case MODE_MENU: {
-							showstats = 1;
-							for (int i=0; i<console_rows; i++) {
-								if (i == app_selecting) {
-									hardware.display.SetCursor(0, font.FontHeight * i);
-									hardware.display.WriteString((char *)">", font, true);
-								}
-								if (i < app_count) {
-									hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-									hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
-								}
-							}
-						} break;
-						#endif //OOPSY_MULTI_APP
-						#ifdef OOPSY_HAS_PARAM_VIEW
-						case MODE_PARAMS: {
-							char label[console_cols+1];
-							// ensure selected parameter is on-screen:
-							if (param_scroll > param_selected) param_scroll = param_selected;
-							if (param_scroll < (param_selected - console_rows + 1)) param_scroll = (param_selected - console_rows + 1);
-							int idx = param_scroll; // offset this for screen-scroll
-							for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
-								paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
-								hardware.display.SetCursor(0, font.FontHeight * line);
-								hardware.display.WriteString(label, font, (param_selected != idx));	
-							}
-						} break;
-						#endif // OOPSY_HAS_PARAM_VIEW
-						case MODE_SCOPE: {
-							showstats = 1;
-							uint8_t h = SSD1309_HEIGHT;
-							uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
-							uint8_t h2 = h/2, h4 = h/4;
-							size_t zoomlevel = scope_samples();
-							hardware.display.Fill(false);
-
-							// stereo views:
-							switch (scope_style) {
-							case SCOPESTYLE_OVERLAY: {
-								// stereo overlay:
-								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-									int j = i*2;
-									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
-									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
-								}
-							} break;
-							case SCOPESTYLE_TOPBOTTOM:
-							{
-								// stereo top-bottom
-								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-									int j = i*2;
-									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
-									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
-								}
-							} break;
-							case SCOPESTYLE_LEFTRIGHT:
-							{
-								// stereo L/R:
-								for (uint_fast8_t i=0; i<w2; i++) {
-									int j = i*4;
-									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
-									hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
-								}
-							} break;
-							default:
-							{
-								for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-									int j = i*2;
-									hardware.display.DrawPixel(
-										w2 + h2*scope_data[j][0],
-										h2 + h2*scope_data[j][1],
-										1
-									);
-								}
-
-								// for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
-								// 	int j = i*2;
-								// 	hardware.display.DrawLine(
-								// 		w2 + h2*scope_data[j][0],
-								// 		h2 + h2*scope_data[j][1],
-								// 		w2 + h2*scope_data[j+1][0],
-								// 		h2 + h2*scope_data[j+1][1],
-								// 		1
-								// 	);
-								// }
-							} break;
-							} // switch
-
-							// labelling:
 							switch (scope_option) {
+								case SCOPEOPTION_STYLE: {
+									scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
+								} break;
 								case SCOPEOPTION_SOURCE: {
-									hardware.display.SetCursor(0, h - font.FontHeight);
-									switch(scope_source) {
-									#if (OOPSY_IO_COUNT == 4)
-										case 0: hardware.display.WriteString("in1  in2", font, true); break;
-										case 1: hardware.display.WriteString("in3  in4", font, true); break;
-										case 2: hardware.display.WriteString("out1 out2", font, true); break;
-										case 3: hardware.display.WriteString("out3 out4", font, true); break;
-										case 4: hardware.display.WriteString("in1  out1", font, true); break;
-										case 5: hardware.display.WriteString("in2  out2", font, true); break;
-										case 6: hardware.display.WriteString("in3  out3", font, true); break;
-										case 7: hardware.display.WriteString("in4  out4", font, true); break;
-									#else
-										case 0: hardware.display.WriteString("in1  in2", font, true); break;
-										case 1: hardware.display.WriteString("out1 out2", font, true); break;
-										case 2: hardware.display.WriteString("in1  out1", font, true); break;
-										case 3: hardware.display.WriteString("in2  out2", font, true); break;
-									#endif
-									}
+									scope_source = (scope_source + menu_button_incr) % (OOPSY_IO_COUNT*2);
 								} break;
 								case SCOPEOPTION_ZOOM: {
-									// each pixel is zoom samples; zoom/samplerate seconds
-									float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
-									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
-									hardware.display.SetCursor(0, h - font.FontHeight);
-									hardware.display.WriteString(scope_label, font, true);
+									scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
 								} break;
-								// for view style, just leave it blank :-)
 							}
-						} break;
-						case MODE_CONSOLE: 
-						{
-							showstats = 1;
-							console_display(); 
-							break;
+						#ifdef OOPSY_HAS_PARAM_VIEW
+						} else if (mode == MODE_PARAMS) {
+							if (!param_is_tweaking) {
+								param_selected += menu_button_incr;
+								if (param_selected >= param_count) param_selected = 0;
+								if (param_selected < 0) param_selected = param_count-1;
+							} 
+						#endif //OOPSY_HAS_PARAM_VIEW
+						#endif //OOPSY_TARGET_HAS_OLED
 						}
-						default: {
-						}
-					}
-					if (is_mode_selecting) {
-						hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
-					} 
-					if (showstats) {
-						int offset = 0;
-						#ifdef OOPSY_TARGET_USES_MIDI_UART
-						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
-						midi_in_active = midi_out_active = 0;
-						#endif
-						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
-						// stats:
-						hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
-						hardware.display.WriteString(console_stats, font, true);
-					}
-					#endif //OOPSY_TARGET_HAS_OLED
-
-					menu_button_incr = 0;
 					
-					// handle app-level code (e.g. for LED etc.)
-					displayCallback(t, dt);
+						// SHORT PRESS	
+						if (menu_button_released) {
+							menu_button_released = 0;
+							if (is_mode_selecting) {
+								is_mode_selecting = 0;
+							#ifdef OOPSY_MULTI_APP
+							} else if (mode == MODE_MENU) {
+								if (app_selected != app_selecting) {
+									app_selected = app_selecting;
+									#ifndef OOPSY_TARGET_HAS_OLED
+									mode = 0;
+									#endif
+									schedule_app_load(app_selected); //appdefs[app_selected].load();
+									//continue;
+								}
+							#endif
+							#ifdef OOPSY_TARGET_HAS_OLED
+							} else if (mode == MODE_SCOPE) {
+								scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
+							#if defined (OOPSY_HAS_PARAM_VIEW) && defined(OOPSY_CAN_PARAM_TWEAK)
+							} else if (mode == MODE_PARAMS) {
+								param_is_tweaking = !param_is_tweaking;
+							#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
+							#endif //OOPSY_TARGET_HAS_OLED
+							}
+						} 
+
+						// OLED DISPLAY:
+						#ifdef OOPSY_TARGET_HAS_OLED
+						int showstats = 0;
+						switch(mode) {
+							#ifdef OOPSY_MULTI_APP
+							case MODE_MENU: {
+								showstats = 1;
+								for (int i=0; i<console_rows; i++) {
+									if (i == app_selecting) {
+										hardware.display.SetCursor(0, font.FontHeight * i);
+										hardware.display.WriteString((char *)">", font, true);
+									}
+									if (i < app_count) {
+										hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
+										hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
+									}
+								}
+							} break;
+							#endif //OOPSY_MULTI_APP
+							#ifdef OOPSY_HAS_PARAM_VIEW
+							case MODE_PARAMS: {
+								char label[console_cols+1];
+								// ensure selected parameter is on-screen:
+								if (param_scroll > param_selected) param_scroll = param_selected;
+								if (param_scroll < (param_selected - console_rows + 1)) param_scroll = (param_selected - console_rows + 1);
+								int idx = param_scroll; // offset this for screen-scroll
+								for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
+									paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
+									hardware.display.SetCursor(0, font.FontHeight * line);
+									hardware.display.WriteString(label, font, (param_selected != idx));	
+								}
+							} break;
+							#endif // OOPSY_HAS_PARAM_VIEW
+							case MODE_SCOPE: {
+								showstats = 1;
+								uint8_t h = SSD1309_HEIGHT;
+								uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
+								uint8_t h2 = h/2, h4 = h/4;
+								size_t zoomlevel = scope_samples();
+								hardware.display.Fill(false);
+
+								// stereo views:
+								switch (scope_style) {
+								case SCOPESTYLE_OVERLAY: {
+									// stereo overlay:
+									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+										int j = i*2;
+										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
+									}
+								} break;
+								case SCOPESTYLE_TOPBOTTOM:
+								{
+									// stereo top-bottom
+									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+										int j = i*2;
+										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
+										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
+									}
+								} break;
+								case SCOPESTYLE_LEFTRIGHT:
+								{
+									// stereo L/R:
+									for (uint_fast8_t i=0; i<w2; i++) {
+										int j = i*4;
+										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+										hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
+									}
+								} break;
+								default:
+								{
+									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+										int j = i*2;
+										hardware.display.DrawPixel(
+											w2 + h2*scope_data[j][0],
+											h2 + h2*scope_data[j][1],
+											1
+										);
+									}
+
+									// for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									// 	int j = i*2;
+									// 	hardware.display.DrawLine(
+									// 		w2 + h2*scope_data[j][0],
+									// 		h2 + h2*scope_data[j][1],
+									// 		w2 + h2*scope_data[j+1][0],
+									// 		h2 + h2*scope_data[j+1][1],
+									// 		1
+									// 	);
+									// }
+								} break;
+								} // switch
+
+								// labelling:
+								switch (scope_option) {
+									case SCOPEOPTION_SOURCE: {
+										hardware.display.SetCursor(0, h - font.FontHeight);
+										switch(scope_source) {
+										#if (OOPSY_IO_COUNT == 4)
+											case 0: hardware.display.WriteString("in1  in2", font, true); break;
+											case 1: hardware.display.WriteString("in3  in4", font, true); break;
+											case 2: hardware.display.WriteString("out1 out2", font, true); break;
+											case 3: hardware.display.WriteString("out3 out4", font, true); break;
+											case 4: hardware.display.WriteString("in1  out1", font, true); break;
+											case 5: hardware.display.WriteString("in2  out2", font, true); break;
+											case 6: hardware.display.WriteString("in3  out3", font, true); break;
+											case 7: hardware.display.WriteString("in4  out4", font, true); break;
+										#else
+											case 0: hardware.display.WriteString("in1  in2", font, true); break;
+											case 1: hardware.display.WriteString("out1 out2", font, true); break;
+											case 2: hardware.display.WriteString("in1  out1", font, true); break;
+											case 3: hardware.display.WriteString("in2  out2", font, true); break;
+										#endif
+										}
+									} break;
+									case SCOPEOPTION_ZOOM: {
+										// each pixel is zoom samples; zoom/samplerate seconds
+										float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
+										int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
+										hardware.display.SetCursor(0, h - font.FontHeight);
+										hardware.display.WriteString(scope_label, font, true);
+									} break;
+									// for view style, just leave it blank :-)
+								}
+							} break;
+							case MODE_CONSOLE: 
+							{
+								showstats = 1;
+								console_display(); 
+								break;
+							}
+							default: {
+							}
+						}
+						if (is_mode_selecting) {
+							hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
+						} 
+						if (showstats) {
+							int offset = 0;
+							#ifdef OOPSY_TARGET_USES_MIDI_UART
+							offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
+							midi_in_active = midi_out_active = 0;
+							#endif
+							offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
+							// stats:
+							hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
+							hardware.display.WriteString(console_stats, font, true);
+						}
+						#endif //OOPSY_TARGET_HAS_OLED
+						menu_button_incr = 0;
+						
+						// handle app-level code (e.g. for LED etc.)
+						displayCallback(t, dt);
+					//} // if(!screensave)
 
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
 					#endif //OOPSY_TARGET_HAS_OLED
+
 					#if (OOPSY_TARGET_PETAL)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL)
-
 
 				} // uitimer.ready
 				

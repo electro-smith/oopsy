@@ -257,7 +257,7 @@ function run() {
 		assert(fs.existsSync(cpp_path), `couldn't find source C++ file ${cpp_path}`);
 		return {
 			path: cpp_path,
-			patch: analyze_cpp(fs.readFileSync(cpp_path, "utf8"), hardware)
+			patch: analyze_cpp(fs.readFileSync(cpp_path, "utf8"), hardware, cpp_path)
 		}
 	})
 	let build_name = apps.map(v=>v.patch.name).join("_")
@@ -301,6 +301,8 @@ SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
 # Include the gen_dsp files
 CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}"
+${Object.keys(hardware.defines).map(k=>`
+CFLAGS+=-D${k}=${hardware.defines[k]}`).join("")}
 # Silence irritating warnings:
 CFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
 CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
@@ -356,8 +358,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	For details of the licensing terms of code exported from gen~ see https://support.cycling74.com/hc/en-us/articles/360050779193-Gen-Code-Export-Licensing-FAQ
 */
 
-${Object.keys(defines).map(k => `
-#define ${k} (${defines[k]})`).join("")}
 ${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
@@ -430,7 +430,7 @@ int main(void) {
 	console.log("oopsy done")
 }
 
-function analyze_cpp(cpp, hardware) {
+function analyze_cpp(cpp, hardware, cpp_path) {
 
 	// helper function to parse initializers:
 	function constexpr(s) {
@@ -496,6 +496,8 @@ function analyze_cpp(cpp, hardware) {
 			//param.default = +new RegExp(`\\s${param.cname}\\s+=\\s+\\(\\(\\w+\\)([^\\)]+)`, "gm").exec(cpp)[1]
 			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
+			// enable display of params:
+			hardware.defines.OOPSY_TARGET_HAS_PARAM_VIEW = 1;
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			/*
 				General form:
@@ -524,7 +526,6 @@ function analyze_cpp(cpp, hardware) {
 			//let pat = `\\s([\\w]+)\\.reset\\("${param.name}",\\s+\\(\\(int\\)(\\d+)\\), \\(\\(int\\)(\\d+)\\)\\);`;
 			let pat = `\\s([\\w]+)\\.reset\\("${param.name}",([^;]+);`
 			let match = new RegExp(pat, 'gm').exec(cpp)
-			console.log(pat, param.name)
 			if (match) {
 				param.cname = match[1]
 				// for the length & channel arguments:
@@ -539,6 +540,18 @@ function analyze_cpp(cpp, hardware) {
 				param.dim = Math.round(args[0])
 				param.chans = Math.round(args[1])
 				gen.datas.push(param)
+
+				// is there a corresponding .wav file?
+				let wavname = param.name+".wav";
+				let wavpath = path.join(cpp_path, "..", wavname)
+				if (fs.existsSync(wavpath)) {
+					console.log(`[data ${param.name}] has possible source: ${wavpath}`)
+					param.wavname = wavname
+					param.wavpath = path.resolve( wavpath )
+
+					// mark hardware accordingly:
+					hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
+				}
 			} else {
 				console.error("failed to match details of data "+param.name)
 			}
@@ -1033,6 +1046,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void init(oopsy::GenDaisy& daisy) {
 		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
 		${name}::State& gen = *(${name}::State *)daisy.gen;
+		
 		daisy.param_count = ${gen.params.length};
 		${(defines.OOPSY_HAS_PARAM_VIEW) ? `daisy.param_selected = ${Math.max(0, gen.params.map(name=>nodes[name].src).indexOf(undefined))};`:``}
 		${gen.params.map(name=>nodes[name])
@@ -1048,6 +1062,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.init, node)};`).join("")}
+
+		${gen.datas.map(name=>nodes[name])
+			.filter(node => node.wavname)
+			.map(node=>`
+		daisy.sdcard_load("${node.wavname}", gen.${node.cname}.mData, ${node.dim}, ${node.chans}); `)}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
