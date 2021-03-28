@@ -141,7 +141,7 @@ function run() {
 	let watch = false
 	let cpps = []
 	let samplerate = 48
-	let blocksize = 24
+	let blocksize = 48
 	let options = {}
 
 	checkBuildEnvironment();
@@ -830,7 +830,7 @@ function generate_app(app, hardware, target, config) {
 				app.has_midi_out = true;
 				let statusbyte = 176+((node.midi_chan)-1)%16;
 				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, uint8_t(${node.varname}*127.f) & 0x7F);`; 
-				node.type = "uint8_t";
+				node.type = "float";
 				node.midi_throttle = true;
 				nodes[name] = node
 			} else 
@@ -838,7 +838,7 @@ function generate_app(app, hardware, target, config) {
 			if (node.midi_type == "drum") {
 				app.has_midi_out = true;
 				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
-				node.type = "uint8_t";
+				node.type = "float";
 				nodes[name] = node		
 			} 
 		} else {

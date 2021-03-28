@@ -36,8 +36,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (128)
-#define OOPSY_LONG_PRESS_MS (333*20)
-#define OOPSY_SUPER_LONG_PRESS_MS (20000*20)
+#define OOPSY_LONG_PRESS_MS (333)
+#define OOPSY_SUPER_LONG_PRESS_MS (20000)
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
 static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
@@ -479,7 +479,7 @@ namespace oopsy {
 					hardware.ClearLeds();
 					#endif
 
-					// if (menu_button_held_ms > OOPSY_SUPER_LONG_PRESS_MS) {
+					// if (menu_button_held_ms > OOPSY_SUPER_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
 					// 	screensave = 1;
 					// } else if (screensave && (menu_button_incr || menu_button_held)) {
 					// 	screensave = 0;
@@ -487,7 +487,7 @@ namespace oopsy {
 					// }
 					// // bypass UI and display?
 					// if (!screensave) {
-						if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
+						if (menu_button_held_ms > OOPSY_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
 							is_mode_selecting = 1;
 						} 
 						#ifdef OOPSY_TARGET_PETAL
@@ -777,7 +777,7 @@ namespace oopsy {
             hardware.ProcessAllControls();
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
-			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
+			menu_button_held_ms ;
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_VERSIO)
             hardware.ProcessAllControls();
