@@ -276,12 +276,29 @@ function run() {
 		hardware: hardware,
 		apps: apps,
 	}
-	
-	// add watcher
-	if (watch && watchers.length < 1) {
-		watchers = cpps.map(cpp_path => fs.watch(cpp_path, (event, filepath)=>{
-			run(...args);
-		}))
+
+	let defines = hardware.defines;
+
+	if (defines.OOPSY_TARGET_HAS_MIDI_INPUT || defines.OOPSY_TARGET_HAS_MIDI_OUTPUT) {
+		defines.OOPSY_TARGET_USES_MIDI_UART = 1
+	}
+
+	if (apps.length > 1) {
+		defines.OOPSY_MULTI_APP = 1
+		// generate midi-handling code for any multi-app on a midi-enabled platform
+		// so that program-change messages for apps will work:
+		if (hardware.defines.OOPSY_TARGET_HAS_MIDI_INPUT) {
+			hardware.defines.OOPSY_TARGET_USES_MIDI_UART = 1
+		}
+	}
+	if (options.nooled && defines.OOPSY_TARGET_HAS_OLED) {
+		delete defines.OOPSY_TARGET_HAS_OLED;
+	}
+	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
+		defines.OOPSY_CAN_PARAM_TWEAK = 1
+	}
+	if (options.fastmath) {
+		hardware.defines.GENLIB_USE_FASTMATH = 1;
 	}
 
 	const makefile_path = path.join(build_path, `Makefile`)
@@ -313,24 +330,12 @@ CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-var
 	console.log(`\t${maincpp_path}`)
 	console.log(`\t${makefile_path}`)
 	console.log(`\t${bin_path}`)
-
-	let defines = hardware.defines;
-	if (apps.length > 1) {
-		defines.OOPSY_MULTI_APP = 1
-		// generate midi-handling code for any multi-app on a midi-enabled platform
-		// so that program-change messages for apps will work:
-		if (hardware.defines.OOPSY_TARGET_HAS_MIDI_INPUT) {
-			hardware.defines.OOPSY_TARGET_USES_MIDI_UART = 1
-		}
-	}
-	if (options.nooled && defines.OOPSY_TARGET_HAS_OLED) {
-		delete defines.OOPSY_TARGET_HAS_OLED;
-	}
-	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
-		defines.OOPSY_CAN_PARAM_TWEAK = 1
-	}
-	if (options.fastmath) {
-		hardware.defines.GENLIB_USE_FASTMATH = 1;
+	
+	// add watcher
+	if (watch && watchers.length < 1) {
+		watchers = cpps.map(cpp_path => fs.watch(cpp_path, (event, filepath)=>{
+			run(...args);
+		}))
 	}
 
 	apps.map(app => {

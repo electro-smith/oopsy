@@ -89,7 +89,7 @@ function configure(doExport) {
 									var wavname = node.name + ".wav"
 									// write out that file so it can be referenced:
 									buffer.send("write", obj.getattr("exportfolder") + wavname);
-									post("found buffer mapped Data", node.name, bufname, wavname, frames, chans)
+									//post("found buffer mapped Data", node.name, bufname, wavname, frames, chans)
 								}
 							} else if (node.typename == "Buffer") {
 								// find the corresponding buffer~:
@@ -99,14 +99,14 @@ function configure(doExport) {
 								var chans = buffer.channelcount()
 
 								if (frames < 0 || chans < 0) {
-									error("can't find buffer~ "+bufname);
+									error("oopsy: can't find buffer~ "+bufname);
 									return;
 								}
 
 								// write it out:
 								//buffer.send("write", obj.getattr("exportfolder") + bufname + ".wav");
 
-    							post("consider replacing [buffer "+node.name+"] with [data "+node.name+" "+frames+" "+chans+"]\n"); 
+    							post("oopsy: consider replacing [buffer "+node.name+"] with [data "+node.name+" "+frames+" "+chans+"]\n"); 
 								if (node.name != bufname) { 
 									post("and set @"+node.name, bufname, "on the gen~\n"); 
 								}
