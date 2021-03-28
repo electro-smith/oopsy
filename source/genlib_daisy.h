@@ -35,7 +35,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
-#define OOPSY_MIDI_BUFFER_SIZE (OOPSY_BLOCK_SIZE*4)
+#define OOPSY_MIDI_BUFFER_SIZE (4096)
 #define OOPSY_LONG_PRESS_MS 333
 #define OOPSY_SUPER_LONG_PRESS_MS 2000
 #define OOPSY_DISPLAY_PERIOD_MS 10
@@ -449,6 +449,8 @@ namespace oopsy {
 					midi_out_active = 1;
 					if (0 == uart.PollTx(midi_out_data, midi_out_written)) {
 						midi_out_written = 0;
+					} else {
+						log("MIDI transmit err");
 					}
 				}
 				#endif

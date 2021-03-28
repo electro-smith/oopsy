@@ -244,6 +244,7 @@ function run() {
 
 	hardware.defines.OOPSY_SAMPLERATE = samplerate * 1000
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
+	hardware.defines.OOPSY_BLOCK_RATE = hardware.defines.OOPSY_SAMPLERATE / blocksize
 
 	//hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
 
@@ -522,7 +523,7 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 			// enable display of params:
-			hardware.defines.OOPSY_TARGET_HAS_PARAM_VIEW = 1;
+			hardware.defines.OOPSY_HAS_PARAM_VIEW = 1;
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			/*
 				General form:
@@ -677,6 +678,7 @@ function generate_app(app, hardware, target, config) {
 	app.has_midi_in = false
 	app.has_generic_midi_in = false
 	app.has_midi_out = false
+	app.midi_out_count = 0;
 	app.nodes = nodes;
 	app.daisy = daisy;
 	app.gen = gen;
@@ -757,6 +759,7 @@ function generate_app(app, hardware, target, config) {
 			app.has_midi_out = true;
 			let statusbyte = 176+(((+match[4])||1)-1)%16;
 			node.midi_setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			app.midi_out_count++;
 		}
 
 		// e.g.
@@ -766,6 +769,7 @@ function generate_app(app, hardware, target, config) {
 			app.has_midi_out = true;
 			let statusbyte = 224+(((+match[4])||1)-1)%16;
 			node.midi_setter = `daisy.midi_message3(${statusbyte}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F);`;
+			app.midi_out_count++;
 		}
 
 		// e.g.
@@ -773,6 +777,7 @@ function generate_app(app, hardware, target, config) {
 		else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
 			app.has_midi_out = true;
 			node.midi_setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			app.midi_out_count++;
 		}
 
 		// e.g.
@@ -782,11 +787,13 @@ function generate_app(app, hardware, target, config) {
 			app.has_midi_out = true;
 			let statusbyte = 144+(((+match[4])||1)-1)%16;
 			node.midi_setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			app.midi_out_count++;
 		}
 
 		else if (label == "midi") {
 			map = daisy.midi_outs[0]
 			app.has_midi_out = true;
+			app.midi_out_count++;
 		} else if (map) {
 			label = maplabel
 		} else {
@@ -810,16 +817,24 @@ function generate_app(app, hardware, target, config) {
 		}, history);
 		
 		if (node.midi_type) {
-			if (node.midi_type == "cc") {
-				app.has_midi_out = true;
-				let statusbyte = 176+((node.midi_chan)-1)%16;
-				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ${node.varname});`; //& 0x7F
-				node.type = "uint8_t";
-				nodes[name] = node
-			} else 
+			app.midi_out_count++;
+			
+			// since cc values can change at very high rates, this needs throttling
+
+
+
+
+			// if (node.midi_type == "cc") {
+			// 	app.has_midi_out = true;
+			// 	let statusbyte = 176+((node.midi_chan)-1)%16;
+			// 	node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, uint8_t(${node.varname}) & 0x7F);`; 
+			// 	node.type = "uint8_t";
+			// 	nodes[name] = node
+			// } else 
+
 			if (node.midi_type == "drum") {
 				app.has_midi_out = true;
-				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, ${node.varname});`;
+				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f)) );`;//& 0x7F
 				node.type = "uint8_t";
 				nodes[name] = node		
 			} 
@@ -1147,7 +1162,9 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.data)
 			.map(node =>`
 		${interpolate(node.code, node)}`).join("")}
-		${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
+		${gen.histories.map(name=>nodes[name])
+			.filter(node => node && node.midi_type)
+			.map(node=>`
 		if (${node.varname} != gen.${node.cname}) {
 			${node.varname} = gen.${node.cname};
 			${node.setter}
@@ -1157,7 +1174,14 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(name=>nodes[name])
 			.filter(node=>node.midi_setter);
 		return `${midisetters.length > 0 ? 
-		`if (daisy.frames % ${Math.ceil(midisetters.length*hardware.samplerate/32)} == 0){ // throttle output for MIDI baud limits
+		`// ${app.midi_out_count} MIDI outputs
+		// MIDI Baud spec is 31250, but each MIDI byte is 10 bits with start & stop bits
+		// so 3125 midi bytes per second
+		// each message can be 3 bytes, so
+		// about 1000 messages per second
+		// this code runs at block rate of ${hardware.defines.OOPSY_BLOCK_RATE}Hz, so
+		// one message every ${hardware.defines.OOPSY_BLOCK_RATE/1000} blocks?
+		if (daisy.frames % ${Math.ceil(app.midi_out_count*hardware.defines.OOPSY_BLOCK_RATE/300)} == 0){ // throttle output for MIDI baud limits
 			${midisetters.map(node=>`
 			${node.midi_setter}`).join(``)}
 		}` : ``}` })()}
