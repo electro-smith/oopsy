@@ -1181,7 +1181,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		// about 1000 messages per second
 		// this code runs at block rate of ${hardware.defines.OOPSY_BLOCK_RATE}Hz, so
 		// one message every ${hardware.defines.OOPSY_BLOCK_RATE/1000} blocks?
-		if (daisy.frames % ${Math.ceil(app.midi_out_count*hardware.defines.OOPSY_BLOCK_RATE/300)} == 0){ // throttle output for MIDI baud limits
+		if (daisy.frames % ${Math.ceil(app.midi_out_count*hardware.defines.OOPSY_BLOCK_RATE/1000)} == 0){ // throttle output for MIDI baud limits
 			${midisetters.map(node=>`
 			${node.midi_setter}`).join(``)}
 		}` : ``}` })()}
