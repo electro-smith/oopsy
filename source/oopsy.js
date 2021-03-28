@@ -760,7 +760,10 @@ function generate_app(app, hardware, target, config) {
 			app.has_midi_out = true;
 			let statusbyte = 176+(((+match[4])||1)-1)%16;
 			node.midi_type = "cc";
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			node.varname = `${node.midi_type}_${name}`
+			node.type = "float";
+			node.setter_src = `${node.src}[size-1]`
+			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
 			node.midi_throttle = true;
 			app.midi_outs.push(node)
 		}
@@ -772,7 +775,10 @@ function generate_app(app, hardware, target, config) {
 			app.has_midi_out = true;
 			let statusbyte = 224+(((+match[4])||1)-1)%16;
 			node.midi_type = "bend";
-			node.setter = `daisy.midi_message3(${statusbyte}, 0, (uint8_t((${node.src}[size-1]+1.f)*64.f)) & 0x7F);`;
+			node.varname = `${node.midi_type}_${name}`
+			node.type = "float";
+			node.setter_src = `${node.src}[size-1]`
+			node.setter = `daisy.midi_message3(${statusbyte}, 0, (uint8_t((${node.varname}+1.f)*64.f)) & 0x7F);`;
 			node.midi_throttle = true;
 			app.midi_outs.push(node)
 		}
@@ -782,7 +788,10 @@ function generate_app(app, hardware, target, config) {
 		else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
 			app.has_midi_out = true;
 			node.midi_type = "drum";
-			node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			node.varname = `${node.midi_type}_${name}`
+			node.type = "float";
+			node.setter_src = `${node.src}[size-1]`
+			node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
 			app.midi_outs.push(node)
 		}
 
@@ -792,8 +801,11 @@ function generate_app(app, hardware, target, config) {
 		else if (match = (/^midi_vel(\d+)(_(ch)?(\d+))?/g).exec(label)) {
 			app.has_midi_out = true;
 			node.midi_type = "vel";
+			node.varname = `${node.midi_type}_${name}`
+			node.type = "float";
+			node.setter_src = `${node.src}[size-1]`
 			let statusbyte = 144+(((+match[4])||1)-1)%16;
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.src}[size-1]*127.f)) & 0x7F);`;
+			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
 			app.midi_outs.push(node)
 		}
 
@@ -825,6 +837,7 @@ function generate_app(app, hardware, target, config) {
 		
 		if (node.midi_type) {
 			app.midi_outs.push(node)
+			node.setter_src = "gen."+node.cname
 			
 			if (node.midi_type == "cc") {
 				app.has_midi_out = true;
@@ -1086,6 +1099,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${nodes[name].type} ${name};`).join("")}
 	${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 	${node.type} ${node.varname};`).join("")}
+	${gen.audio_outs.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
+	${node.type} ${node.varname};`).join("")}
 	${daisy.device_outs
 		.map(name=>`
 	float ${name};`).join("")}
@@ -1168,8 +1183,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${app.midi_outs
 			.filter(node=>!node.midi_throttle)
 			.map(node=>`
-		if (${node.varname} != gen.${node.cname}) {
-			${node.varname} = gen.${node.cname};
+		if (${node.varname} != ${node.setter_src}) {
+			${node.varname} = ${node.setter_src};
 			${node.setter}
 		}`).join("")}
 		${app.midi_outs.filter(node=>node.midi_throttle).length > 0 ? `
@@ -1177,7 +1192,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			${app.midi_outs
 				.filter(node=>node.midi_throttle)
 				.map(node=>`
-			${node.varname} = gen.${node.cname};
+			${node.varname} = ${node.setter_src};
 			${node.setter}`).join("")}
 		}` : ''}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
