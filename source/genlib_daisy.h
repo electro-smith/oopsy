@@ -872,11 +872,15 @@ namespace oopsy {
 		#if OOPSY_TARGET_USES_MIDI_UART
 		void midi_postperform(float * buf, size_t size) {
 			size_t i = 0;
-			while (i < size && midi_out_writeidx != midi_out_readidx) {
+			int8_t byte = buf[i] * 256.0f;
+			uint32_t w1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
+			while (byte >= 0 && i < size && w1 != midi_out_readidx) {
 				// scale (0.0, 1.0) back to (0, 255) for MIDI bytes
-				midi_out_data[midi_out_writeidx] = buf[i] * 256.0f;
-				midi_out_writeidx = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
+				midi_out_data[midi_out_writeidx] = byte;
+				midi_out_writeidx = w1;
+				w1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
 				i++;
+				byte = buf[i] * 256.0f;
 			}
 			// for (size_t i=0; i<size && midi_out_writeidx+1 < OOPSY_MIDI_BUFFER_SIZE; i++) {
 			// 	if (buf[i] >= 0.f) {
@@ -889,7 +893,7 @@ namespace oopsy {
 
 		void midi_message3(uint8_t status, uint8_t b1, uint8_t b2) {
 			uint32_t r = (midi_out_readidx + OOPSY_MIDI_BUFFER_SIZE - midi_out_writeidx) % OOPSY_MIDI_BUFFER_SIZE;
-			if (r > 0 && r < 3) { log("midi buffer full"); return; }
+			if (r > 0 && r <= 3) { log("midi buffer full"); return; }
 			uint32_t i0 = midi_out_writeidx;
 			uint32_t i1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
 			uint32_t i2 = (midi_out_writeidx+2) % OOPSY_MIDI_BUFFER_SIZE;
@@ -918,17 +922,6 @@ namespace oopsy {
 				midi_data_idx++; if (midi_data_idx >= data.dim) midi_data_idx = 0;
 				b = data.read(midi_data_idx, 0);
 			}
-			
-			// double b = data.read(midi_data_idx, 0);
-			// while (b >= 0. && midi_out_written < OOPSY_MIDI_BUFFER_SIZE-1) {
-			// 	// erase it from [data midi]
-			// 	data.write(-1, midi_data_idx, 0);
-			// 	// write it to our active outbuffer:
-			// 	midi_out_data[midi_out_written++] = b;
-			// 	// and advance one index in the [data midi]
-			// 	midi_data_idx++; if (midi_data_idx >= data.dim) midi_data_idx = 0;
-			// 	b = data.read(midi_data_idx, 0);
-			// }
 		}
 		#endif //OOPSY_TARGET_USES_MIDI_UART
 

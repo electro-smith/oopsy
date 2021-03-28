@@ -838,7 +838,6 @@ function generate_app(app, hardware, target, config) {
 		if (node.midi_type) {
 			app.midi_outs.push(node)
 			node.setter_src = "gen."+node.cname
-			
 			if (node.midi_type == "cc") {
 				app.has_midi_out = true;
 				let statusbyte = 176+((node.midi_chan)-1)%16;
@@ -846,15 +845,19 @@ function generate_app(app, hardware, target, config) {
 				node.type = "float";
 				node.midi_throttle = true;
 				nodes[name] = node
-			} else 
-
-			if (node.midi_type == "drum") {
+			} else if (node.midi_type == "bend") {
+				app.has_midi_out = true;
+				let statusbyte = 224+((node.midi_chan)-1)%16;
+				node.setter = `daisy.midi_message3(${statusbyte}, 0, uint8_t((${node.varname}+1.f)*64.f) & 0x7F);`; 
+				node.type = "float";
+				node.midi_throttle = true;
+				nodes[name] = node;
+			} else if (node.midi_type == "drum") {
 				app.has_midi_out = true;
 				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
 				node.type = "float";
 				nodes[name] = node		
-			} 
-			else if (node.midi_type == "vel") {
+			} else if (node.midi_type == "vel") {
 				app.has_midi_out = true;
 				let statusbyte = 144+((node.midi_chan)-1)%16;
 				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
