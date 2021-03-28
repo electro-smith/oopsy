@@ -854,6 +854,14 @@ function generate_app(app, hardware, target, config) {
 				node.type = "float";
 				nodes[name] = node		
 			} 
+			else if (node.midi_type == "vel") {
+				app.has_midi_out = true;
+				let statusbyte = 144+((node.midi_chan)-1)%16;
+				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
+				node.type = "float";
+				nodes[name] = node		
+			} 
+
 		} else {
 
 			// search for a matching [out] name / prefix:
