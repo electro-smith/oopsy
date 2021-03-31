@@ -3,11 +3,14 @@
 - Params:
   - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - MIDI:
+  - API change: [out N midi*] no longer supported. Use [history midi_*_out] instead. Raw MIDI output was causing unpredictable behaviour and could overload the MIDI baud rate too easily. Better handlers for specific MIDI messages have been added instead.
   - Moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
   - Added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
   - Added support for history-based midi outputs:
     - [history midi_cc1_out], [history midi_cc11_ch2_out], etc.: 0..1 outputs midi CC (default channel 1)
     - [history midi_bend_out], [history midi_bend_ch2_out], etc.: -1..1 outputs midi CC (default channel 1)
+    - [history midi_press_out], [history midi_press_ch2_out], etc.: 0..1 outputs midi channel pressure (default channel 1)
+    - [history midi_program_out], [history midi_program_ch2_out], etc.: 0..127 outputs midi program change (default channel 1)
     - [history midi_drum36_out] etc.: 0..1 outputs note velocity on channel 10
     - [history midi_vel36_out], [history midi_vel36_ch2_out] etc.: 0..1 outputs note velocity (default channel 1)
     - [history midi_clock_out], [history midi_stop_out], [history midi_start_out], [history midi_continue_out], [history midi_reset_out], [history midi_sense_out]: rising edge gate outputs transport etc. midi messages

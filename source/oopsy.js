@@ -499,12 +499,17 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 				result.midi_num = midimatch[1] !== "" && midimatch[1] !== undefined ? +midimatch[1] : 1;
 				result.midi_notetype = midimatch[3] || "pitch"
 			} else 
-			if (midimatch = /midi_(cc|vel|drum)(\d*)(_ch(\d+))?/g.exec(name) 
-				|| /midi_(bend)(\d*)(_ch(\d+))?/g.exec(name) 
-				|| /midi_(clock|stop|start|continue|sense|reset)?/g.exec(name)) {
+			if (midimatch = /midi_(program|cc|vel|drum)(\d*)(_ch(\d+))?/g.exec(name)) {
 				result.midi_type = midimatch[1];
 				result.midi_num = midimatch[2] !== "" && midimatch[2] !== undefined ? +midimatch[2] : 1;
 				result.midi_chan = +midimatch[4] || 1;
+			} else 
+			if (midimatch = /midi_(bend|press)(_ch(\d+))?/g.exec(name)) {
+				result.midi_type = midimatch[1];
+				result.midi_chan = +midimatch[3] || 1;
+			} else 
+			if (midimatch = /midi_(clock|stop|start|continue|sense|reset)?/g.exec(name)) {
+				result.midi_type = midimatch[1];
 			} 
 
 			// find the initializer:
@@ -760,72 +765,73 @@ function generate_app(app, hardware, target, config) {
 			}
 		})
 
-		// check for dedicated midi patterns:
-		let match
-		// e.g.
-		// [out 5 midi_cc100_ch1] // input is 0..1 for cc value
-		// [out 6 midi_cc74]	  // default channel 1
-		if (match = (/^midi_cc(\d+)(_(ch)?(\d+))?/g).exec(label)) {
-			app.has_midi_out = true;
-			let statusbyte = 176+(((+match[4])||1)-1)%16;
-			node.midi_type = "cc";
-			node.varname = `${node.midi_type}_${name}`
-			node.type = "float";
-			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-			node.midi_throttle = true;
-			app.midi_outs.push(node)
-		}
+		// // check for dedicated midi patterns:
+		// let match
+		// // e.g.
+		// // [out 5 midi_cc100_ch1] // input is 0..1 for cc value
+		// // [out 6 midi_cc74]	  // default channel 1
+		// if (match = (/^midi_cc(\d+)(_(ch)?(\d+))?/g).exec(label)) {
+		// 	app.has_midi_out = true;
+		// 	let statusbyte = 176+(((+match[4])||1)-1)%16;
+		// 	node.midi_type = "cc";
+		// 	node.varname = `${node.midi_type}_${name}`
+		// 	node.type = "float";
+		// 	node.setter_src = `${node.src}[size-1]`
+		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
+		// 	node.midi_throttle = true;
+		// 	app.midi_outs.push(node)
+		// }
 
-		// e.g.
-		// [out 5 midi_bend_ch1] // input is -1..1 for full bend range
-		// [out 6 midi_bend]	 // default channel 1
-		else if (match = (/^midi_bend(_(ch)?(\d+))?/g).exec(label)) {
-			app.has_midi_out = true;
-			let statusbyte = 224+(((+match[4])||1)-1)%16;
-			node.midi_type = "bend";
-			node.varname = `${node.midi_type}_${name}`
-			node.type = "float";
-			node.setter_src = `${node.src}[size-1]`
-			let float = `((${node.varname}+1.f)*64.f)`;
-			let lsb = `((uint8_t)(${float}*128.f)) & 0x7F`;
-			let msb = `((uint8_t)${float}) & 0x7F`;
-			node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
-			node.midi_throttle = true;
-			app.midi_outs.push(node)
-		}
+		// // e.g.
+		// // [out 5 midi_bend_ch1] // input is -1..1 for full bend range
+		// // [out 6 midi_bend]	 // default channel 1
+		// else if (match = (/^midi_bend(_(ch)?(\d+))?/g).exec(label)) {
+		// 	app.has_midi_out = true;
+		// 	let statusbyte = 224+(((+match[4])||1)-1)%16;
+		// 	node.midi_type = "bend";
+		// 	node.varname = `${node.midi_type}_${name}`
+		// 	node.type = "float";
+		// 	node.setter_src = `${node.src}[size-1]`
+		// 	let float = `((${node.varname}+1.f)*64.f)`;
+		// 	let lsb = `((uint8_t)(${float}*128.f)) & 0x7F`;
+		// 	let msb = `((uint8_t)${float}) & 0x7F`;
+		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
+		// 	node.midi_throttle = true;
+		// 	app.midi_outs.push(node)
+		// }
 
-		// e.g.
-		// [out 5 midi_drum36]
-		else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
-			app.has_midi_out = true;
-			node.midi_type = "drum";
-			node.varname = `${node.midi_type}_${name}`
-			node.type = "float";
-			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-			app.midi_outs.push(node)
-		}
+		// // e.g.
+		// // [out 5 midi_drum36]
+		// else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
+		// 	app.has_midi_out = true;
+		// 	node.midi_type = "drum";
+		// 	node.varname = `${node.midi_type}_${name}`
+		// 	node.type = "float";
+		// 	node.setter_src = `${node.src}[size-1]`
+		// 	node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
+		// 	app.midi_outs.push(node)
+		// }
 
-		// e.g.
-		// [out 5 midi_note36_ch10] // input is 0..1 for note velocity
-		// [out 6 midi_note60]		// default channel 1
-		else if (match = (/^midi_vel(\d+)(_(ch)?(\d+))?/g).exec(label)) {
-			app.has_midi_out = true;
-			node.midi_type = "vel";
-			node.varname = `${node.midi_type}_${name}`
-			node.type = "float";
-			node.setter_src = `${node.src}[size-1]`
-			let statusbyte = 144+(((+match[4])||1)-1)%16;
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-			app.midi_outs.push(node)
-		}
-
-		else if (label == "midi") {
-			map = daisy.midi_outs[0]
-			app.has_midi_out = true;
-			app.midi_out_count++;
-		} else if (map) {
+		// // e.g.
+		// // [out 5 midi_note36_ch10] // input is 0..1 for note velocity
+		// // [out 6 midi_note60]		// default channel 1
+		// else if (match = (/^midi_vel(\d+)(_(ch)?(\d+))?/g).exec(label)) {
+		// 	app.has_midi_out = true;
+		// 	node.midi_type = "vel";
+		// 	node.varname = `${node.midi_type}_${name}`
+		// 	node.type = "float";
+		// 	node.setter_src = `${node.src}[size-1]`
+		// 	let statusbyte = 144+(((+match[4])||1)-1)%16;
+		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
+		// 	app.midi_outs.push(node)
+		// }
+		// else if (label == "midi") {
+		// 	map = daisy.midi_outs[0]
+		// 	app.has_midi_out = true;
+		// 	app.midi_out_count++;
+		// } 
+		// else 
+		if (map) {
 			label = maplabel
 		} else {
 			// else it is audio data			
@@ -878,6 +884,13 @@ function generate_app(app, hardware, target, config) {
 					node.type = "float";
 					node.midi_throttle = true;
 					nodes[name] = node
+				} else if (node.midi_type == "press") {
+					app.has_midi_out = true;
+					let statusbyte = 208+((node.midi_chan)-1)%16;
+					node.setter = `daisy.midi_message2(${statusbyte}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`; 
+					node.type = "float";
+					node.midi_throttle = true;
+					nodes[name] = node;
 				} else if (node.midi_type == "bend") {
 					app.has_midi_out = true;
 					let statusbyte = 224+((node.midi_chan)-1)%16;
@@ -887,7 +900,12 @@ function generate_app(app, hardware, target, config) {
 					node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
 					node.type = "float";
 					node.midi_throttle = true;
-
+					nodes[name] = node;
+				} else if (node.midi_type == "program") {
+					app.has_midi_out = true;
+					let statusbyte = 192+((node.midi_chan)-1)%16;
+					node.setter = `daisy.midi_message2(${statusbyte}, ${node.varname} & 0x7F);`; 
+					node.type = "uint8_t";
 					nodes[name] = node;
 				} else if (node.midi_type == "drum") {
 					app.has_midi_out = true;
