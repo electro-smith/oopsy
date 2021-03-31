@@ -997,6 +997,26 @@ function generate_app(app, hardware, target, config) {
 					${node.varname} = (daisy.midi.byte[1]/127.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
 				}`;
 		} else 
+		if (match = (/^midi_press(_(ch)?(\d+))?/g).exec(param.name)) {
+			let ch = match[3] ? ((+match[3])+15)%16 : null;
+			app.has_midi_in = true;
+			node.where = "midi_msg"
+			// need to set "src" to something to prevent this being automapped
+			src = node.where
+			node.code = `if (daisy.midi.lastbyte == 1 && ${ch != null ? `daisy.midi.status == ${208+ch}` : `daisy.midi.status/16 == 13`}) { 
+					${node.varname} = (daisy.midi.byte[0]/127.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
+				}`;
+		} else 
+		if (match = (/^midi_program(_(ch)?(\d+))?/g).exec(param.name)) {
+			let ch = match[3] ? ((+match[3])+15)%16 : null;
+			app.has_midi_in = true;
+			node.where = "midi_msg"
+			// need to set "src" to something to prevent this being automapped
+			src = node.where
+			node.code = `if (daisy.midi.lastbyte == 1 && ${ch != null ? `daisy.midi.status == ${192+ch}` : `daisy.midi.status/16 == 12`}) { 
+					${node.varname} = (daisy.midi.byte[0]/127.f)*${asCppNumber(node.range)} + ${asCppNumber(node.min)};
+				}`;
+		} else 
 		if (match = (/^midi_(vel|drum)(\d+)(_(ch)?(\d+))?/g).exec(param.name)) {
 			let ch = match[5] ? ((+match[5])+15)%16 : (match[1] == "drum" ? 9 : null);
 			let note = (+match[2])%128;
