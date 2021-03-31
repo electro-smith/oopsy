@@ -699,11 +699,12 @@ function generate_app(app, hardware, target, config) {
 		let label = s.replace(/"/g, "").trim();
 		let src = null;
 		// figure out the src:
-		if (label == "midi") {
+		if (label == "midi" || label == "midithru") {
 			if (daisy.midi_ins.length) {
 				src = daisy.midi_ins[0]
 				app.has_midi_in = true;
 				app.has_generic_midi_in = true;
+				if (label == "midithru") app.has_generic_midi_thru = true;
 			}
 		} else if (daisy.audio_ins.length > 0) {
 			src = daisy.audio_ins[i % daisy.audio_ins.length];
@@ -1266,7 +1267,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			((uint8_t)gen.${note.pitch.cname}) & 0x7F, 
 			${note.chan ? `((uint8_t)(gen.${note.chan.cname})-1) % 16` : "0"});`).join("")}
 		// msgs: ${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts.filter(note=>note.press).length)}
-		// rate: ${hardware.defines.OOPSY_BLOCK_RATE/3000}
+		// rate: ${hardware.defines.OOPSY_BLOCK_RATE/500}
 		${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts.filter(note=>note.press).length) > 0 ? `
 		if (daisy.blockcount % ${ Math.ceil((app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts
 			.filter(note=>note.press).length) * hardware.defines.OOPSY_BLOCK_RATE/500)} == 0){ // throttle output for MIDI baud limits
@@ -1331,6 +1332,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 					.join(" else ")}
 			}
 			${app.has_generic_midi_in ? `
+			${app.has_generic_midi_thru ? `daisy.midi_message1(byte); // thru` : ``}
 			if (daisy.midi_in_written < OOPSY_BLOCK_SIZE) {
 				// scale (0, 255) to (0.0, 1.0) to protect hardware from accidental patching
 				daisy.midi_in_data[daisy.midi_in_written] = byte / 256.0f;

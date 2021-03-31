@@ -242,7 +242,6 @@ namespace oopsy {
 		uint32_t midi_out_writeidx = 0;
 		uint32_t midi_out_readidx = 0;
 
-
 		uint8_t midi_in_written = 0;//, midi_out_written = 0;
 		uint8_t midi_in_active = 0, midi_out_active = 0;
 		uint8_t midi_out_data[OOPSY_MIDI_BUFFER_SIZE];
@@ -929,12 +928,12 @@ namespace oopsy {
 			// }
 		}
 
-		void midi_message1(uint8_t status) {
+		void midi_message1(uint8_t byte) {
 			uint32_t r = (midi_out_readidx + OOPSY_MIDI_BUFFER_SIZE - midi_out_writeidx) % OOPSY_MIDI_BUFFER_SIZE;
 			if (r > 0 && r <= 1) { log("midi buffer full"); return; }
 			uint32_t i0 = midi_out_writeidx;
 			uint32_t i1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
-			midi_out_data[i0] = status;
+			midi_out_data[i0] = byte;
 			midi_out_writeidx = i1;
 		}
 

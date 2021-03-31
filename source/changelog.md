@@ -11,6 +11,10 @@
     - [history midi_drum36_out] etc.: 0..1 outputs note velocity on channel 10
     - [history midi_vel36_out], [history midi_vel36_ch2_out] etc.: 0..1 outputs note velocity (default channel 1)
     - [history midi_clock_out], [history midi_stop_out], [history midi_start_out], [history midi_continue_out], [history midi_reset_out], [history midi_sense_out]: rising edge gate outputs transport etc. midi messages
+  - Added midi note output mechanics:
+    - [history midi_note1_pitch_out] and [history midi_note1_vel_out] at minimum required to create a note out. Use note1, note2, noteN etc. to define your polyphony.
+    - [history midi_note1_chan_out] and [history midi_note1_press_out] are optional for setting a midi channel (other than channel 1) and polyphonic pressure (aka polyphonic aftertouch)
+  - Added [in N midithru], which works the same as [in N midi] (giving you raw bytes scaled by 1/256), but also passes all MIDI received in the hardware input through to the hardware output
   - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - Data/Buffer & SDCard:
   - [data foo_wav 512 2] will try to auto-load from "foo.wav" from the SDcard
