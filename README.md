@@ -34,7 +34,8 @@ Hardware voltages are mapped to gen~ -1..1
 ### MIDI
 
 - `in <n> midi` will give you a signal packed with any incoming MIDI bytes (see examples on parsing the signal). `<n>` just needs to be an output channel number that isn't being used for anything else.
-- `out <n> midi` will let you fill a signal with MIDI data to send to the device MIDI output (see examples on formatting the signal). `<n>` just needs to be an output channel number that isn't being used for anything else.
+
+For MIDI output features, see the [wiki page](https://github.com/electro-smith/oopsy/wiki/MIDI-output) documentation.
 
 
 ## Using from within Max
