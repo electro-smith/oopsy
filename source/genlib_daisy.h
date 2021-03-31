@@ -149,7 +149,7 @@ namespace oopsy {
 		int param_selected = 0, param_is_tweaking = 0, param_scroll = 0;
 		#endif
 
-		uint32_t t = 0, dt = 10, frames = 0;
+		uint32_t t = 0, dt = 10, blockcount = 0;
 		Timer uitimer;
 
 		// percent (0-100) of available processing time used
@@ -194,6 +194,44 @@ namespace oopsy {
 		#endif // OOPSY_TARGET_HAS_OLED
 
 		#ifdef OOPSY_TARGET_USES_MIDI_UART
+
+		struct MidiNote {
+			uint8_t chan, pitch, vel, press;
+
+			void init() {
+				chan = 0;
+				pitch = 36;
+				vel = press = 0;
+			}
+
+			// call at block rate
+			// (so long as at least velocity out is defined)
+			void update(GenDaisy& daisy, uint8_t v, uint8_t p=36, uint8_t c=0) {
+				// a change of pitch or chan must stop an ongoing note
+				if (vel && (p != pitch || c != chan)) {
+					// send note off to stop old note
+					vel = 0;
+					daisy.midi_message3(144 + chan, pitch, vel);
+				}
+				pitch = p;
+				chan = c;
+				// a change of velocity between zero and nonzero should trigger a note on/off
+				if ((!v) != (!vel)) {
+					daisy.midi_message3(144 + chan, pitch, v);
+				}
+				vel = v;
+			}
+
+			// call in the throttled section (if a pressure output was defined)
+			void update_pressure(GenDaisy& daisy, uint8_t pressure) {
+				if (vel && pressure != press) {
+					// send pressure
+					daisy.midi_message3(160 + chan, pitch, pressure);
+				}
+				press = pressure;
+			}
+		};
+
 		struct {
 			uint8_t status=0;
 			uint8_t lastbyte=0;
@@ -379,8 +417,8 @@ namespace oopsy {
 			midi_data_idx = 0;
 			midi_in_written = 0;//, midi_out_written = 0;
 			midi_in_active = 0, midi_out_active = 0;
-			frames = 0;
 			#endif
+			blockcount = 0;
 		}
 
 		int run(AppDef * appdefs, int count) {
@@ -447,15 +485,11 @@ namespace oopsy {
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
-				// if (midi_out_written) {
-				// 	log("midi %d", midi_out_written);
-				// 	for (int i=0; i<midi_out_written; i+=3) log("%d %d %d", midi_out_data[i], midi_out_data[i+1], midi_out_data[i+2]);
-				// }
-				
 				// send data if there's something to read:
 				if (midi_out_readidx != midi_out_writeidx) {
 					uint32_t size = (OOPSY_MIDI_BUFFER_SIZE + midi_out_writeidx - midi_out_readidx) % OOPSY_MIDI_BUFFER_SIZE;
 					size = ((midi_out_readidx + size) <= OOPSY_MIDI_BUFFER_SIZE) ? size : OOPSY_MIDI_BUFFER_SIZE - midi_out_readidx;
+					for (uint32_t i=0; i<size; i++) log("midi %d", midi_out_data[midi_out_readidx+i]);
 					int res = uart.PollTx(midi_out_data + midi_out_readidx, size);
 					if (res == 0) {
 						midi_out_active = 1;
@@ -834,7 +868,8 @@ namespace oopsy {
 			#if (OOPSY_TARGET_POD || OOPSY_TARGET_VERSIO)
 				hardware.UpdateLeds();
 			#endif
-			frames++;
+			
+			blockcount++;
 		}
 
 		#ifdef OOPSY_TARGET_HAS_OLED
@@ -889,6 +924,26 @@ namespace oopsy {
 			// 		midi_out_written++;
 			// 	}
 			// }
+		}
+
+		void midi_message1(uint8_t status) {
+			uint32_t r = (midi_out_readidx + OOPSY_MIDI_BUFFER_SIZE - midi_out_writeidx) % OOPSY_MIDI_BUFFER_SIZE;
+			if (r > 0 && r <= 1) { log("midi buffer full"); return; }
+			uint32_t i0 = midi_out_writeidx;
+			uint32_t i1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
+			midi_out_data[i0] = status;
+			midi_out_writeidx = i1;
+		}
+
+		void midi_message2(uint8_t status, uint8_t b1) {
+			uint32_t r = (midi_out_readidx + OOPSY_MIDI_BUFFER_SIZE - midi_out_writeidx) % OOPSY_MIDI_BUFFER_SIZE;
+			if (r > 0 && r <= 2) { log("midi buffer full"); return; }
+			uint32_t i0 = midi_out_writeidx;
+			uint32_t i1 = (midi_out_writeidx+1) % OOPSY_MIDI_BUFFER_SIZE;
+			uint32_t i2 = (midi_out_writeidx+2) % OOPSY_MIDI_BUFFER_SIZE;
+			midi_out_data[i0] = status;
+			midi_out_data[i1] = b1;
+			midi_out_writeidx = i2;
 		}
 
 		void midi_message3(uint8_t status, uint8_t b1, uint8_t b2) {

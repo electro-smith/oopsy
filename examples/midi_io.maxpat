@@ -40,13 +40,71 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-61",
+					"maxclass" : "gswitch2",
+					"numinlets" : 2,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 507.5, 351.0, 39.0, 32.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-60",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 507.5, 390.0, 32.0, 22.0 ],
+					"text" : "print"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-59",
+					"maxclass" : "button",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 709.0, 675.0, 24.0, 24.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-56",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 2,
+					"outlettype" : [ "bang", "" ],
+					"patching_rect" : [ 709.0, 644.0, 47.0, 22.0 ],
+					"text" : "sel 248"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-52",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "" ],
+					"patching_rect" : [ 709.0, 615.0, 91.0, 22.0 ],
+					"text" : "route midievent"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-73",
 					"linecount" : 3,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 602.166655999999989, 141.0, 36.0, 47.0 ],
-					"presentation_linecount" : 3,
 					"text" : "test midi clock"
 				}
 
@@ -193,7 +251,18 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-1",
+									"maxclass" : "ezdac~",
+									"numinlets" : 2,
+									"numoutlets" : 0,
+									"patching_rect" : [ 98.0, 47.0, 45.0, 45.0 ]
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"bgmode" : 0,
 									"border" : 0,
@@ -261,7 +330,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "signal", "float" ],
-									"patching_rect" : [ 91.500000000000057, 192.0, 56.0, 22.0 ],
+									"patching_rect" : [ 91.500000000000057, 192.0, 64.0, 22.0 ],
 									"sig" : 0.0
 								}
 
@@ -273,8 +342,8 @@
 									"id" : "obj-16",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
-									"numoutlets" : 5,
-									"outlettype" : [ "signal", "signal", "signal", "signal", "signal" ],
+									"numoutlets" : 1,
+									"outlettype" : [ "signal" ],
 									"patcher" : 									{
 										"fileversion" : 1,
 										"appversion" : 										{
@@ -286,7 +355,7 @@
 										}
 ,
 										"classnamespace" : "dsp.gen",
-										"rect" : [ 429.0, 127.0, 984.0, 614.0 ],
+										"rect" : [ 429.0, 127.0, 991.0, 802.0 ],
 										"bglocked" : 0,
 										"openinpresentation" : 0,
 										"default_fontsize" : 12.0,
@@ -316,12 +385,159 @@
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
 												"box" : 												{
-													"id" : "obj-17",
-													"linecount" : 9,
+													"id" : "obj-34",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 191.0, 642.0, 140.0, 22.0 ],
+													"text" : "history midi_drum36_out"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-33",
+													"linecount" : 4,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 665.0, 15.5, 189.0, 127.0 ],
+													"patching_rect" : [ 502.0, 340.0, 150.0, 60.0 ],
+													"text" : "history midi_bend_out\nhistory midi_cc1_out\nhistory midi_vel37_out\nhistory midi_drum36_out"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-31",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 888.0, 331.0, 151.0, 22.0 ],
+													"text" : "history midi_note1_vel_out"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-30",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 722.0, 331.0, 161.0, 22.0 ],
+													"text" : "history midi_note1_pitch_out"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-29",
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 883.0, 479.0, 150.0, 20.0 ],
+													"text" : "24ppqn at 60bpm"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-24",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 3,
+													"outlettype" : [ "", "", "" ],
+													"patching_rect" : [ 883.0, 503.0, 128.0, 22.0 ],
+													"text" : "counter samplerate/24"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-21",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 913.5, 548.0, 89.0, 22.0 ],
+													"text" : "oopsy.gate.min"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-20",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 883.0, 598.0, 127.0, 22.0 ],
+													"text" : "history midi_clock_out"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-18",
+													"linecount" : 6,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 538.0, 423.5, 304.0, 87.0 ],
+													"presentation_linecount" : 6,
+													"text" : "Send MIDI pitch bend; values from -1..1 are mapped to the MIDI bend range.\nChannel: 1. Add _ch2 etc. for a different channel. \nWarning: controls sampled at block rate at best, and possibly slower depending on MIDI baud rate congestion."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-16",
+													"linecount" : 6,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 219.0, 423.5, 304.0, 87.0 ],
+													"presentation_linecount" : 4,
+													"text" : "Send MIDI continuous controller. Values from 0..1 are mapped to the MIDI 0-127 range.\nChannel: 1. Add _ch2 etc. for a different channel. \nWarning: controls sampled at block rate at best, and possibly slower depending on MIDI baud rate congestion."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-4",
+													"linecount" : 6,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 537.0, 679.5, 304.0, 87.0 ],
+													"presentation_linecount" : 6,
+													"text" : "Simple fixed-pitch note out events. \nSend 0 for note off, any number between 0 and 1 for note on (0..1 is mapped to velocity)\nChannel: 1. Add _ch2 etc. for a different channel. \nWarning: note events shorter than the block size could be missed; using [oopsy.gate.min] may help"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-3",
+													"linecount" : 6,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 219.0, 680.0, 304.0, 87.0 ],
+													"presentation_linecount" : 6,
+													"text" : "Simple fixed-pitch note out events for drum gates. \nSend 0 for note off, any number between 0 and 1 for note on (0..1 is mapped to velocity)\nChannel: 10. Add _ch2 etc. for a different channel. \nWarning: note events shorter than the block size could be missed; using [oopsy.gate.min] may help"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-17",
+													"linecount" : 8,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 665.0, 15.5, 193.0, 114.0 ],
 													"text" : "[param midi_clock] will give a brief trigger at 24ppqn. Use [change] -> [> 0] for a single-sample trigger. \n\n[param midi_play] is a 0 or 1 signal if the transport is running or not; you may wish to latch it to midi_clock"
 												}
 
@@ -436,23 +652,12 @@
 , 											{
 												"box" : 												{
 													"id" : "obj-11",
-													"linecount" : 14,
+													"linecount" : 13,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 191.0, 394.0, 465.0, 194.0 ],
-													"text" : "Use any [out] number that isn't used for anything else. \nRange: Maps values of 0..1 to MIDI range (except midi_bend, which maps -1..1)\nChannels: midi outs default to channel 1 (except midi_drum which defaults to channel 10). Add _ch3 etc. for a specific channel. \nEnsure short triggers last long enough via [oopsy.gate.min]\n\nExamples:\nmidi_cc1\nmidi_cc2_ch3\nmidi_vel60\nmidi_vel48_ch3\nmidi_drum36\nmidi_bend\nmidi_bend_ch3"
-												}
-
-											}
-, 											{
-												"box" : 												{
-													"id" : "obj-8",
-													"maxclass" : "newobj",
-													"numinlets" : 1,
-													"numoutlets" : 0,
-													"patching_rect" : [ 191.0, 366.5, 108.0, 22.0 ],
-													"text" : "out 5 midi_drum60"
+													"patching_rect" : [ 898.0, 95.0, 465.0, 181.0 ],
+													"text" : "Range: Maps values of 0..1 to MIDI range (except midi_bend, which maps -1..1)\nChannels: midi outs default to channel 1 (except midi_drum which defaults to channel 10). Add _ch3 etc. for a specific channel. \nEnsure short triggers last long enough via [oopsy.gate.min]\n\nExamples:\nmidi_cc1\nmidi_cc2_ch3\nmidi_vel60\nmidi_vel48_ch3\nmidi_drum36\nmidi_bend\nmidi_bend_ch3"
 												}
 
 											}
@@ -525,7 +730,7 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-5", 0 ],
+													"destination" : [ "obj-20", 0 ],
 													"order" : 0,
 													"source" : [ "obj-23", 0 ]
 												}
@@ -533,9 +738,24 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-8", 0 ],
+													"destination" : [ "obj-34", 0 ],
+													"order" : 2,
+													"source" : [ "obj-23", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-5", 0 ],
 													"order" : 1,
 													"source" : [ "obj-23", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-21", 0 ],
+													"source" : [ "obj-24", 1 ]
 												}
 
 											}
@@ -563,13 +783,13 @@
  ]
 									}
 ,
-									"patching_rect" : [ 32.333333333333343, 113.0, 92.5, 35.0 ],
+									"patching_rect" : [ 32.333333333333343, 113.0, 214.0, 35.0 ],
 									"saved_object_attributes" : 									{
 										"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
 										"exportname" : "midi_io"
 									}
 ,
-									"text" : "gen~",
+									"text" : "gen~ @title midi_io",
 									"textcolor" : [ 0.996078431372549, 0.996078431372549, 0.996078431372549, 1.0 ],
 									"varname" : "midi_io"
 								}
@@ -620,17 +840,10 @@
 								}
 
 							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-4", 0 ],
-									"source" : [ "obj-16", 4 ]
-								}
-
-							}
  ]
 					}
 ,
-					"patching_rect" : [ 348.0, 328.0, 90.0, 22.0 ],
+					"patching_rect" : [ 348.0, 328.0, 57.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -638,7 +851,7 @@
 						"tags" : ""
 					}
 ,
-					"text" : "p midi-example"
+					"text" : "p midi_io"
 				}
 
 			}
@@ -1033,7 +1246,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
-					"patching_rect" : [ 452.0, 384.0, 40.0, 22.0 ],
+					"patching_rect" : [ 452.0, 351.0, 40.0, 22.0 ],
 					"text" : "midiin"
 				}
 
@@ -1218,6 +1431,18 @@
 										"subpatcher_template" : "",
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
+												"box" : 												{
+													"id" : "obj-10",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 1040.0, 294.0, 89.0, 22.0 ],
+													"text" : "oopsy.gate.min"
+												}
+
+											}
+, 											{
 												"box" : 												{
 													"id" : "obj-23",
 													"maxclass" : "newobj",
@@ -2662,15 +2887,15 @@
  ]
 									}
 ,
-									"patching_rect" : [ 32.333333333333343, 113.0, 214.0, 35.0 ],
+									"patching_rect" : [ 32.333333333333343, 113.0, 234.0, 35.0 ],
 									"saved_object_attributes" : 									{
 										"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
-										"exportname" : "midi_io"
+										"exportname" : "midi_raw"
 									}
 ,
-									"text" : "gen~",
+									"text" : "gen~ @title midi_raw",
 									"textcolor" : [ 0.996078431372549, 0.996078431372549, 0.996078431372549, 1.0 ],
-									"varname" : "midi_io"
+									"varname" : "midi_raw"
 								}
 
 							}
@@ -4980,6 +5205,13 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-52", 0 ],
+					"source" : [ "obj-36", 7 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-9", 1 ],
 					"midpoints" : [ 68.833333333333343, 144.0, 271.833333333333371, 144.0 ],
 					"source" : [ "obj-39", 1 ]
@@ -4996,6 +5228,15 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-36", 0 ],
+					"order" : 1,
+					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-61", 1 ],
+					"order" : 0,
 					"source" : [ "obj-4", 0 ]
 				}
 
@@ -5044,8 +5285,22 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-56", 0 ],
+					"source" : [ "obj-52", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-51", 1 ],
 					"source" : [ "obj-55", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-59", 0 ],
+					"source" : [ "obj-56", 0 ]
 				}
 
 			}
@@ -5062,6 +5317,13 @@
 					"destination" : [ "obj-19", 0 ],
 					"order" : 1,
 					"source" : [ "obj-6", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-60", 0 ],
+					"source" : [ "obj-61", 0 ]
 				}
 
 			}
@@ -5118,10 +5380,12 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-15::obj-13::obj-32" : [ "live.text[3]", "FILTER", 0 ],
-			"obj-15::obj-13::obj-4" : [ "live.menu[6]", "live.menu", 0 ],
+			"obj-15::obj-13::obj-32" : [ "live.text[6]", "FILTER", 0 ],
+			"obj-15::obj-13::obj-33" : [ "live.text[4]", "FILTER", 0 ],
+			"obj-15::obj-13::obj-34" : [ "live.text[5]", "FILTER", 0 ],
 			"obj-20::obj-13::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-20::obj-13::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
+			"obj-20::obj-13::obj-33" : [ "live.text[1]", "FILTER", 0 ],
+			"obj-20::obj-13::obj-34" : [ "live.text[3]", "FILTER", 0 ],
 			"obj-6" : [ "live.gain~", "live.gain~", 0 ],
 			"parameterbanks" : 			{
 
@@ -5129,11 +5393,15 @@
 ,
 			"parameter_overrides" : 			{
 				"obj-15::obj-13::obj-32" : 				{
-					"parameter_longname" : "live.text[3]"
+					"parameter_longname" : "live.text[6]"
 				}
 ,
-				"obj-20::obj-13::obj-4" : 				{
-					"parameter_longname" : "live.menu[2]"
+				"obj-15::obj-13::obj-33" : 				{
+					"parameter_longname" : "live.text[4]"
+				}
+,
+				"obj-15::obj-13::obj-34" : 				{
+					"parameter_longname" : "live.text[5]"
 				}
 
 			}
@@ -5150,6 +5418,13 @@
 			}
 , 			{
 				"name" : "oopsy.midi.format.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.min.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",

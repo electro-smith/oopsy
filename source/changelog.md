@@ -5,6 +5,12 @@
 - MIDI:
   - Moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
   - Added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
+  - Added support for history-based midi outputs:
+    - [history midi_cc1_out], [history midi_cc11_ch2_out], etc.: 0..1 outputs midi CC (default channel 1)
+    - [history midi_bend_out], [history midi_bend_ch2_out], etc.: -1..1 outputs midi CC (default channel 1)
+    - [history midi_drum36_out] etc.: 0..1 outputs note velocity on channel 10
+    - [history midi_vel36_out], [history midi_vel36_ch2_out] etc.: 0..1 outputs note velocity (default channel 1)
+    - [history midi_clock_out], [history midi_stop_out], [history midi_start_out], [history midi_continue_out], [history midi_reset_out], [history midi_sense_out]: rising edge gate outputs transport etc. midi messages
   - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - Data/Buffer & SDCard:
   - [data foo_wav 512 2] will try to auto-load from "foo.wav" from the SDcard

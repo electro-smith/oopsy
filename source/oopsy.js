@@ -493,12 +493,19 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 			}
 
 			// if this is a midi output, decode the features
-			let midimatch = /midi_(cc|vel|drum|bend)(\d*)(_ch(\d+))?/g.exec(name)
-			if (midimatch) {
+			let midimatch
+			if (midimatch = /midi_note(\d*)(_(pitch|vel|press|chan))?/g.exec(name) ) {
+				result.midi_type = "note";
+				result.midi_num = midimatch[1] !== "" && midimatch[1] !== undefined ? +midimatch[1] : 1;
+				result.midi_notetype = midimatch[3] || "pitch"
+			} else 
+			if (midimatch = /midi_(cc|vel|drum)(\d*)(_ch(\d+))?/g.exec(name) 
+				|| /midi_(bend)(\d*)(_ch(\d+))?/g.exec(name) 
+				|| /midi_(clock|stop|start|continue|sense|reset)?/g.exec(name)) {
 				result.midi_type = midimatch[1];
-				result.midi_num = midimatch[2] != "" ? +midimatch[2] : 1;
+				result.midi_num = midimatch[2] !== "" && midimatch[2] !== undefined ? +midimatch[2] : 1;
 				result.midi_chan = +midimatch[4] || 1;
-			}
+			} 
 
 			// find the initializer:
 			result.default = constexpr( new RegExp(`\\s${cname}\\s+=\\s+([^;]+);`, "gm").exec(cpp)[1] );
@@ -676,6 +683,7 @@ function generate_app(app, hardware, target, config) {
 
 	app.audio_outs = []
 	app.midi_outs = []
+	app.midi_noteouts = []
 	app.has_midi_in = false
 	app.has_generic_midi_in = false
 	app.has_midi_out = false
@@ -763,7 +771,7 @@ function generate_app(app, hardware, target, config) {
 			node.varname = `${node.midi_type}_${name}`
 			node.type = "float";
 			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
+			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
 			node.midi_throttle = true;
 			app.midi_outs.push(node)
 		}
@@ -778,7 +786,7 @@ function generate_app(app, hardware, target, config) {
 			node.varname = `${node.midi_type}_${name}`
 			node.type = "float";
 			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(${statusbyte}, 0, (uint8_t((${node.varname}+1.f)*64.f)) & 0x7F);`;
+			node.setter = `daisy.midi_message3(${statusbyte}, 0, ((uint8_t)((${node.varname}+1.f)*64.f)) & 0x7F);`;
 			node.midi_throttle = true;
 			app.midi_outs.push(node)
 		}
@@ -791,7 +799,7 @@ function generate_app(app, hardware, target, config) {
 			node.varname = `${node.midi_type}_${name}`
 			node.type = "float";
 			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
+			node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
 			app.midi_outs.push(node)
 		}
 
@@ -805,7 +813,7 @@ function generate_app(app, hardware, target, config) {
 			node.type = "float";
 			node.setter_src = `${node.src}[size-1]`
 			let statusbyte = 144+(((+match[4])||1)-1)%16;
-			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, (uint8_t(${node.varname}*127.f)) & 0x7F);`;
+			node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
 			app.midi_outs.push(node)
 		}
 
@@ -836,35 +844,78 @@ function generate_app(app, hardware, target, config) {
 		}, history);
 		
 		if (node.midi_type) {
-			app.midi_outs.push(node)
-			node.setter_src = "gen."+node.cname
-			if (node.midi_type == "cc") {
-				app.has_midi_out = true;
-				let statusbyte = 176+((node.midi_chan)-1)%16;
-				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, uint8_t(${node.varname}*127.f) & 0x7F);`; 
-				node.type = "float";
-				node.midi_throttle = true;
-				nodes[name] = node
-			} else if (node.midi_type == "bend") {
-				app.has_midi_out = true;
-				let statusbyte = 224+((node.midi_chan)-1)%16;
-				node.setter = `daisy.midi_message3(${statusbyte}, 0, uint8_t((${node.varname}+1.f)*64.f) & 0x7F);`; 
-				node.type = "float";
-				node.midi_throttle = true;
-				nodes[name] = node;
-			} else if (node.midi_type == "drum") {
-				app.has_midi_out = true;
-				node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
-				node.type = "float";
-				nodes[name] = node		
-			} else if (node.midi_type == "vel") {
-				app.has_midi_out = true;
-				let statusbyte = 144+((node.midi_chan)-1)%16;
-				node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, (uint8_t(${node.varname}*127.f) & 0x7F) );`;
-				node.type = "float";
-				nodes[name] = node		
-			} 
+			if (node.midi_type == "note") {
+				let id = node.midi_num-1
 
+				// get or create:
+				let noteout = app.midi_noteouts[id]
+				if (!noteout) {
+					noteout = {}
+					app.midi_noteouts[id] = noteout
+				}
+				noteout.id = id
+				noteout.cname = `midinote${node.midi_num}`
+				noteout[node.midi_notetype] = node
+
+				// if (node.midi_notetype == "press") {
+				// 	node.midi_throttle = true;
+				// 	node.setter_src = `gen.${node.cname}`
+				// 	app.midi_outs.push(node)
+				// }
+
+			} else {
+				
+				app.midi_outs.push(node)
+				node.setter_src = "gen."+node.cname
+				if (node.midi_type == "cc") {
+					app.has_midi_out = true;
+					let statusbyte = 176+((node.midi_chan)-1)%16;
+					node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`; 
+					node.type = "float";
+					node.midi_throttle = true;
+					nodes[name] = node
+				} else if (node.midi_type == "bend") {
+					app.has_midi_out = true;
+					let statusbyte = 224+((node.midi_chan)-1)%16;
+					node.setter = `daisy.midi_message3(${statusbyte}, 0, ((uint8_t)((${node.varname}+1.f)*64.f)) & 0x7F);`; 
+					node.type = "float";
+					node.midi_throttle = true;
+					nodes[name] = node;
+				} else if (node.midi_type == "drum") {
+					app.has_midi_out = true;
+					node.setter = `daisy.midi_message3(153, ${(node.midi_num)%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
+					node.type = "float";
+					nodes[name] = node		
+				} else if (node.midi_type == "vel") {
+					app.has_midi_out = true;
+					let statusbyte = 144+((node.midi_chan)-1)%16;
+					node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
+					node.type = "float";
+					nodes[name] = node		
+				} else if (node.midi_type == "clock"
+					 	|| node.midi_type == "stop"
+					 	|| node.midi_type == "start"
+					 	|| node.midi_type == "continue"
+					 	|| node.midi_type == "sense"
+					 	|| node.midi_type == "reset") {
+					app.has_midi_out = true;
+					if (node.midi_type == "clock") {
+						node.setter = `daisy.midi_message1(248);`;
+					} else if (node.midi_type == "stop") {
+						node.setter = `daisy.midi_message1(252);`;
+					} else if (node.midi_type == "start") {
+						node.setter = `daisy.midi_message1(250);`;
+					} else if (node.midi_type == "continue") {
+						node.setter = `daisy.midi_message1(251);`;
+					} else if (node.midi_type == "sense") {
+						node.setter = `daisy.midi_message1(254);`;
+					} else if (node.midi_type == "reset") {
+						node.setter = `daisy.midi_message1(255);`;
+					} 
+					node.type = "uint8_t";
+					nodes[name] = node		
+				} 
+			}
 		} else {
 
 			// search for a matching [out] name / prefix:
@@ -1108,6 +1159,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${gen.params
 		.map(name=>`
 	${nodes[name].type} ${name};`).join("")}
+	${app.midi_noteouts.map(note=>`
+	oopsy::GenDaisy::MidiNote ${note.cname};`).join("")}
 	${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 	${node.type} ${node.varname};`).join("")}
 	${gen.audio_outs.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
@@ -1194,17 +1247,30 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${app.midi_outs
 			.filter(node=>!node.midi_throttle)
 			.map(node=>`
-		if (${node.varname} != ${node.setter_src}) {
+		if (${node.varname} != (${node.type})${node.setter_src}) {
 			${node.varname} = ${node.setter_src};
 			${node.setter}
-		}`).join("")}
-		${app.midi_outs.filter(node=>node.midi_throttle).length > 0 ? `
-		if (daisy.frames % ${ Math.ceil(app.midi_outs.length*hardware.defines.OOPSY_BLOCK_RATE/3000)} == 0){ // throttle output for MIDI baud limits
+		}`).join("")}		
+		${app.midi_noteouts
+			.filter(note=>note.vel && note.pitch)
+			.map(note=>`
+		${note.cname}.update(daisy, 
+			((uint8_t)(gen.${note.vel.cname}*127.f)) & 0x7F, 
+			((uint8_t)gen.${note.pitch.cname}) & 0x7F, 
+			${note.chan ? `((uint8_t)(gen.${note.chan.cname})-1) % 16` : "0"});`).join("")}
+		${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts
+			.filter(note=>note.press).length) > 0 ? `
+		if (daisy.blockcount % ${ Math.ceil((app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts
+			.filter(note=>note.press).length) * hardware.defines.OOPSY_BLOCK_RATE/3000)} == 0){ // throttle output for MIDI baud limits
 			${app.midi_outs
 				.filter(node=>node.midi_throttle)
 				.map(node=>`
 			${node.varname} = ${node.setter_src};
 			${node.setter}`).join("")}
+			${app.midi_noteouts
+				.filter(note=>note.press)
+				.map(note=>`
+			${note.cname}.update_pressure(daisy, ((uint8_t)gen.${note.press.cname}) & 0x7F);`).join("")}
 		}` : ''}
 		${app.has_midi_out ? daisy.midi_outs.map(name=>nodes[name].from.map(name=>`
 		daisy.midi_postperform(${name}, size);`).join("")).join("") : ''}
