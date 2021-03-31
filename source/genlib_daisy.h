@@ -417,6 +417,9 @@ namespace oopsy {
 			midi_data_idx = 0;
 			midi_in_written = 0;//, midi_out_written = 0;
 			midi_in_active = 0, midi_out_active = 0;
+			// reset:
+			midi_message1(255);
+			midi_message3(176, 123, 0);
 			#endif
 			blockcount = 0;
 		}
