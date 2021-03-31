@@ -6,7 +6,10 @@ notes/
 graham/
 examples/*.cpp
 examples/*.h
+examples/*.json
 help/*.cpp
 help/*.h
+help/*.json
 templates/*.cpp
 templates/*.h
+templates/*.json
