@@ -35,7 +35,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
-#define OOPSY_MIDI_BUFFER_SIZE (128)
+#define OOPSY_MIDI_BUFFER_SIZE (1024)
 #define OOPSY_LONG_PRESS_MS (333)
 #define OOPSY_SUPER_LONG_PRESS_MS (20000)
 #define OOPSY_DISPLAY_PERIOD_MS 10
@@ -492,7 +492,7 @@ namespace oopsy {
 				if (midi_out_readidx != midi_out_writeidx) {
 					uint32_t size = (OOPSY_MIDI_BUFFER_SIZE + midi_out_writeidx - midi_out_readidx) % OOPSY_MIDI_BUFFER_SIZE;
 					size = ((midi_out_readidx + size) <= OOPSY_MIDI_BUFFER_SIZE) ? size : OOPSY_MIDI_BUFFER_SIZE - midi_out_readidx;
-					for (uint32_t i=0; i<size; i++) log("midi %d", midi_out_data[midi_out_readidx+i]);
+					//for (uint32_t i=0; i<size; i++) log("midi %d", midi_out_data[midi_out_readidx+i]);
 					int res = uart.PollTx(midi_out_data + midi_out_readidx, size);
 					if (res == 0) {
 						midi_out_active = 1;

@@ -786,7 +786,10 @@ function generate_app(app, hardware, target, config) {
 			node.varname = `${node.midi_type}_${name}`
 			node.type = "float";
 			node.setter_src = `${node.src}[size-1]`
-			node.setter = `daisy.midi_message3(${statusbyte}, 0, ((uint8_t)((${node.varname}+1.f)*64.f)) & 0x7F);`;
+			let float = `((${node.varname}+1.f)*64.f)`;
+			let lsb = `((uint8_t)(${float}*128.f)) & 0x7F`;
+			let msb = `((uint8_t)${float}) & 0x7F`;
+			node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
 			node.midi_throttle = true;
 			app.midi_outs.push(node)
 		}
@@ -877,9 +880,13 @@ function generate_app(app, hardware, target, config) {
 				} else if (node.midi_type == "bend") {
 					app.has_midi_out = true;
 					let statusbyte = 224+((node.midi_chan)-1)%16;
-					node.setter = `daisy.midi_message3(${statusbyte}, 0, ((uint8_t)((${node.varname}+1.f)*64.f)) & 0x7F);`; 
+					let float = `((${node.varname}+1.f)*64.f)`;
+					let lsb = `((uint8_t)(${float}*128.f)) & 0x7F`;
+					let msb = `((uint8_t)${float}) & 0x7F`;
+					node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
 					node.type = "float";
 					node.midi_throttle = true;
+
 					nodes[name] = node;
 				} else if (node.midi_type == "drum") {
 					app.has_midi_out = true;
@@ -1258,10 +1265,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			((uint8_t)(gen.${note.vel.cname}*127.f)) & 0x7F, 
 			((uint8_t)gen.${note.pitch.cname}) & 0x7F, 
 			${note.chan ? `((uint8_t)(gen.${note.chan.cname})-1) % 16` : "0"});`).join("")}
-		${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts
-			.filter(note=>note.press).length) > 0 ? `
+		// msgs: ${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts.filter(note=>note.press).length)}
+		// rate: ${hardware.defines.OOPSY_BLOCK_RATE/3000}
+		${(app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts.filter(note=>note.press).length) > 0 ? `
 		if (daisy.blockcount % ${ Math.ceil((app.midi_outs.filter(node=>node.midi_throttle).length + app.midi_noteouts
-			.filter(note=>note.press).length) * hardware.defines.OOPSY_BLOCK_RATE/3000)} == 0){ // throttle output for MIDI baud limits
+			.filter(note=>note.press).length) * hardware.defines.OOPSY_BLOCK_RATE/500)} == 0){ // throttle output for MIDI baud limits
 			${app.midi_outs
 				.filter(node=>node.midi_throttle)
 				.map(node=>`
