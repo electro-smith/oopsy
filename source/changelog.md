@@ -4,9 +4,8 @@
   - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - MIDI:
   - API change: [out N midi*] no longer supported. Use [history midi_*_out] instead. Raw MIDI output was causing unpredictable behaviour and could overload the MIDI baud rate too easily. Better handlers for specific MIDI messages have been added instead.
-  - Moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
   - Added support for a few [param] midi handling types such as midi_cc, midi_bend, midi_vel, midi_clock, etc. 
-  - Added support for history-based midi outputs:
+  - Added support for history-based MIDI outputs:
     - [history midi_cc1_out], [history midi_cc11_ch2_out], etc.: 0..1 outputs midi CC (default channel 1)
     - [history midi_bend_out], [history midi_bend_ch2_out], etc.: -1..1 outputs midi CC (default channel 1)
     - [history midi_press_out], [history midi_press_ch2_out], etc.: 0..1 outputs midi channel pressure (default channel 1)
@@ -18,6 +17,7 @@
     - [history midi_note1_pitch_out] and [history midi_note1_vel_out] at minimum required to create a note out. Use note1, note2, noteN etc. to define your polyphony.
     - [history midi_note1_chan_out] and [history midi_note1_press_out] are optional for setting a midi channel (other than channel 1) and polyphonic pressure (aka polyphonic aftertouch)
   - Added [in N midithru], which works the same as [in N midi] (giving you raw bytes scaled by 1/256), but also passes all MIDI received in the hardware input through to the hardware output
+  - Moved midi handling into app-level code to support custom midi handlers as [param]; raw midi handling not generated if not used
   - Fix: ensure program-change midi handling is generated for multi-app even when no apps used midi
 - Data/Buffer & SDCard:
   - [data foo_wav 512 2] will try to auto-load from "foo.wav" from the SDcard
