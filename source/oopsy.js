@@ -417,7 +417,7 @@ int main(void) {
 			}
 		} else {
 			exec(`export PATH=$PATH:${build_tools_path} && make clean && make`, { cwd: build_path }, (err, stdout, stderr)=>{
-				if (err || stderr) {
+				if (err) {
 					console.log("oopsy compiler error")
 					console.log(err);
 					console.log(stderr);
