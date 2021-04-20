@@ -246,8 +246,6 @@ function run() {
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 	hardware.defines.OOPSY_BLOCK_RATE = hardware.defines.OOPSY_SAMPLERATE / blocksize
 
-	//hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
-
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (cpps.length > hardware.max_apps) {
@@ -595,6 +593,7 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 					param.wavname = wavname
 					// mark hardware accordingly:
 					hardware.defines.OOPSY_TARGET_USES_SDMMC = 1
+					hardware.defines.USE_FATFS = 1
 				}
 			} else {
 				console.error("failed to match details of data "+param.name)
