@@ -33,6 +33,7 @@
   - Oopsy checks for gcc/dfu-util in /opt/homebrew or /usr/local and flags an error if neither are found
   - Oopsy reports total binary size
   - Code generation now uses the xoshiro PRNG for [noise], to match MSP's [noise~]
+  - Updates to makefiles to support SDcard and fix some compilation errors
   - Code generation cleanup
 - Targets:
   - Support for Noise Engineering's Versio, including all on-panel controls and LEDs, and template patch. 
