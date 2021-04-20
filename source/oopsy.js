@@ -310,6 +310,7 @@ TARGET = ${build_name}
 CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))}
 # Library Locations
 LIBDAISY_DIR = ${(posixify_path(path.relative(build_path, path.join(__dirname, "libdaisy"))).replace(" ", "\\ "))}
+${hardware.defines.OOPSY_TARGET_USES_SDMMC ? `USE_FATFS = 1`:``}
 # Optimize (i.e. CFLAGS += -O3):
 OPT = -O3
 # Core location, and generic Makefile.
