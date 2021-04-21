@@ -813,7 +813,7 @@ namespace oopsy {
             hardware.ProcessAllControls();
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
-			menu_button_held_ms ;
+			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_VERSIO)
             hardware.ProcessAllControls();
