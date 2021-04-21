@@ -143,7 +143,7 @@ function run() {
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (hardware.max_apps && cpps.length > hardware.max_apps) {
-		console.log(`this target does not support more than ${hardwre.max_apps} apps`)
+		console.log(`this target does not support more than ${hardware.max_apps} apps`)
 		cpps.length = hardware.max_apps
 	}
 	let apps = cpps.map(cpp_path => {
