@@ -518,7 +518,7 @@ namespace oopsy {
 				
 				if (uitimer.ready(dt)) {
 					#ifdef OOPSY_USE_LOGGING
-					//hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
+					hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
 					#endif
 
 					// CLEAR DISPLAY
