@@ -33,6 +33,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	} Daisy;
 #endif
 
+#ifdef OOPSY_USE_USB_SERIAL_INPUT
+static char   sumbuff[1024];
+static uint32_t  rx_size = 0;
+static bool      update = false;
+#endif
+
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (1024)
@@ -427,13 +433,30 @@ namespace oopsy {
 			blockcount = 0;
 		}
 
+		#ifdef OOPSY_USE_USB_SERIAL_INPUT
+		static void UsbCallback(uint8_t* buf, uint32_t* len) {
+			memcpy(sumbuff, buf, *len);
+			rx_size = *len;
+			update  = true;
+		}
+		#endif
+
 		int run(AppDef * appdefs, int count) {
 			this->appdefs = appdefs;
 			app_count = count;
 			mode = 0;
 
+			#ifdef OOPSY_USE_USB_SERIAL_INPUT
+			hardware.seed.usb_handle.Init(daisy::UsbHandle::FS_INTERNAL);
+			daisy::System::Delay(500);
+			hardware.seed.usb_handle.SetReceiveCallback(UsbCallback, daisy::UsbHandle::FS_INTERNAL);
+			#endif
+
 			#ifdef OOPSY_USE_LOGGING
 			daisy::Logger<daisy::LOGGER_INTERNAL>::StartLog(false);
+
+			//usbhandle SetReceiveCallback(ReceiveCallback cb, UsbPeriph dev);
+
 			// TODO REMOVE THIS HACK WHEN STARTING SERIAL OVER USB DOESN'T FREAK OUT WITH AUDIO CALLBACK
 			daisy::System::Delay(275);
 			#endif
@@ -519,6 +542,13 @@ namespace oopsy {
 				if (uitimer.ready(dt)) {
 					#ifdef OOPSY_USE_LOGGING
 					hardware.seed.PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
+					#endif
+					#ifdef OOPSY_USE_USB_SERIAL_INPUT
+					if(update && rx_size > 0) {
+						// TODO check bytes for a reset message and jump to bootloader
+						update = false;
+						log(sumbuff);
+					}
 					#endif
 
 					// CLEAR DISPLAY
