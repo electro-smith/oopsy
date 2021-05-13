@@ -165,6 +165,10 @@ namespace oopsy {
 		bool nullAudioCallbackRunning = false;
 		
 		#ifdef OOPSY_TARGET_HAS_OLED
+		
+		// TODO: fix this once width & height can be derived as static constexpr from the display class:
+		#define OLED_DISPLAY_WIDTH (128)
+		#define OLED_DISPLAY_HEIGHT (64) 
 
 		enum {
 			SCOPESTYLE_OVERLAY = 0,
@@ -189,7 +193,7 @@ namespace oopsy {
 		char * console_stats;
 		char * console_memory;
 		char ** console_lines;
-		float scope_data[SSD1309_WIDTH*2][2]; // 128 pixels
+		float scope_data[OLED_DISPLAY_WIDTH*2][2]; // 128 pixels
 		char scope_label[11];
 		#endif // OOPSY_TARGET_HAS_OLED
 
@@ -429,13 +433,14 @@ namespace oopsy {
 			mode = 0;
 
 			#ifdef OOPSY_USE_LOGGING
-			hardware.seed.StartLog(true);
-			//daisy::Logger<daisy::LOGGER_INTERNAL>::StartLog(false);
+			daisy::Logger<daisy::LOGGER_INTERNAL>::StartLog(false);
+			// TODO REMOVE THIS HACK WHEN STARTING SERIAL OVER USB DOESN'T FREAK OUT WITH AUDIO CALLBACK
+			daisy::System::Delay(500);
 			#endif
 			
 			#ifdef OOPSY_TARGET_HAS_OLED
-			console_cols = SSD1309_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
-			console_rows = SSD1309_HEIGHT / font.FontHeight; 
+			console_cols = OLED_DISPLAY_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
+			console_rows = OLED_DISPLAY_HEIGHT / font.FontHeight; 
 			console_memory = (char *)calloc(console_cols, console_rows);
 			console_stats = (char *)calloc(console_cols, 1);
 			for (int i=0; i<console_rows; i++) {
@@ -459,7 +464,16 @@ namespace oopsy {
 			midi_data_idx = 0;
 			midi_in_written = 0;//, midi_out_written = 0;
 			midi_in_active = 0, midi_out_active = 0;
-			uart.Init(); 
+			daisy::UartHandler::Config config;
+			config.baudrate      = 31250;
+			config.periph        = daisy::UartHandler::Config::Peripheral::USART_1;
+			config.stopbits      = daisy::UartHandler::Config::StopBits::BITS_1;
+			config.parity        = daisy::UartHandler::Config::Parity::NONE;
+			config.mode          = daisy::UartHandler::Config::Mode::TX_RX;
+			config.wordlength    = daisy::UartHandler::Config::WordLength::BITS_8;
+			config.pin_config.rx = {DSY_GPIOB, 7};
+			config.pin_config.tx = {DSY_GPIOB, 6};
+			uart.Init(config);
 			uart.StartRx();
 			#endif
 
@@ -492,8 +506,8 @@ namespace oopsy {
 					uint32_t size = (OOPSY_MIDI_BUFFER_SIZE + midi_out_writeidx - midi_out_readidx) % OOPSY_MIDI_BUFFER_SIZE;
 					size = ((midi_out_readidx + size) <= OOPSY_MIDI_BUFFER_SIZE) ? size : OOPSY_MIDI_BUFFER_SIZE - midi_out_readidx;
 					//for (uint32_t i=0; i<size; i++) log("midi %d", midi_out_data[midi_out_readidx+i]);
-					int res = uart.PollTx(midi_out_data + midi_out_readidx, size);
-					if (res == 0) {
+					daisy::UartHandler::Result res = uart.PollTx(midi_out_data + midi_out_readidx, size);
+					if (res == daisy::UartHandler::Result::OK) {
 						midi_out_active = 1;
 						midi_out_readidx = (midi_out_readidx + size) % OOPSY_MIDI_BUFFER_SIZE;
 					} else {
@@ -661,8 +675,8 @@ namespace oopsy {
 							#endif // OOPSY_HAS_PARAM_VIEW
 							case MODE_SCOPE: {
 								showstats = 1;
-								uint8_t h = SSD1309_HEIGHT;
-								uint8_t w2 = SSD1309_WIDTH/2, w4 = SSD1309_WIDTH/4;
+								uint8_t h = OLED_DISPLAY_HEIGHT;
+								uint8_t w2 = OLED_DISPLAY_WIDTH/2, w4 = OLED_DISPLAY_WIDTH/4;
 								uint8_t h2 = h/2, h4 = h/4;
 								size_t zoomlevel = scope_samples();
 								hardware.display.Fill(false);
@@ -671,7 +685,7 @@ namespace oopsy {
 								switch (scope_style) {
 								case SCOPESTYLE_OVERLAY: {
 									// stereo overlay:
-									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
 										int j = i*2;
 										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
 										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
@@ -680,7 +694,7 @@ namespace oopsy {
 								case SCOPESTYLE_TOPBOTTOM:
 								{
 									// stereo top-bottom
-									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
 										int j = i*2;
 										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
 										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
@@ -697,7 +711,7 @@ namespace oopsy {
 								} break;
 								default:
 								{
-									for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
 										int j = i*2;
 										hardware.display.DrawPixel(
 											w2 + h2*scope_data[j][0],
@@ -706,7 +720,7 @@ namespace oopsy {
 										);
 									}
 
-									// for (uint_fast8_t i=0; i<SSD1309_WIDTH; i++) {
+									// for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
 									// 	int j = i*2;
 									// 	hardware.display.DrawLine(
 									// 		w2 + h2*scope_data[j][0],
@@ -743,7 +757,7 @@ namespace oopsy {
 									} break;
 									case SCOPEOPTION_ZOOM: {
 										// each pixel is zoom samples; zoom/samplerate seconds
-										float scope_duration = SSD1309_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
+										float scope_duration = OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
 										int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
 										hardware.display.SetCursor(0, h - font.FontHeight);
 										hardware.display.WriteString(scope_label, font, true);
@@ -761,7 +775,7 @@ namespace oopsy {
 							}
 						}
 						if (is_mode_selecting) {
-							hardware.display.DrawRect(0, 0, SSD1309_WIDTH-1, SSD1309_HEIGHT-1, 1);
+							hardware.display.DrawRect(0, 0, OLED_DISPLAY_WIDTH-1, OLED_DISPLAY_HEIGHT-1, 1);
 						} 
 						if (showstats) {
 							int offset = 0;
@@ -771,7 +785,7 @@ namespace oopsy {
 							#endif
 							offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
 							// stats:
-							hardware.display.SetCursor(SSD1309_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
+							hardware.display.SetCursor(OLED_DISPLAY_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 							hardware.display.WriteString(console_stats, font, true);
 						}
 						#endif //OOPSY_TARGET_HAS_OLED
@@ -863,7 +877,7 @@ namespace oopsy {
 					scope_data[scope_step][0] = (max0); 
 					scope_data[scope_step][1] = (max1);
 					scope_step++;
-					if (scope_step >= SSD1309_WIDTH*2) scope_step = 0;
+					if (scope_step >= OLED_DISPLAY_WIDTH*2) scope_step = 0;
 				}
 			}
 			#endif

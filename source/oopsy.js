@@ -246,6 +246,8 @@ function run() {
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 	hardware.defines.OOPSY_BLOCK_RATE = hardware.defines.OOPSY_SAMPLERATE / blocksize
 
+	//hardware.defines.OOPSY_USE_LOGGING = 1
+
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (cpps.length > hardware.max_apps) {
@@ -1351,7 +1353,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 				.map(name=>nodes[name])
 				.filter(node => node.where == "midi_status")
 				.map(node=>node.code)
-				.concat(`if (byte <= 240 || byte == 247) {
+				.concat(`if (byte == 0xFF) { // reset event -> go to bootloader
+					daisy.log("reboot");
+					daisy::System::ResetToBootloader();
+				} 
+				if (byte <= 240 || byte == 247) {
 					daisy.midi.status = byte; 
 					daisy.midi.lastbyte = 255; // means 'no bytes received'
 				}`)
