@@ -435,7 +435,7 @@ namespace oopsy {
 			#ifdef OOPSY_USE_LOGGING
 			daisy::Logger<daisy::LOGGER_INTERNAL>::StartLog(false);
 			// TODO REMOVE THIS HACK WHEN STARTING SERIAL OVER USB DOESN'T FREAK OUT WITH AUDIO CALLBACK
-			daisy::System::Delay(500);
+			daisy::System::Delay(275);
 			#endif
 			
 			#ifdef OOPSY_TARGET_HAS_OLED

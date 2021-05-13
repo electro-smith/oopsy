@@ -246,7 +246,7 @@ function run() {
 	hardware.defines.OOPSY_BLOCK_SIZE = blocksize
 	hardware.defines.OOPSY_BLOCK_RATE = hardware.defines.OOPSY_SAMPLERATE / blocksize
 
-	//hardware.defines.OOPSY_USE_LOGGING = 1
+	hardware.defines.OOPSY_USE_LOGGING = 1
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
