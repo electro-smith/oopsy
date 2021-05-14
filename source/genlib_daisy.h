@@ -607,8 +607,15 @@ namespace oopsy {
 						// Handle encoder increment actions:
 						if (is_mode_selecting) {
 							mode += menu_button_incr;
-							if (mode >= MODE_COUNT) mode = MODE_COUNT-1; //0;
-							if (mode <= 0) mode = 0; //MODE_COUNT-1;	
+							#ifdef OOPSY_TARGET_FIELD
+							// mode menu rotates infinitely
+							if (mode >= MODE_COUNT) mode = 0;
+							if (mode < 0) mode = MODE_COUNT-1;
+							#else
+							// mode menu clamps at either end
+							if (mode >= MODE_COUNT) mode = MODE_COUNT-1; 
+							if (mode < 0) mode = 0;
+							#endif	
 						#ifdef OOPSY_MULTI_APP
 						} else if (mode == MODE_MENU) {
 							#ifdef OOPSY_TARGET_VERSIO
