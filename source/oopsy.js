@@ -886,6 +886,7 @@ function generate_app(app, hardware, target, config) {
 					node.setter = `daisy.midi_message3(${statusbyte}, ${(node.midi_num)%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`; 
 					node.type = "float";
 					node.midi_throttle = true;
+					node.midi_only_when_changed = true;
 					nodes[name] = node
 				} else if (node.midi_type == "press") {
 					app.has_midi_out = true;
@@ -893,6 +894,7 @@ function generate_app(app, hardware, target, config) {
 					node.setter = `daisy.midi_message2(${statusbyte}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`; 
 					node.type = "float";
 					node.midi_throttle = true;
+					node.midi_only_when_changed = true;
 					nodes[name] = node;
 				} else if (node.midi_type == "bend") {
 					app.has_midi_out = true;
@@ -903,6 +905,7 @@ function generate_app(app, hardware, target, config) {
 					node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
 					node.type = "float";
 					node.midi_throttle = true;
+					node.midi_only_when_changed = true;
 					nodes[name] = node;
 				} else if (node.midi_type == "program") {
 					app.has_midi_out = true;
@@ -1315,8 +1318,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			${app.midi_outs
 				.filter(node=>node.midi_throttle)
 				.map(node=>`
-			${node.varname} = ${node.setter_src};
-			${node.setter}`).join("")}
+			${node.midi_only_when_changed ? `if (${node.varname} != (${node.type})${node.setter_src}) {` : `{`}
+				${node.varname} = ${node.setter_src};
+				${node.setter}
+			}`).join("")}
 			${app.midi_noteouts
 				.filter(note=>note.press)
 				.map(note=>`
