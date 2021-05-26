@@ -73,11 +73,11 @@
     "outputs": {
       "cvout1": {
         "where": "main",
-        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, cvout1 * 4095);"
+        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);"
       },
       "cvout2": {
         "where": "main",
-        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, cvout1 * 4095);"
+        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);"
       },
       "gateout1":  {
         "where": "audio",
