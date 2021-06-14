@@ -71,9 +71,17 @@ let has_dfu_util;
 function checkBuildEnvironment() {
 	// check for available build tools:
 	if (os.platform == "win32") {
-		// TODO
-		// assume true for now, until we know how to test for it:
-		has_dfu_util = true;
+		has_dfu_util = false;
+		try {
+			execSync("arm-none-eabi-gcc --version")
+			execSync("dfu-util --version")
+			// assume true for now, until we know how to test for it:
+			has_dfu_util = true;
+		} catch (e) {
+			console.warn(`oopsy can't find the ARM GCC build tools, will not be able to upload binary to the Daisy. Please check https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration) for installation instructions.`)
+			process.exit(-1);
+		}
+		
 	} else {
 		// OSX:
 		let locations = ["/opt/homebrew/bin", "/usr/local/bin"]
@@ -413,9 +421,26 @@ int main(void) {
 			// if successful, try to upload to hardware:
 			if (has_dfu_util && action=="upload") {
 				console.log("oopsy flashing...")
-				if (os.platform() == "win32") {
-					console.log(execSync(`set PATH=%PATH%;${build_tools_path} && make program-dfu`, { cwd: build_path }).toString())
-				}
+				exec(`make program-dfu`, { cwd: build_path }, (err, stdout, stderr)=>{
+					console.log("stdout", stdout)
+					console.log("stderr", stderr)
+					if (err) {
+						if (err.message.includes("No DFU capable USB device available")) {
+							console.log("oopsy daisy not ready on USB")
+							return;
+						} else if (stdout.includes("File downloaded successfully")) {
+							console.log("oopsy flashed")
+						} else {
+							console.log("oopsy dfu error")
+							console.log(err.message);
+							return;
+						}
+					} else if (stderr) {
+						console.log("oopsy dfu error")
+						console.log(stderr);
+						return;
+					}
+				});
 			}
 		} else {
 			exec(`export PATH=$PATH:${build_tools_path} && make clean && make`, { cwd: build_path }, (err, stdout, stderr)=>{

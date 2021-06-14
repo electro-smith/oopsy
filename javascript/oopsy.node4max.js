@@ -5,22 +5,6 @@ const path = require("path"),
 const maxAPI = require("max-api");
 const run = require(path.join(__dirname, "..", "source", "oopsy.js"));
 
-let filter
-if (os.platform() == "win32") {
-	filter = function(str) {
-		maxAPI.outlet(str)
-	}
-} else {
-	filter = function(str) {
-		let match
-		if (match = label.match(/^Building/gm)) {
-			maxAPI.outlet(str)
-		} else {
-			maxAPI.outlet("--" + str)
-		}
-	}
-}
-
 // duplicate stdout here so we can filter it and display more useful things in Max:
 // dup stdout to our handler:
 process.stdout.write = (function() {
