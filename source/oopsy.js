@@ -421,6 +421,7 @@ int main(void) {
 			// if successful, try to upload to hardware:
 			if (has_dfu_util && action=="upload") {
 				console.log("oopsy flashing...")
+				
 				exec(`make program-dfu`, { cwd: build_path }, (err, stdout, stderr)=>{
 					console.log("stdout", stdout)
 					console.log("stderr", stderr)
