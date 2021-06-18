@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 711.0, 368.0, 703.0, 623.0 ],
+		"rect" : [ 205.0, 226.0, 703.0, 623.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -176,7 +176,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 821.0, 139.0, 770.0, 813.0 ],
+						"rect" : [ 443.0, 170.0, 770.0, 813.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -295,8 +295,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 491.0, 116.0, 218.0, 22.0 ],
-									"text" : "param knob4_octave @min -4 @max 6"
+									"patching_rect" : [ 491.0, 116.0, 237.0, 22.0 ],
+									"text" : "param knob4_int_octave @min -4 @max 6"
 								}
 
 							}
@@ -1163,8 +1163,8 @@
 		"parameters" : 		{
 			"obj-11" : [ "live.gain~[1]", "live.gain~", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
-			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
+			"obj-9::obj-33" : [ "live.text[1]", "FILTER", 0 ],
+			"obj-9::obj-34" : [ "live.text[3]", "FILTER", 0 ],
 			"parameterbanks" : 			{
 
 			}

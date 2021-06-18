@@ -1270,7 +1270,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${gen.datas.map(name=>nodes[name])
 			.filter(node => node.wavname)
 			.map(node=>`
-		daisy.sdcard_load_wav("${node.wavname}", gen.${node.cname});`)}
+		daisy.sdcard_load_wav("${node.wavname}", gen.${node.cname});`).join("")}
 	}
 
 	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
