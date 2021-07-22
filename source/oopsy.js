@@ -374,6 +374,148 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	For details of the licensing terms of code exported from gen~ see https://support.cycling74.com/hc/en-us/articles/360050779193-Gen-Code-Export-Licensing-FAQ
 */
 
+
+${hardware.defines.OOPSY_TARGET_SEED ? `
+#include "daisy_seed.h"
+typedef struct {
+	daisy::DaisySeed seed;
+
+	// define any interface helpers (e.g. Button, Knob) here:
+	/*
+		${JSON.stringify(hardware,null,"  ")}
+	*/
+	// Encoder encoder;  
+    // AnalogControl knob1;
+    // AnalogControl knob2;
+    // Switch button1;
+    // Switch button2;
+    // RgbLed led1;
+    // RgbLed led2;
+	${hardware.struct.members.map(m=>m.typename?`
+	${m.typename} ${m.name};`:"").join("")}
+
+	void Init(bool boost = false) {
+		seed.Configure();
+		seed.Init(boost);
+		seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
+		seed.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
+
+		
+
+		// initialize analog inputs
+		${(()=>{
+		let analogs = hardware.struct.members.filter(m=>m.typename=="daisy::AnalogControl");
+		// number of pins used can be fewer than the number of AnalogControl users (e.g. when using a Mux)
+		// let's create a list of pins from the users:
+		let pins = Object.values(analogs.reduce((pins, m)=>{ 
+			pins[m.pin] ? pins[m.pin].users.push(m) : pins[m.pin] = { pin: m.pin, users:[m] }
+			return pins; 
+		}, {}))
+		return `
+		daisy::AdcChannelConfig cfg[${pins.length}];
+		${pins.map((pin,i)=>`
+		cfg[${i}].InitSingle(seed.GetPin(${pin.users[0].pin}));`).join("")}
+		seed.adc.Init(cfg, ${pins.length});
+		double default_slew_seconds = ${0.001 * hardware.defines.OOPSY_BLOCK_SIZE / samplerate};
+		${analogs.map((m,i)=>`
+		${m.name}.Init(seed.adc.GetPtr(${pins.findIndex(pin=>pin.pin==m.pin)}), seed.AudioCallbackRate(), ${m.flip?"true":"false"}, ${m.invert?"true":"false"}, ${m.slew_seconds?m.slew_seconds:"default_slew_seconds"});`).join("")}
+		`;})()}
+
+		// initialize digital inputs:
+		${hardware.struct.members.filter(m=>m.typename!="daisy::AnalogControl").map(m=>m.init?`
+		${m.init}`:"").join("")}
+
+		/*
+		{
+			AdcChannelConfig cfg;
+			cfg.InitSingle(seed.GetPin(21));
+			seed.adc.Init(&cfg, 1);
+			knob1(seed.adc.GetPtr(0), seed.AudioCallbackRate());
+		}
+		{
+			AdcChannelConfig cfg;
+			cfg.InitSingle(seed.GetPin(15));
+			seed.adc.Init(&cfg, 1);
+			knob2(seed.adc.GetPtr(1), seed.AudioCallbackRate());
+		}
+		*/
+		
+		// InitKnobs();
+		// {
+		// 	// Configure the ADC channels using the desired pin
+		// 	AdcChannelConfig knob_init[KNOB_LAST];
+		// 	cfg[0].InitSingle(seed.GetPin(KNOB_1_PIN));
+		// 	cfg[1].InitSingle(seed.GetPin(KNOB_2_PIN));
+		// 	// Initialize with the knob init struct w/ 2 members
+		// 	// Set Oversampling to 32x
+		// 	seed.adc.Init(cfg, KNOB_LAST);
+		// 	// Make an array of pointers to the knobs.
+		// 	knobs[KNOB_1] = &knob1;
+		// 	knobs[KNOB_2] = &knob2;
+		// 	for(int i = 0; i < KNOB_LAST; i++)
+		// 	{
+		// 		knobs[i]->Init(seed.adc.GetPtr(i), seed.AudioCallbackRate());
+		// 	}
+		// }
+		// InitEncoder();
+		// {
+		// 	dsy_gpio_pin a, b, click;
+		// 	a     = seed.GetPin(ENC_A_PIN);
+		// 	b     = seed.GetPin(ENC_B_PIN);
+		// 	click = seed.GetPin(ENC_CLICK_PIN);
+		// 	encoder.Init(a, b, click, seed.AudioCallbackRate());
+		// }
+		// InitLeds();
+		// {
+		// 	// LEDs are just going to be on/off for now.
+		// 	// TODO: Add PWM support
+		// 	dsy_gpio_pin rpin, gpin, bpin;
+		
+		// 	rpin = seed.GetPin(LED_1_R_PIN);
+		// 	gpin = seed.GetPin(LED_1_G_PIN);
+		// 	bpin = seed.GetPin(LED_1_B_PIN);
+		// 	led1.Init(rpin, gpin, bpin, true);
+		
+		// 	rpin = seed.GetPin(LED_2_R_PIN);
+		// 	gpin = seed.GetPin(LED_2_G_PIN);
+		// 	bpin = seed.GetPin(LED_2_B_PIN);
+		// 	led2.Init(rpin, gpin, bpin, true);
+		
+		// 	ClearLeds();
+		// 	UpdateLeds();
+		// }
+		
+	}
+
+	// called at the start of the audio interupt
+	void ProcessAllControls() {
+		// {
+		// 	ProcessAnalogControls();
+		// 	knob1.Process();
+    	// 	knob2.Process();
+		// 	ProcessDigitalControls();
+		// 	encoder.Debounce();
+		// 	button1.Debounce();
+		// 	button2.Debounce();
+		// }
+	}
+
+	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate)
+		seed.SetAudioSampleRate(size);
+		SetHidUpdateRates();
+	}
+
+	void SetAudioBlockSize(size_t size) {
+		seed.SetAudioBlockSize(size);
+		SetHidUpdateRates();
+	}
+
+	void SetHidUpdateRates() {
+
+	}
+} Daisy;
+`:""}
+
 ${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
@@ -392,8 +534,11 @@ oopsy::AppDef appdefs[] = {
 
 int main(void) {
 	oopsy::daisy.hardware.Init(${options.boost|false}); 
+	${hardware.defines.OOPSY_TARGET_SEED ? `
 	oopsy::daisy.hardware.seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
-	oopsy::daisy.hardware.seed.SetAudioBlockSize(OOPSY_BLOCK_SIZE);
+	oopsy::daisy.hardware.seed.SetAudioBlockSize(OOPSY_BLOCK_SIZE);` : `
+	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
+	oopsy::daisy.hardware.SetAudioBlockSize(OOPSY_BLOCK_SIZE);`}
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
 	// insert custom hardware initialization here
 	return oopsy::daisy.run(appdefs, ${apps.length});

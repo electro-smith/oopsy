@@ -5,7 +5,8 @@
 	},
     "inserts": [
 		{ "where": "header", "code": "#include \"daisy_versio.h\"" },
-		{ "where": "header", "code": "typedef daisy::DaisyVersio Daisy;" }
+		{ "where": "header", "code": "typedef daisy::DaisyVersio Daisy;" },
+		{ "where": "post_audio", "code": "hardware.UpdateLeds();" }
 	],
 	"labels": {
 		"params": {

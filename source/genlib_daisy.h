@@ -22,16 +22,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <cstring> // memset
 #include <stdarg.h> // vprintf
 
-#if defined(OOPSY_TARGET_SEED)
-	typedef struct {
-		daisy::DaisySeed seed;
+// #if defined(OOPSY_TARGET_SEED)
+// 	typedef struct {
+// 		daisy::DaisySeed seed;
 
-		void Init() {
-			seed.Configure();
-			seed.Init();
-		}
-	} Daisy;
-#endif
+// 		void Init() {
+// 			seed.Configure();
+// 			seed.Init();
+// 		}
+// 	} Daisy;
+// #endif
 
 #ifdef OOPSY_USE_USB_SERIAL_INPUT
 static char   sumbuff[1024];
@@ -559,278 +559,269 @@ namespace oopsy {
 					hardware.ClearLeds();
 					#endif
 
-					// if (menu_button_held_ms > OOPSY_SUPER_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
-					// 	screensave = 1;
-					// } else if (screensave && (menu_button_incr || menu_button_held)) {
-					// 	screensave = 0;
-					// 	menu_button_incr = 0;
-					// }
-					// // bypass UI and display?
-					// if (!screensave) {
-						if (menu_button_held_ms > OOPSY_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
-							is_mode_selecting = 1;
-						} 
-						#ifdef OOPSY_TARGET_PETAL
-						// has no mode selection
-						is_mode_selecting = 0;
-						#if defined(OOPSY_MULTI_APP)
-						// multi-app is always in menu mode:
-						mode = MODE_MENU;
-						#endif
-						for(int i = 0; i < 8; i++) {
-							float white = (i == app_selecting || menu_button_released);
-							hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
-								(i == app_selected || white) * 1.f,
-								white * 1.f,
-								(i < app_count) * 0.3f + white * 1.f
-							);
-						}
-						#endif //OOPSY_TARGET_PETAL
+					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
+						is_mode_selecting = 1;
+					} 
+					#ifdef OOPSY_TARGET_PETAL
+					// has no mode selection
+					is_mode_selecting = 0;
+					#if defined(OOPSY_MULTI_APP)
+					// multi-app is always in menu mode:
+					mode = MODE_MENU;
+					#endif
+					for(int i = 0; i < 8; i++) {
+						float white = (i == app_selecting || menu_button_released);
+						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
+							(i == app_selected || white) * 1.f,
+							white * 1.f,
+							(i < app_count) * 0.3f + white * 1.f
+						);
+					}
+					#endif //OOPSY_TARGET_PETAL
 
+					#ifdef OOPSY_TARGET_VERSIO
+					// has no mode selection
+					is_mode_selecting = 0;
+					#if defined(OOPSY_MULTI_APP)
+					// multi-app is always in menu mode:
+					mode = MODE_MENU;
+					#endif
+					for(int i = 0; i < 4; i++) {
+						float white = (i == app_selecting || menu_button_released);
+						hardware.SetLed(i, 
+							(i == app_selected || white) * 1.f,
+							white * 1.f,
+							(i < app_count) * 0.3f + white * 1.f
+						);
+					}
+					#endif //OOPSY_TARGET_VERSIO
+
+					// Handle encoder increment actions:
+					if (is_mode_selecting) {
+						mode += menu_button_incr;
+						#ifdef OOPSY_TARGET_FIELD
+						// mode menu rotates infinitely
+						if (mode >= MODE_COUNT) mode = 0;
+						if (mode < 0) mode = MODE_COUNT-1;
+						#else
+						// mode menu clamps at either end
+						if (mode >= MODE_COUNT) mode = MODE_COUNT-1; 
+						if (mode < 0) mode = 0;
+						#endif	
+					#ifdef OOPSY_MULTI_APP
+					} else if (mode == MODE_MENU) {
 						#ifdef OOPSY_TARGET_VERSIO
-						// has no mode selection
-						is_mode_selecting = 0;
-						#if defined(OOPSY_MULTI_APP)
-						// multi-app is always in menu mode:
-						mode = MODE_MENU;
+						app_selecting = menu_button_incr;
+						#else
+						app_selecting += menu_button_incr;
 						#endif
-						for(int i = 0; i < 4; i++) {
-							float white = (i == app_selecting || menu_button_released);
-							hardware.SetLed(i, 
-								(i == app_selected || white) * 1.f,
-								white * 1.f,
-								(i < app_count) * 0.3f + white * 1.f
-							);
+						if (app_selecting >= app_count) app_selecting -= app_count;
+						if (app_selecting < 0) app_selecting += app_count;
+					#endif // OOPSY_MULTI_APP
+					#ifdef OOPSY_TARGET_HAS_OLED
+					} else if (mode == MODE_SCOPE) {
+						switch (scope_option) {
+							case SCOPEOPTION_STYLE: {
+								scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
+							} break;
+							case SCOPEOPTION_SOURCE: {
+								scope_source = (scope_source + menu_button_incr) % (OOPSY_IO_COUNT*2);
+							} break;
+							case SCOPEOPTION_ZOOM: {
+								scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
+							} break;
 						}
-						#endif //OOPSY_TARGET_VERSIO
-
-						// Handle encoder increment actions:
+					#ifdef OOPSY_HAS_PARAM_VIEW
+					} else if (mode == MODE_PARAMS) {
+						if (!param_is_tweaking) {
+							param_selected += menu_button_incr;
+							if (param_selected >= param_count) param_selected = 0;
+							if (param_selected < 0) param_selected = param_count-1;
+						} 
+					#endif //OOPSY_HAS_PARAM_VIEW
+					#endif //OOPSY_TARGET_HAS_OLED
+					}
+				
+					// SHORT PRESS	
+					if (menu_button_released) {
+						menu_button_released = 0;
 						if (is_mode_selecting) {
-							mode += menu_button_incr;
-							#ifdef OOPSY_TARGET_FIELD
-							// mode menu rotates infinitely
-							if (mode >= MODE_COUNT) mode = 0;
-							if (mode < 0) mode = MODE_COUNT-1;
-							#else
-							// mode menu clamps at either end
-							if (mode >= MODE_COUNT) mode = MODE_COUNT-1; 
-							if (mode < 0) mode = 0;
-							#endif	
+							is_mode_selecting = 0;
 						#ifdef OOPSY_MULTI_APP
 						} else if (mode == MODE_MENU) {
-							#ifdef OOPSY_TARGET_VERSIO
-							app_selecting = menu_button_incr;
-							#else
-							app_selecting += menu_button_incr;
-							#endif
-							if (app_selecting >= app_count) app_selecting -= app_count;
-							if (app_selecting < 0) app_selecting += app_count;
-						#endif // OOPSY_MULTI_APP
+							if (app_selected != app_selecting) {
+								app_selected = app_selecting;
+								#ifndef OOPSY_TARGET_HAS_OLED
+								mode = 0;
+								#endif
+								schedule_app_load(app_selected); //appdefs[app_selected].load();
+								//continue;
+							}
+						#endif
 						#ifdef OOPSY_TARGET_HAS_OLED
 						} else if (mode == MODE_SCOPE) {
+							scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
+						#if defined (OOPSY_HAS_PARAM_VIEW) && defined(OOPSY_CAN_PARAM_TWEAK)
+						} else if (mode == MODE_PARAMS) {
+							param_is_tweaking = !param_is_tweaking;
+						#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
+						#endif //OOPSY_TARGET_HAS_OLED
+						}
+					} 
+
+					// OLED DISPLAY:
+					#ifdef OOPSY_TARGET_HAS_OLED
+					int showstats = 0;
+					switch(mode) {
+						#ifdef OOPSY_MULTI_APP
+						case MODE_MENU: {
+							showstats = 1;
+							for (int i=0; i<console_rows; i++) {
+								if (i == app_selecting) {
+									hardware.display.SetCursor(0, font.FontHeight * i);
+									hardware.display.WriteString((char *)">", font, true);
+								}
+								if (i < app_count) {
+									hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
+									hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
+								}
+							}
+						} break;
+						#endif //OOPSY_MULTI_APP
+						#ifdef OOPSY_HAS_PARAM_VIEW
+						case MODE_PARAMS: {
+							char label[console_cols+1];
+							// ensure selected parameter is on-screen:
+							if (param_scroll > param_selected) param_scroll = param_selected;
+							if (param_scroll < (param_selected - console_rows + 1)) param_scroll = (param_selected - console_rows + 1);
+							int idx = param_scroll; // offset this for screen-scroll
+							for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
+								paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
+								hardware.display.SetCursor(0, font.FontHeight * line);
+								hardware.display.WriteString(label, font, (param_selected != idx));	
+							}
+						} break;
+						#endif // OOPSY_HAS_PARAM_VIEW
+						case MODE_SCOPE: {
+							showstats = 1;
+							uint8_t h = OLED_DISPLAY_HEIGHT;
+							uint8_t w2 = OLED_DISPLAY_WIDTH/2, w4 = OLED_DISPLAY_WIDTH/4;
+							uint8_t h2 = h/2, h4 = h/4;
+							size_t zoomlevel = scope_samples();
+							hardware.display.Fill(false);
+
+							// stereo views:
+							switch (scope_style) {
+							case SCOPESTYLE_OVERLAY: {
+								// stereo overlay:
+								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
+								}
+							} break;
+							case SCOPESTYLE_TOPBOTTOM:
+							{
+								// stereo top-bottom
+								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
+									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
+								}
+							} break;
+							case SCOPESTYLE_LEFTRIGHT:
+							{
+								// stereo L/R:
+								for (uint_fast8_t i=0; i<w2; i++) {
+									int j = i*4;
+									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
+									hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
+								}
+							} break;
+							default:
+							{
+								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+									int j = i*2;
+									hardware.display.DrawPixel(
+										w2 + h2*scope_data[j][0],
+										h2 + h2*scope_data[j][1],
+										1
+									);
+								}
+
+								// for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+								// 	int j = i*2;
+								// 	hardware.display.DrawLine(
+								// 		w2 + h2*scope_data[j][0],
+								// 		h2 + h2*scope_data[j][1],
+								// 		w2 + h2*scope_data[j+1][0],
+								// 		h2 + h2*scope_data[j+1][1],
+								// 		1
+								// 	);
+								// }
+							} break;
+							} // switch
+
+							// labelling:
 							switch (scope_option) {
-								case SCOPEOPTION_STYLE: {
-									scope_style = (scope_style + menu_button_incr) % SCOPESTYLE_COUNT;
-								} break;
 								case SCOPEOPTION_SOURCE: {
-									scope_source = (scope_source + menu_button_incr) % (OOPSY_IO_COUNT*2);
+									hardware.display.SetCursor(0, h - font.FontHeight);
+									switch(scope_source) {
+									#if (OOPSY_IO_COUNT == 4)
+										case 0: hardware.display.WriteString("in1  in2", font, true); break;
+										case 1: hardware.display.WriteString("in3  in4", font, true); break;
+										case 2: hardware.display.WriteString("out1 out2", font, true); break;
+										case 3: hardware.display.WriteString("out3 out4", font, true); break;
+										case 4: hardware.display.WriteString("in1  out1", font, true); break;
+										case 5: hardware.display.WriteString("in2  out2", font, true); break;
+										case 6: hardware.display.WriteString("in3  out3", font, true); break;
+										case 7: hardware.display.WriteString("in4  out4", font, true); break;
+									#else
+										case 0: hardware.display.WriteString("in1  in2", font, true); break;
+										case 1: hardware.display.WriteString("out1 out2", font, true); break;
+										case 2: hardware.display.WriteString("in1  out1", font, true); break;
+										case 3: hardware.display.WriteString("in2  out2", font, true); break;
+									#endif
+									}
 								} break;
 								case SCOPEOPTION_ZOOM: {
-									scope_zoom = (scope_zoom + menu_button_incr) % OOPSY_SCOPE_MAX_ZOOM;
+									// each pixel is zoom samples; zoom/samplerate seconds
+									float scope_duration = OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
+									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
+									hardware.display.SetCursor(0, h - font.FontHeight);
+									hardware.display.WriteString(scope_label, font, true);
 								} break;
+								// for view style, just leave it blank :-)
 							}
-						#ifdef OOPSY_HAS_PARAM_VIEW
-						} else if (mode == MODE_PARAMS) {
-							if (!param_is_tweaking) {
-								param_selected += menu_button_incr;
-								if (param_selected >= param_count) param_selected = 0;
-								if (param_selected < 0) param_selected = param_count-1;
-							} 
-						#endif //OOPSY_HAS_PARAM_VIEW
-						#endif //OOPSY_TARGET_HAS_OLED
+						} break;
+						case MODE_CONSOLE: 
+						{
+							showstats = 1;
+							console_display(); 
+							break;
 						}
+						default: {
+						}
+					}
+					if (is_mode_selecting) {
+						hardware.display.DrawRect(0, 0, OLED_DISPLAY_WIDTH-1, OLED_DISPLAY_HEIGHT-1, 1);
+					} 
+					if (showstats) {
+						int offset = 0;
+						#ifdef OOPSY_TARGET_USES_MIDI_UART
+						offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
+						midi_in_active = midi_out_active = 0;
+						#endif
+						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
+						// stats:
+						hardware.display.SetCursor(OLED_DISPLAY_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
+						hardware.display.WriteString(console_stats, font, true);
+					}
+					#endif //OOPSY_TARGET_HAS_OLED
+					menu_button_incr = 0;
 					
-						// SHORT PRESS	
-						if (menu_button_released) {
-							menu_button_released = 0;
-							if (is_mode_selecting) {
-								is_mode_selecting = 0;
-							#ifdef OOPSY_MULTI_APP
-							} else if (mode == MODE_MENU) {
-								if (app_selected != app_selecting) {
-									app_selected = app_selecting;
-									#ifndef OOPSY_TARGET_HAS_OLED
-									mode = 0;
-									#endif
-									schedule_app_load(app_selected); //appdefs[app_selected].load();
-									//continue;
-								}
-							#endif
-							#ifdef OOPSY_TARGET_HAS_OLED
-							} else if (mode == MODE_SCOPE) {
-								scope_option = (scope_option + 1) % SCOPEOPTION_COUNT;
-							#if defined (OOPSY_HAS_PARAM_VIEW) && defined(OOPSY_CAN_PARAM_TWEAK)
-							} else if (mode == MODE_PARAMS) {
-								param_is_tweaking = !param_is_tweaking;
-							#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
-							#endif //OOPSY_TARGET_HAS_OLED
-							}
-						} 
-
-						// OLED DISPLAY:
-						#ifdef OOPSY_TARGET_HAS_OLED
-						int showstats = 0;
-						switch(mode) {
-							#ifdef OOPSY_MULTI_APP
-							case MODE_MENU: {
-								showstats = 1;
-								for (int i=0; i<console_rows; i++) {
-									if (i == app_selecting) {
-										hardware.display.SetCursor(0, font.FontHeight * i);
-										hardware.display.WriteString((char *)">", font, true);
-									}
-									if (i < app_count) {
-										hardware.display.SetCursor(font.FontWidth, font.FontHeight * i);
-										hardware.display.WriteString((char *)appdefs[i].name, font, i != app_selected);
-									}
-								}
-							} break;
-							#endif //OOPSY_MULTI_APP
-							#ifdef OOPSY_HAS_PARAM_VIEW
-							case MODE_PARAMS: {
-								char label[console_cols+1];
-								// ensure selected parameter is on-screen:
-								if (param_scroll > param_selected) param_scroll = param_selected;
-								if (param_scroll < (param_selected - console_rows + 1)) param_scroll = (param_selected - console_rows + 1);
-								int idx = param_scroll; // offset this for screen-scroll
-								for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
-									paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
-									hardware.display.SetCursor(0, font.FontHeight * line);
-									hardware.display.WriteString(label, font, (param_selected != idx));	
-								}
-							} break;
-							#endif // OOPSY_HAS_PARAM_VIEW
-							case MODE_SCOPE: {
-								showstats = 1;
-								uint8_t h = OLED_DISPLAY_HEIGHT;
-								uint8_t w2 = OLED_DISPLAY_WIDTH/2, w4 = OLED_DISPLAY_WIDTH/4;
-								uint8_t h2 = h/2, h4 = h/4;
-								size_t zoomlevel = scope_samples();
-								hardware.display.Fill(false);
-
-								// stereo views:
-								switch (scope_style) {
-								case SCOPESTYLE_OVERLAY: {
-									// stereo overlay:
-									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
-										int j = i*2;
-										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
-										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
-									}
-								} break;
-								case SCOPESTYLE_TOPBOTTOM:
-								{
-									// stereo top-bottom
-									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
-										int j = i*2;
-										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
-										hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
-									}
-								} break;
-								case SCOPESTYLE_LEFTRIGHT:
-								{
-									// stereo L/R:
-									for (uint_fast8_t i=0; i<w2; i++) {
-										int j = i*4;
-										hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
-										hardware.display.DrawLine(i + w2, (1.f-scope_data[j][1])*h2, i + w2, (1.f-scope_data[j+1][1])*h2, 1);
-									}
-								} break;
-								default:
-								{
-									for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
-										int j = i*2;
-										hardware.display.DrawPixel(
-											w2 + h2*scope_data[j][0],
-											h2 + h2*scope_data[j][1],
-											1
-										);
-									}
-
-									// for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
-									// 	int j = i*2;
-									// 	hardware.display.DrawLine(
-									// 		w2 + h2*scope_data[j][0],
-									// 		h2 + h2*scope_data[j][1],
-									// 		w2 + h2*scope_data[j+1][0],
-									// 		h2 + h2*scope_data[j+1][1],
-									// 		1
-									// 	);
-									// }
-								} break;
-								} // switch
-
-								// labelling:
-								switch (scope_option) {
-									case SCOPEOPTION_SOURCE: {
-										hardware.display.SetCursor(0, h - font.FontHeight);
-										switch(scope_source) {
-										#if (OOPSY_IO_COUNT == 4)
-											case 0: hardware.display.WriteString("in1  in2", font, true); break;
-											case 1: hardware.display.WriteString("in3  in4", font, true); break;
-											case 2: hardware.display.WriteString("out1 out2", font, true); break;
-											case 3: hardware.display.WriteString("out3 out4", font, true); break;
-											case 4: hardware.display.WriteString("in1  out1", font, true); break;
-											case 5: hardware.display.WriteString("in2  out2", font, true); break;
-											case 6: hardware.display.WriteString("in3  out3", font, true); break;
-											case 7: hardware.display.WriteString("in4  out4", font, true); break;
-										#else
-											case 0: hardware.display.WriteString("in1  in2", font, true); break;
-											case 1: hardware.display.WriteString("out1 out2", font, true); break;
-											case 2: hardware.display.WriteString("in1  out1", font, true); break;
-											case 3: hardware.display.WriteString("in2  out2", font, true); break;
-										#endif
-										}
-									} break;
-									case SCOPEOPTION_ZOOM: {
-										// each pixel is zoom samples; zoom/samplerate seconds
-										float scope_duration = OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
-										int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
-										hardware.display.SetCursor(0, h - font.FontHeight);
-										hardware.display.WriteString(scope_label, font, true);
-									} break;
-									// for view style, just leave it blank :-)
-								}
-							} break;
-							case MODE_CONSOLE: 
-							{
-								showstats = 1;
-								console_display(); 
-								break;
-							}
-							default: {
-							}
-						}
-						if (is_mode_selecting) {
-							hardware.display.DrawRect(0, 0, OLED_DISPLAY_WIDTH-1, OLED_DISPLAY_HEIGHT-1, 1);
-						} 
-						if (showstats) {
-							int offset = 0;
-							#ifdef OOPSY_TARGET_USES_MIDI_UART
-							offset += snprintf(console_stats+offset, console_cols-offset, "%c%c", midi_in_active ? '<' : ' ', midi_out_active ? '>' : ' ');
-							midi_in_active = midi_out_active = 0;
-							#endif
-							offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
-							// stats:
-							hardware.display.SetCursor(OLED_DISPLAY_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
-							hardware.display.WriteString(console_stats, font, true);
-						}
-						#endif //OOPSY_TARGET_HAS_OLED
-						menu_button_incr = 0;
-						
-						// handle app-level code (e.g. for LED etc.)
-						displayCallback(t, dt);
-					//} // if(!screensave)
+					// handle app-level code (e.g. for LED etc.)
+					displayCallback(t, dt);
 
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Update();
@@ -859,22 +850,20 @@ namespace oopsy {
 			midi_in_written = 0;
 			#endif
 
+			hardware.ProcessAllControls();
 
 			#if defined(OOPSY_TARGET_FIELD)
-            hardware.ProcessAllControls();
 			menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
 			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_VERSIO)
-            hardware.ProcessAllControls();
-			// menu_button_held = hardware.tap.Pressed();
+            // menu_button_held = hardware.tap.Pressed();
 			// menu_button_incr += hardware.GetKnobValue(6) * app_count;
 			// menu_button_held_ms = hardware.tap.TimeHeldMs();
 			// if (hardware.tap_.FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_POD) || defined(OOPSY_TARGET_PETAL) || defined(OOPSY_TARGET_PATCH)
-            hardware.ProcessAllControls();
-			menu_button_held = hardware.encoder.Pressed();
+            menu_button_held = hardware.encoder.Pressed();
 			menu_button_incr += hardware.encoder.Increment();
 			menu_button_held_ms = hardware.encoder.TimeHeldMs();
 			if (hardware.encoder.FallingEdge()) menu_button_released = 1;
@@ -918,10 +907,6 @@ namespace oopsy {
 				}
 			}
 			#endif
-			#if (OOPSY_TARGET_POD || OOPSY_TARGET_VERSIO)
-				hardware.UpdateLeds();
-			#endif
-			
 			blockcount++;
 		}
 
