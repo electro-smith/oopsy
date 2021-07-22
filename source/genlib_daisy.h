@@ -1031,16 +1031,16 @@ namespace oopsy {
 		};
 		#endif
 
-		static void nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size);
+		static void nullAudioCallback(daisy::AudioHandle::InputBuffer ins, daisy::AudioHandle::OutputBuffer outs, size_t size);
 		
 		static void nullMainloopCallback(uint32_t t, uint32_t dt) {}
 	} daisy;
 
-	void GenDaisy::nullAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
+	void GenDaisy::nullAudioCallback(daisy::AudioHandle::InputBuffer ins, daisy::AudioHandle::OutputBuffer outs, size_t size) {
 		daisy.nullAudioCallbackRunning = true;
 		// zero audio outs:
 		for (int i=0; i<OOPSY_IO_COUNT; i++) {
-			memset(hardware_outs[i], 0, sizeof(float)*size);
+			memset(outs[i], 0, sizeof(float)*size);
 		}
 	}
 
@@ -1059,14 +1059,16 @@ namespace oopsy {
 			self.displayCallback(daisy, t, dt);
 		}
 
-		static void staticAudioCallback(float **hardware_ins, float **hardware_outs, size_t size) {
+		static void staticAudioCallback(daisy::AudioHandle::InputBuffer hardware_ins, daisy::AudioHandle::OutputBuffer hardware_outs, size_t size) {
 			uint32_t start = daisy::System::GetUs(); 
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
 			#if (OOPSY_IO_COUNT == 4)
-			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_ins[2], hardware_ins[3], hardware_outs[0], hardware_outs[1], hardware_outs[2], hardware_outs[3]};
+			float * buffers[] = {
+				(float *)hardware_ins[0], (float *)hardware_ins[1], (float *)hardware_ins[2], (float *)hardware_ins[3], 
+				hardware_outs[0], hardware_outs[1], hardware_outs[2], hardware_outs[3]};
 			#else
-			float * buffers[] = {hardware_ins[0], hardware_ins[1], hardware_outs[0], hardware_outs[1]};
+			float * buffers[] = {(float *)hardware_ins[0], (float *)hardware_ins[1], hardware_outs[0], hardware_outs[1]};
 			#endif
 			daisy.audio_postperform(buffers, size);
 			// convert elapsed time (us) to CPU percentage (0-100) of available processing time

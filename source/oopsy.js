@@ -1418,7 +1418,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		daisy.sdcard_load_wav("${node.wavname}", gen.${node.cname});`).join("")}
 	}
 
-	void audioCallback(oopsy::GenDaisy& daisy, float **hardware_ins, float **hardware_outs, size_t size) {
+	void audioCallback(oopsy::GenDaisy& daisy, daisy::AudioHandle::InputBuffer hardware_ins, daisy::AudioHandle::OutputBuffer hardware_outs, size_t size) {
 		Daisy& hardware = daisy.hardware;
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		${app.inserts.concat(hardware.inserts).filter(o => o.where == "audio").map(o => o.code).join("\n\t")}
@@ -1442,7 +1442,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(node=>`
 		gen.set_${node.name}(${node.varname});`).join("")}
 		${daisy.audio_ins.map((name, i)=>`
-		float * ${name} = hardware_ins[${i}];`).join("")}
+		float * ${name} = (float *)hardware_ins[${i}];`).join("")}
 		${daisy.audio_outs.map((name, i)=>`
 		float * ${name} = hardware_outs[${i}];`).join("")}
 		${app.has_midi_in ? daisy.midi_ins.map(name=>`
