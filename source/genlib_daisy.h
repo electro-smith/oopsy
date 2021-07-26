@@ -830,7 +830,6 @@ namespace oopsy {
 					#if (OOPSY_TARGET_PETAL)
 					hardware.UpdateLeds();
 					#endif //(OOPSY_TARGET_PETAL)
-
 				} // uitimer.ready
 				
 			}

@@ -49,6 +49,20 @@ function interpolate(str, data) {
 	return str.replace(/\$<([^>]+)>/gm, (s, key) => data[key])
 }
 
+const template = (template, vars = {}) => {
+	const handler = new Function(
+	  "vars",
+	  [
+		"const f = (" + Object.keys(vars).join(", ") + ")=>",
+		"`" + template + "`",
+		"return f(...Object.values(vars))"
+	  ].join("\n")
+	);
+	// console.log(Object.keys(vars));
+	// console.log(handler);
+	return handler(vars);
+};
+
 // prints a number as a C-style float:
 function asCppNumber(n, type="float") {
 	let s = (+n).toString();
@@ -130,6 +144,263 @@ cpps: 	paths to the gen~ exported cpp files
 watch:	script will not terminate
 		actions will be re-run each time any of the cpp files are modified
 `
+
+const component_defs = {
+	Switch: {
+		typename: "daisy::Switch",
+		pin: "a",
+		type: "daisy::Switch::TYPE_MOMENTARY",
+		polarity: "daisy::Switch::POLARITY_INVERTED",
+		pull: "daisy::Switch::PULL_UP",
+		process: "${name}.Debounce();",
+		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		mapping: [
+			{ name: "${name}", get: "(hardware.${name}.Pressed()?1.f:0.f)", range: [0, 1] },
+			{
+				name: "${name}_rise",
+				get: "(hardware.${name}.RisingEdge()?1.f:0.f)",
+				range: [0, 1]
+			},
+			{
+				name: "${name}_fall",
+				get: "(hardware.${name}.FallingEdge()?1.f:0.f)",
+				range: [0, 1]
+			},
+			{
+				name: "${name}_seconds",
+				get: "(hardware.${name}.TimeHeldMs()*0.001f)",
+				range: null
+			}
+	  	]
+	},
+	Switch3: {
+		typename: "daisy::Switch3",
+		pin: "a,b",
+		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		mapping: [
+			{ name: "${name}", get: "(hardware.${name}.Read()*0.5f+0.5f)", range: [0, 2] }
+		]
+	},
+	Encoder: {
+		typename: "daisy::Encoder",
+		pin: "a,b,click",
+		process: "${name}.Debounce();",
+		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		mapping: [
+			{
+				name: "${name}",
+				get: "(hardware.${name}.Increment()*0.5f+0.5f)",
+				range: [-1, 1]
+			},
+			{
+				name: "${name}_press",
+				get: "(hardware.${name}.Pressed()?1.f:0.f)",
+				range: [0, 1]
+			},
+			{
+				name: "${name}_rise",
+				get: "(hardware.${name}.RisingEdge()?1.f:0.f)",
+				range: [0, 1]
+			},
+			{
+				name: "${name}_fall",
+				get: "(hardware.${name}.FallingEdge()?1.f:0.f)",
+				range: [0, 1]
+			},
+			{
+				name: "${name}_seconds",
+				get: "(hardware.${name}.TimeHeldMs()*0.001f)",
+				range: null
+			}
+		]
+	},
+	GateIn: {
+		typename: "daisy::GateIn",
+		pin: "a",
+		mapping: [
+			{ name: "${name}", get: "(hardware.${name}.State()?1.f:0.f)", range: [0, 1] },
+			{ name: "${name}_trig", get: "(hardware.${name}.Trig()?1.f:0.f)", range: [0, 1] }
+		]
+	},
+	AnalogControl: {
+		typename: "daisy::AnalogControl",
+		pin: "a",
+		flip: false,
+		invert: false,
+		slew: "1.0/seed.AudioCallbackRate()",
+		process: "${name}.Process();",
+		updaterate: "${name}.SetSampleRate(seed.AudioCallbackRate());",
+		mapping: [{ name: "${name}", get: "(hardware.${name}.Value())", range: [0, 1] }]
+	},
+	Led: {
+		typename: "daisy::Led",
+		pin: "a",
+		invert: true,
+		postprocess: "${name}.Update();",
+		mapping: [{ name: "${name}", set: "hardware.${name}.Set($<name>);" }]
+	},
+	RgbLed: {
+		typename: "daisy::RgbLed",
+		pin: "r,g,b",
+		invert: true,
+		postprocess: "${name}.Update();",
+		mapping: [
+			{ name: "${name}_red", set: "hardware.${name}.SetRed($<name>);" },
+			{ name: "${name}_green", set: "hardware.${name}.SetGreen($<name>);" },
+			{ name: "${name}_blue", set: "hardware.${name}.SetBlue($<name>);" },
+			{ name: "${name}", set: "hardware.${name}.Set(clamp(-$<name>, 0.f, 1.f), 0.f, clamp($<name>, 0.f, 1.f));" },
+			{ name: "${name}_white", set: "hardware.${name}.Set($<name>,$<name>,$<name>);" }
+		]
+	},
+	GateOut: {
+		typename: "daisy::dsy_gpio",
+		pin: "a",
+		mode: "DSY_GPIO_MODE_OUTPUT_PP",
+		pull: "DSY_GPIO_NOPULL",
+		mapping: [
+			{ name: "${name}", set: "dsy_gpio_write(&hardware.${name}, $<name> } 0.f);" }
+		]
+	},
+	CVOuts: {
+		typename: "daisy::DacHandle::Config",
+		pin: "",
+		bitdepth: "daisy::DacHandle::BitDepth::BITS_12",
+		buff_state: "daisy::DacHandle::BufferState::ENABLED",
+		mode: "daisy::DacHandle::Mode::POLLING",
+		channel: "daisy::DacHandle::Channel::BOTH",
+		mapping: [
+			{
+				name: "${name}1",
+				set: "hardware.${name}.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095)",
+				where: "main"
+			},
+			{
+				name: "${name}2",
+				set: "hardware.${name}.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095)",
+				where: "main"
+			}
+		]
+	}
+};
+
+// generate the struct
+function generate_target_struct(target) {
+
+	// flesh out target components:
+	let components = Object.entries(target.components)
+	  .sort((a, b) =>
+		a[1].component < b[1].component
+		  ? -1
+		  : a[1].component > b[1].component
+		  ? 1
+		  : 0
+	  )
+	  .map((pair) => {
+		let [name, def] = pair;
+		def.name = name;
+		let component = component_defs[def.component];
+		if (component) {
+		  // copy component defaults into the def
+		  // TODO this should be recursive for object structures...
+		  for (let k of Object.keys(component)) {
+			if (def[k] == undefined) def[k] = component[k];
+		  }
+		} else {
+		  throw new Error("undefined component kind: " + def.component);
+		}
+		return def;
+	});
+	target.components = components;
+	target.name = target.name || "custom"
+  
+	return `
+#include "daisy_seed.h"
+// name: ${target.name}
+struct Daisy {
+  
+	void Init(bool boost = false) {
+		seed.Configure();
+		seed.Init(boost);
+		${components.filter((e) => e.init)
+		.map((e) => `
+		${template(e.init, e)}`
+		).join("")}
+		${components.filter((e) => e.typename == "daisy::Switch")
+		.map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin}), seed.AudioCallbackRate(), ${e.type}, ${e.polarity}, ${e.pull});`
+		).join("")}
+		${components.filter((e) => e.typename == "daisy::Switch3").map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}));`
+		).join("")}
+		${components.filter((e) => e.typename == "daisy::GateIn").map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin}));`
+		).join("")}
+		${components.filter((e) => e.typename == "daisy::Encoder").map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}), seed.GetPin(${e.pin.click}), seed.AudioCallbackRate());`
+		).join("")}
+		static const int ANALOG_COUNT = ${
+		components.filter((e) => e.typename == "daisy::AnalogControl").length};
+		daisy::AdcChannelConfig cfg[ANALOG_COUNT];
+		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
+		cfg[${i}].InitSingle(seed.GetPin(${e.pin}));`).join("")}
+		seed.adc.Init(cfg, ANALOG_COUNT);
+		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
+		${e.name}.Init(seed.adc.GetPtr(${i}), seed.AudioCallbackRate());`).join("")}
+		${components.filter((e) => e.typename == "daisy::Led").map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin}), ${e.invert});
+		${e.name}.Set(0.0f);`).join("")}	
+	  	${components.filter((e) => e.typename == "daisy::RgbLed").map((e, i) => `
+		${e.name}.Init(seed.GetPin(${e.pin.r}), seed.GetPin(${e.pin.g}), seed.GetPin(${e.pin.b}), ${e.invert});
+		${e.name}.Set(0.0f, 0.0f, 0.0f);`).join("")}
+		${components.filter((e) => e.typename == "daisy::dsy_gpio").map((e, i) => `
+		${e.name}.pin  = seed.GetPin(${e.pin});
+		${e.name}.mode = ${e.mode};
+		${e.name}.pull = ${e.pull};
+		dsy_gpio_init(&${e.name});`).join("")}
+		${components.filter((e) => e.typename == "daisy::DacHandle::Config").map((e, i) => `
+		${e.name}.bitdepth   = ${e.bitdepth};
+		${e.name}.buff_state = ${e.buff_state};
+		${e.name}.mode       = ${e.mode};
+		${e.name}.chn        = ${e.channel};
+		seed.dac.Init(${e.name});
+		seed.dac.WriteValue(${e.channel}, 0);`).join("")}
+	}
+  
+	void ProcessAllControls() {
+		${components.filter((e) => e.process).map((e) => `
+		${template(e.process, e)}`).join("")}
+	}
+	
+	void PostProcess() {
+		${components.filter((e) => e.postprocess).map((e) => `
+		${template(e.postprocess, e)}`).join("")}
+	}
+	
+	void Display() {
+		${components.filter((e) => e.display).map((e) => `
+		${template(e.display, e)}`).join("")}
+	}
+  
+	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate) {
+		seed.SetAudioSampleRate(samplerate);
+		SetHidUpdateRates();
+	}
+
+	void SetAudioBlockSize(size_t size) {
+		seed.SetAudioBlockSize(size);
+		SetHidUpdateRates();
+	}
+
+	void SetHidUpdateRates() {
+		${components.filter((e) => e.updaterate).map((e) => `
+		${template(e.updaterate, e)}`).join("")}
+	}
+  
+	daisy::DaisySeed seed;
+	${components.map((e) => `
+	${e.typename} ${e.name};`).join("")}
+};`;
+}
 
 let watchers = []
 
@@ -235,16 +506,75 @@ function run() {
 		return path.basename(a) < path.basename(b) ? -1 : 0;
 	})
 
+	let OOPSY_TARGET_SEED = 0
+
 	// configure target:
 	if (!target && !target_path) target = "patch";
 	if (!target_path) {
 		target_path = path.join(__dirname, `daisy.${target}.json`);
 	} else {
-		target = path.parse(target_path).name;
+		OOPSY_TARGET_SEED = 1
+		target = path.parse(target_path).name.replace(".", "_")
 	}
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
+
+	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
+	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
+	// this script should be revised to eliminate the old workflow
+	{
+		hardware.inputs = hardware.inputs || {}
+		hardware.outputs = hardware.outputs || {}
+		hardware.datahandlers = hardware.datahandlers || {}
+		hardware.labels = hardware.labels || {
+			"params": {},
+			"outs": {},
+			"datas": {}
+		}
+		hardware.inserts = hardware.inserts || []
+		hardware.defines = hardware.defines || {}
+		hardware.struct = "";
+
+		if (hardware.components) {
+			hardware.struct = generate_target_struct(hardware);
+			// generate IO
+			for (let component of hardware.components) {
+				for (let mapping of component.mapping) {
+					let name = template(mapping.name, component);
+					if (mapping.get) {
+						// an input
+						hardware.inputs[name] = {
+							code: template(mapping.get, component),
+							automap: component.automap && name == component.name,
+							range: mapping.range,
+							where: mapping.where
+						}
+						hardware.labels.params[name] = name
+					}
+					if (mapping.set) {
+						// an output
+						hardware.outputs[name] = {
+							code: template(mapping.set, component),
+							automap: component.automap && name == component.name,
+							range: mapping.range,
+							where: mapping.where || "audio"
+						}
+						hardware.labels.outs[name] = name
+					}
+				}
+			}
+		}
+		for (let alias in hardware.aliases) {
+			let map = hardware.aliases[alias]
+			if (hardware.labels.params[map]) hardware.labels.params[alias] = map
+			if (hardware.labels.outs[map]) hardware.labels.outs[alias] = map
+			if (hardware.labels.datas[map]) hardware.labels.datas[alias] = map
+		}
+		
+		if (OOPSY_TARGET_SEED) hardware.defines.OOPSY_TARGET_SEED = OOPSY_TARGET_SEED
+	}
+
 	// consolidate hardware definition:
 	hardware.samplerate = samplerate
 	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
@@ -256,6 +586,8 @@ function run() {
 
 	//hardware.defines.OOPSY_USE_LOGGING = 1
 	//hardware.defines.OOPSY_USE_USB_SERIAL_INPUT = 1
+
+	//console.log(hardware)
 
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
@@ -329,8 +661,6 @@ SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
 # Include the gen_dsp files
 CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}"
-${Object.keys(hardware.defines).map(k=>`
-CFLAGS+=-D${k}=${hardware.defines[k]}`).join("")}
 # Silence irritating warnings:
 CFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
 CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
@@ -373,148 +703,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 /*
 	For details of the licensing terms of code exported from gen~ see https://support.cycling74.com/hc/en-us/articles/360050779193-Gen-Code-Export-Licensing-FAQ
 */
-
-
-${hardware.defines.OOPSY_TARGET_SEED ? `
-#include "daisy_seed.h"
-typedef struct {
-	daisy::DaisySeed seed;
-
-	// define any interface helpers (e.g. Button, Knob) here:
-	/*
-		${JSON.stringify(hardware,null,"  ")}
-	*/
-	// Encoder encoder;  
-    // AnalogControl knob1;
-    // AnalogControl knob2;
-    // Switch button1;
-    // Switch button2;
-    // RgbLed led1;
-    // RgbLed led2;
-	${hardware.struct.members.map(m=>m.typename?`
-	${m.typename} ${m.name};`:"").join("")}
-
-	void Init(bool boost = false) {
-		seed.Configure();
-		seed.Init(boost);
-		seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
-		seed.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
-
-		
-
-		// initialize analog inputs
-		${(()=>{
-		let analogs = hardware.struct.members.filter(m=>m.typename=="daisy::AnalogControl");
-		// number of pins used can be fewer than the number of AnalogControl users (e.g. when using a Mux)
-		// let's create a list of pins from the users:
-		let pins = Object.values(analogs.reduce((pins, m)=>{ 
-			pins[m.pin] ? pins[m.pin].users.push(m) : pins[m.pin] = { pin: m.pin, users:[m] }
-			return pins; 
-		}, {}))
-		return `
-		daisy::AdcChannelConfig cfg[${pins.length}];
-		${pins.map((pin,i)=>`
-		cfg[${i}].InitSingle(seed.GetPin(${pin.users[0].pin}));`).join("")}
-		seed.adc.Init(cfg, ${pins.length});
-		double default_slew_seconds = ${0.001 * hardware.defines.OOPSY_BLOCK_SIZE / samplerate};
-		${analogs.map((m,i)=>`
-		${m.name}.Init(seed.adc.GetPtr(${pins.findIndex(pin=>pin.pin==m.pin)}), seed.AudioCallbackRate(), ${m.flip?"true":"false"}, ${m.invert?"true":"false"}, ${m.slew_seconds?m.slew_seconds:"default_slew_seconds"});`).join("")}
-		`;})()}
-
-		// initialize digital inputs:
-		${hardware.struct.members.filter(m=>m.typename!="daisy::AnalogControl").map(m=>m.init?`
-		${m.init}`:"").join("")}
-
-		/*
-		{
-			AdcChannelConfig cfg;
-			cfg.InitSingle(seed.GetPin(21));
-			seed.adc.Init(&cfg, 1);
-			knob1(seed.adc.GetPtr(0), seed.AudioCallbackRate());
-		}
-		{
-			AdcChannelConfig cfg;
-			cfg.InitSingle(seed.GetPin(15));
-			seed.adc.Init(&cfg, 1);
-			knob2(seed.adc.GetPtr(1), seed.AudioCallbackRate());
-		}
-		*/
-		
-		// InitKnobs();
-		// {
-		// 	// Configure the ADC channels using the desired pin
-		// 	AdcChannelConfig knob_init[KNOB_LAST];
-		// 	cfg[0].InitSingle(seed.GetPin(KNOB_1_PIN));
-		// 	cfg[1].InitSingle(seed.GetPin(KNOB_2_PIN));
-		// 	// Initialize with the knob init struct w/ 2 members
-		// 	// Set Oversampling to 32x
-		// 	seed.adc.Init(cfg, KNOB_LAST);
-		// 	// Make an array of pointers to the knobs.
-		// 	knobs[KNOB_1] = &knob1;
-		// 	knobs[KNOB_2] = &knob2;
-		// 	for(int i = 0; i < KNOB_LAST; i++)
-		// 	{
-		// 		knobs[i]->Init(seed.adc.GetPtr(i), seed.AudioCallbackRate());
-		// 	}
-		// }
-		// InitEncoder();
-		// {
-		// 	dsy_gpio_pin a, b, click;
-		// 	a     = seed.GetPin(ENC_A_PIN);
-		// 	b     = seed.GetPin(ENC_B_PIN);
-		// 	click = seed.GetPin(ENC_CLICK_PIN);
-		// 	encoder.Init(a, b, click, seed.AudioCallbackRate());
-		// }
-		// InitLeds();
-		// {
-		// 	// LEDs are just going to be on/off for now.
-		// 	// TODO: Add PWM support
-		// 	dsy_gpio_pin rpin, gpin, bpin;
-		
-		// 	rpin = seed.GetPin(LED_1_R_PIN);
-		// 	gpin = seed.GetPin(LED_1_G_PIN);
-		// 	bpin = seed.GetPin(LED_1_B_PIN);
-		// 	led1.Init(rpin, gpin, bpin, true);
-		
-		// 	rpin = seed.GetPin(LED_2_R_PIN);
-		// 	gpin = seed.GetPin(LED_2_G_PIN);
-		// 	bpin = seed.GetPin(LED_2_B_PIN);
-		// 	led2.Init(rpin, gpin, bpin, true);
-		
-		// 	ClearLeds();
-		// 	UpdateLeds();
-		// }
-		
-	}
-
-	// called at the start of the audio interupt
-	void ProcessAllControls() {
-		// {
-		// 	ProcessAnalogControls();
-		// 	knob1.Process();
-    	// 	knob2.Process();
-		// 	ProcessDigitalControls();
-		// 	encoder.Debounce();
-		// 	button1.Debounce();
-		// 	button2.Debounce();
-		// }
-	}
-
-	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate)
-		seed.SetAudioSampleRate(size);
-		SetHidUpdateRates();
-	}
-
-	void SetAudioBlockSize(size_t size) {
-		seed.SetAudioBlockSize(size);
-		SetHidUpdateRates();
-	}
-
-	void SetHidUpdateRates() {
-
-	}
-} Daisy;
-`:""}
+${Object.keys(hardware.defines).map(k=>`
+#define ${k} (${hardware.defines[k]})`).join("")}
+${hardware.struct}
 
 ${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
 #include "../genlib_daisy.h"
@@ -534,11 +725,8 @@ oopsy::AppDef appdefs[] = {
 
 int main(void) {
 	oopsy::daisy.hardware.Init(${options.boost|false}); 
-	${hardware.defines.OOPSY_TARGET_SEED ? `
-	oopsy::daisy.hardware.seed.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
-	oopsy::daisy.hardware.seed.SetAudioBlockSize(OOPSY_BLOCK_SIZE);` : `
-	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${samplerate}KHZ);
-	oopsy::daisy.hardware.SetAudioBlockSize(OOPSY_BLOCK_SIZE);`}
+	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
+	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
 	// insert custom hardware initialization here
 	return oopsy::daisy.run(appdefs, ${apps.length});
@@ -708,7 +896,7 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 			param.default = +new RegExp(`\\s${param.cname}\\s+=[^\\d\\.-]*([\\d\\.-]+)`, "gm").exec(cpp)[1]
 			gen.params.push(param)
 			// enable display of params:
-			hardware.defines.OOPSY_HAS_PARAM_VIEW = 1;
+			if (hardware.defines.OOPSY_TARGET_HAS_OLED) hardware.defines.OOPSY_HAS_PARAM_VIEW = 1;
 		} else if (type == "GENLIB_PARAMTYPE_SYM") {
 			/*
 				General form:
@@ -939,72 +1127,6 @@ function generate_app(app, hardware, target, config) {
 			}
 		})
 
-		// // check for dedicated midi patterns:
-		// let match
-		// // e.g.
-		// // [out 5 midi_cc100_ch1] // input is 0..1 for cc value
-		// // [out 6 midi_cc74]	  // default channel 1
-		// if (match = (/^midi_cc(\d+)(_(ch)?(\d+))?/g).exec(label)) {
-		// 	app.has_midi_out = true;
-		// 	let statusbyte = 176+(((+match[4])||1)-1)%16;
-		// 	node.midi_type = "cc";
-		// 	node.varname = `${node.midi_type}_${name}`
-		// 	node.type = "float";
-		// 	node.setter_src = `${node.src}[size-1]`
-		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-		// 	node.midi_throttle = true;
-		// 	app.midi_outs.push(node)
-		// }
-
-		// // e.g.
-		// // [out 5 midi_bend_ch1] // input is -1..1 for full bend range
-		// // [out 6 midi_bend]	 // default channel 1
-		// else if (match = (/^midi_bend(_(ch)?(\d+))?/g).exec(label)) {
-		// 	app.has_midi_out = true;
-		// 	let statusbyte = 224+(((+match[4])||1)-1)%16;
-		// 	node.midi_type = "bend";
-		// 	node.varname = `${node.midi_type}_${name}`
-		// 	node.type = "float";
-		// 	node.setter_src = `${node.src}[size-1]`
-		// 	let float = `((${node.varname}+1.f)*64.f)`;
-		// 	let lsb = `((uint8_t)(${float}*128.f)) & 0x7F`;
-		// 	let msb = `((uint8_t)${float}) & 0x7F`;
-		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${lsb}, ${msb});`; 
-		// 	node.midi_throttle = true;
-		// 	app.midi_outs.push(node)
-		// }
-
-		// // e.g.
-		// // [out 5 midi_drum36]
-		// else if (match = (/^midi_drum(\d+)?/g).exec(label)) {
-		// 	app.has_midi_out = true;
-		// 	node.midi_type = "drum";
-		// 	node.varname = `${node.midi_type}_${name}`
-		// 	node.type = "float";
-		// 	node.setter_src = `${node.src}[size-1]`
-		// 	node.setter = `daisy.midi_message3(153, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-		// 	app.midi_outs.push(node)
-		// }
-
-		// // e.g.
-		// // [out 5 midi_note36_ch10] // input is 0..1 for note velocity
-		// // [out 6 midi_note60]		// default channel 1
-		// else if (match = (/^midi_vel(\d+)(_(ch)?(\d+))?/g).exec(label)) {
-		// 	app.has_midi_out = true;
-		// 	node.midi_type = "vel";
-		// 	node.varname = `${node.midi_type}_${name}`
-		// 	node.type = "float";
-		// 	node.setter_src = `${node.src}[size-1]`
-		// 	let statusbyte = 144+(((+match[4])||1)-1)%16;
-		// 	node.setter = `daisy.midi_message3(${statusbyte}, ${(+match[1])%128}, ((uint8_t)(${node.varname}*127.f)) & 0x7F);`;
-		// 	app.midi_outs.push(node)
-		// }
-		// else if (label == "midi") {
-		// 	map = daisy.midi_outs[0]
-		// 	app.has_midi_out = true;
-		// 	app.midi_out_count++;
-		// } 
-		// else 
 		if (map) {
 			label = maplabel
 		} else {
@@ -1361,20 +1483,6 @@ function generate_app(app, hardware, target, config) {
 			}
 		});
 	}
-	// normal cv outs etc. in the same way
-	{
-		let available = []
-		let i=0
-		daisy.device_outs.forEach(name => {
-			const node = nodes[name];
-			// does this output have an cv source?
-			if (node.from.length) {
-				available.push(name);
-			} else if (available.length) {
-				node.src = available[i++ % available.length];
-			}
-		})
-	}
 
 	const struct = `
 
@@ -1388,9 +1496,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	${node.type} ${node.varname};`).join("")}
 	${gen.audio_outs.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 	${node.type} ${node.varname};`).join("")}
-	${daisy.device_outs
-		.map(name=>`
-	float ${name};`).join("")}
+	${daisy.device_outs.map(name => nodes[name])
+		.filter(node => node.src || node.from.length)
+		.map(node=>`
+	float ${node.name};`).join("")}
 	${app.audio_outs.map(name=>`
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
@@ -1403,8 +1512,10 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		${gen.params.map(name=>nodes[name])
 			.map(node=>`
 		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
-		${daisy.device_outs.map(name=>`
-		${name} = 0.f;`).join("")}
+		${daisy.device_outs.map(name => nodes[name])
+			.filter(node => node.src || node.from.length)
+			.map(node=>`
+		${node.name} = 0.f;`).join("")}
 		${gen.histories.map(name=>nodes[name]).filter(node => node && node.midi_type).map(node=>`
 		${node.varname} = ${asCppNumber(node.default, node.type)};`).join("")}
 		${daisy.datahandlers.map(name => nodes[name])
@@ -1426,11 +1537,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.to.length)
 			.filter(node => node.update && node.update.where == "audio")
 			.map(node=>`
-		${interpolate(node.update.code, node)}`).join("")}
+		${interpolate(node.update.code, node)};`).join("")}
 		${daisy.device_inputs.map(name => nodes[name])
 			.filter(node => node.to.length)
 			.map(node=>`
-		float ${node.name} = ${node.code}`).join("")}
+		float ${node.name} = ${node.code};`).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.filter(node => node.src)
@@ -1456,17 +1567,17 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.src || node.from.length)
 			.map(node => node.src ? `
 		${node.name} = ${node.src};` : `
-		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")};`).join("")}
+		${node.name} = ${node.from.map(name=>name+"[ size-1]").join(" + ")}; // device out`).join("")}
 		${daisy.device_outs.map(name => nodes[name])
 			.filter(node => node.src || node.from.length)
 			.filter(node => node.config.where == "audio")
 			.map(node=>`
-		${interpolate(node.config.code, node)}`).join("")}
+		${interpolate(node.config.code, node)} // set out`).join("")}
 		${daisy.datahandlers.map(name => nodes[name])
 			.filter(node => node.where == "audio")
 			.filter(node => node.data)
 			.map(node =>`
-		${interpolate(node.code, node)}`).join("")}
+		${interpolate(node.code, node)} // data out`).join("")}
 		${app.midi_outs
 			.filter(node=>!node.midi_throttle)
 			.map(node=>`
@@ -1506,6 +1617,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
+		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.PostProcess();" : ""}
 	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -1577,6 +1689,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.config.where == "display")
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
+		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.Display();" : ""}
 	}
 
 	${defines.OOPSY_HAS_PARAM_VIEW ? `
