@@ -1,8 +1,13 @@
 {
     "max_apps":8,
 	"defines": {
-		"OOPSY_TARGET_PETAL": 1
+		"OOPSY_TARGET_PETAL": 1,
+		"OOPSY_HAS_ENCODER": 1
 	},
+    "inserts": [
+		{ "where": "header", "code": "#include \"daisy_petal.h\"" },
+		{ "where": "header", "code": "typedef daisy::DaisyPetal Daisy;" }
+	],
 	"labels": {
 		"params": {
 			"knob1": "kn1",
@@ -50,81 +55,71 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_1)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_2)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn3": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_3)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn4": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_4)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn5": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_5)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn6": {
 			"automap": true,
-        	"getter": "hardware.GetKnobValue(hardware.KNOB_6)"
+        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"sw1": {
-			"getter": "(hardware.switches[0].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[0].Pressed()?1.f:0.f);"
 		},
 		"sw2": {
-			"getter": "(hardware.switches[1].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[1].Pressed()?1.f:0.f);"
 		},
 		"sw3": {
-			"getter": "(hardware.switches[2].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[2].Pressed()?1.f:0.f);"
 		},
 		"sw4": {
-			"getter": "(hardware.switches[3].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[3].Pressed()?1.f:0.f);"
 		},
 		"sw5": {
-			"getter": "(hardware.switches[4].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[4].Pressed()?1.f:0.f);"
 		},
 		"sw6": {
-			"getter": "(hardware.switches[5].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[5].Pressed()?1.f:0.f);"
 		},
 		"sw7": {
-			"getter": "(hardware.switches[6].Pressed()?1.f:0.f)"
+			"code": "(hardware.switches[6].Pressed()?1.f:0.f);"
 		},
 		"exp": {
-			"getter": "(hardware.GetExpression())"
+			"code": "(hardware.GetExpression());"
 		}
 	},
 	"outputs": {
 		"led1": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_1, $<name>);"
 		},
 		"led2": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_2, $<name>);"
 		},
 		"led3": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_3, $<name>);"
 		},
 		"led4": {
 			"where": "display",
-			"setter": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>)"
+			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>);"
 		}
 	},
     "datahandlers": {
-	},
-	"audio_ins": [
-      "dsy_in1",
-      "dsy_in2"
-    ],
-    "audio_outs": [
-      "dsy_out1",
-      "dsy_out2"
-    ],
-    "midi_ins": [],
-    "midi_outs": []
+	}
 }

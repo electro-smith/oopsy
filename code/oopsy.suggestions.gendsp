@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "dsp.gen",
-		"rect" : [ 84.0, 103.0, 640.0, 480.0 ],
+		"rect" : [ 84.0, 103.0, 716.0, 697.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,13 +40,37 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-5",
+					"linecount" : 7,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 50.0, 350.0, 404.0, 100.0 ],
+					"presentation_linecount" : 7,
+					"text" : "Since input gates are sampled at block rate, they will actually produce a step function. If you need a single-sample edge you can feed it through [change], which will give a 1 on a rising step or a -1 on a falling step. \n\nSometimes you only want triggers on transitions to non-zero values, e.g. converting a gate onset to a trig, or feeding an encoder into an [accum] for an endless rotary. This abstraction will achieve this:"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-4",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 50.0, 452.0, 86.0, 22.0 ],
+					"text" : "oopsy.gate.trig"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-3",
 					"linecount" : 4,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 50.0, 235.0, 404.0, 60.0 ],
-					"presentation_linecount" : 4,
 					"text" : "Similarly, output gates that are shorter than 1ms may be missed, because of control-rate sampling. This subpatcher ensures even a single-sample click will be extended to the minimum gate duration for the hardware (1ms by default):"
 				}
 

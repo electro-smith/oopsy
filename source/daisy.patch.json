@@ -1,8 +1,17 @@
 {
     "max_apps":8,
 	  "defines": {
-      "OOPSY_TARGET_PATCH": 1
+      "OOPSY_TARGET_PATCH": 1,
+      "OOPSY_TARGET_HAS_OLED": 1,
+      "OOPSY_IO_COUNT": 4,
+      "OOPSY_TARGET_HAS_MIDI_INPUT": 1,
+      "OOPSY_TARGET_HAS_MIDI_OUTPUT": 1,
+      "OOPSY_HAS_ENCODER": 1
     },
+    "inserts": [
+      { "where": "header", "code": "#include \"daisy_patch.h\"" },
+      { "where": "header", "code": "typedef daisy::DaisyPatch Daisy;" }
+    ],
     "labels": {
       "params": {
         "knob1": "kn1",
@@ -40,65 +49,46 @@
     "inputs": {
       "kn1": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_1)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_1);"
       },
       "kn2": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_2)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_2);"
       },
       "kn3": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_3)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_3);"
       },
       "kn4": {
         "automap": true,
-        "getter": "hardware.GetKnobValue(hardware.CTRL_4)"
+        "code": "hardware.GetKnobValue(hardware.CTRL_4);"
       },
       "gt1": {
-        "getter": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f)"
+        "code": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f);"
       },
       "gt2": {
-        "getter": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f)"
+        "code": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f);"
       }
     },
     "outputs": {
       "cvout1": {
         "where": "main",
-        "setter": "dsy_dac_write(DSY_DAC_CHN1, $<name> * 4095)"
+        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);"
       },
       "cvout2": {
         "where": "main",
-        "setter": "dsy_dac_write(DSY_DAC_CHN2, $<name> * 4095)"
+        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);"
       },
       "gateout1":  {
         "where": "audio",
-        "setter": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f)"
+        "code": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f);"
       }
     },   
     "datahandlers": {
       "dsy_midi_out": {
         "where":"main",
         "init": "daisy.midi_nullData($<data>)",
-        "setter": "daisy.midi_fromData($<data>)"
+        "code": "daisy.midi_fromData($<data>);"
       }
-    },
-    "audio_ins": [
-      "dsy_in1",
-      "dsy_in2",
-      "dsy_in3",
-      "dsy_in4"
-    ],
-    "audio_outs": [
-      "dsy_out1",
-      "dsy_out2",
-      "dsy_out3",
-      "dsy_out4"
-    ],
-    "midi_ins": [
-      "dsy_midi_in1"
-    ],
-    "midi_outs": [
-      "dsy_midi_out1"
-    ],
-    "oled": true
+    }
 }

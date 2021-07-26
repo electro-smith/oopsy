@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 5,
+			"revision" : 8,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 78.0, 586.0, 640.0 ],
+		"rect" : [ 927.0, 579.0, 618.0, 437.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -66,7 +66,7 @@
 					"numoutlets" : 5,
 					"outlettype" : [ "signal", "signal", "", "float", "list" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 24.0, 377.0, 48.0, 136.0 ],
+					"patching_rect" : [ 62.0, 225.0, 48.0, 136.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_longname" : "live.gain~",
@@ -95,13 +95,13 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 5,
+							"revision" : 8,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 761.0, 119.0, 634.0, 454.0 ],
+						"rect" : [ 977.0, 78.0, 634.0, 454.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -377,7 +377,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 24.0, 272.0, 50.5, 22.0 ],
+					"patching_rect" : [ 62.0, 120.0, 50.5, 22.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/examples/",
 						"exportname" : "midside"
@@ -408,7 +408,7 @@
 					"maxclass" : "ezdac~",
 					"numinlets" : 2,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 523.0, 45.0, 45.0 ]
+					"patching_rect" : [ 62.0, 371.0, 45.0, 45.0 ]
 				}
 
 			}
@@ -439,6 +439,7 @@
 			"obj-4" : [ "live.gain~", "live.gain~", 0 ],
 			"obj-9::obj-32" : [ "live.text[4]", "FILTER", 0 ],
 			"obj-9::obj-36" : [ "live.menu[1]", "live.menu", 0 ],
+			"obj-9::obj-4" : [ "live.menu[2]", "live.menu", 0 ],
 			"parameterbanks" : 			{
 
 			}
