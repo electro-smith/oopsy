@@ -1,0 +1,98 @@
+{
+	"name":"versio",
+	"defines": {},
+	"components": {
+		"knob1": {
+			"component": "AnalogControl",
+			"pin": 21
+		},
+		"knob2": {
+			"component": "AnalogControl",
+			"pin": 22
+		},
+		"knob3": {
+			"component": "AnalogControl",
+			"pin": 28
+		},
+		"knob4": {
+			"component": "AnalogControl",
+			"pin": 23
+		},
+		"knob5": {
+			"component": "AnalogControl",
+			"pin": 16
+		},
+		"knob6": {
+			"component": "AnalogControl",
+			"pin": 17
+		},
+		"knob7": {
+			"component": "AnalogControl",
+			"pin": 19
+		},
+
+		"button1": {
+			"component": "Switch",
+			"pin": 30
+		},
+		"gate1": {
+			"component": "GateIn",
+			"pin": 24
+		},
+		"sw1": {
+			"component": "Switch3",
+			"pin": {"a":6, "b":5 }
+		},
+		"sw2": {
+			"component": "Switch3",
+			"pin": {"a":1, "b":0 }
+		},
+		"led1": {
+			"component": "RgbLed",
+			"pin": {"r":10, "g":3, "b":4 }
+		},
+		"led2": {
+			"component": "RgbLed",
+			"pin": {"r":12, "g":13, "b":11 }
+		},
+		"led3": {
+			"component": "RgbLed",
+			"pin": {"r":25, "g":26, "b":14 }
+		},
+		"led4": {
+			"component": "RgbLed",
+			"pin": {"r":29, "g":27, "b":15 }
+		}
+	},
+	"aliases": {
+		"switch1": "sw1",
+		"switch2": "sw2",
+
+		"ctrl1": "knob1",
+		"ctrl2": "knob2",
+		"ctrl3": "knob3",
+		"ctrl4": "knob4",
+		"ctrl5": "knob5",
+		"ctrl6": "knob6",
+		"ctrl7": "knob7",
+		"cv1": "knob1",
+		"cv2": "knob2",
+		"cv3": "knob3",
+		"cv4": "knob4",
+		"cv5": "knob5",
+		"cv6": "knob6",
+		"cv7": "knob7",
+
+		"ctrl": "knob1",
+		"cv": "knob1",
+		"led": "led1",
+		"gate": "gate1",
+		"switch": "sw1",
+		"knob": "knob1",
+		"button": "button1",
+		"tap": "button1",
+		"fsu": "button1",
+		"abc": "sw1",
+		"xyz": "sw2"
+	}
+}

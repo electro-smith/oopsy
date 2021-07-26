@@ -176,7 +176,6 @@ const component_defs = {
 	Switch3: {
 		typename: "daisy::Switch3",
 		pin: "a,b",
-		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
 		mapping: [
 			{ name: "${name}", get: "(hardware.${name}.Read()*0.5f+0.5f)", range: [0, 2] }
 		]
@@ -333,7 +332,8 @@ struct Daisy {
 		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}));`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::GateIn").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin}));`
+		dsy_gpio_pin ${e.name}_pin = seed.GetPin(${e.pin});
+		${e.name}.Init(&${e.name}_pin);`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::Encoder").map((e, i) => `
 		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}), seed.GetPin(${e.pin.click}), seed.AudioCallbackRate());`
