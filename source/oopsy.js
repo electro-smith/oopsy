@@ -665,7 +665,7 @@ function run() {
 	if (options.nooled && defines.OOPSY_TARGET_HAS_OLED) {
 		delete defines.OOPSY_TARGET_HAS_OLED;
 	}
-	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
+	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW) {
 		defines.OOPSY_CAN_PARAM_TWEAK = 1
 	}
 	if (defines.OOPSY_TARGET_HAS_OLED) {
@@ -1736,23 +1736,21 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		return 0.f;	
 	}
 
-	#if defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW) 
+	${defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW ? `
 	void paramCallback(oopsy::GenDaisy& daisy, int idx, char * label, int len, bool tweak) {
 		switch(idx) { ${gen.params.map(name=>nodes[name]).map((node, i)=>`
-		case ${i}:
-		#ifdef OOPSY_CAN_PARAM_TWEAK
-		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr ${node.type == "float" ? '* ' + asCppNumber(node.stepsize, node.type) : ""});
-		#endif //OOPSY_CAN_PARAM_TWEAK
-		snprintf(label, len, "${node.src ? 
+		case ${i}: ${defines.OOPSY_CAN_PARAM_TWEAK ? `
+		if (tweak) setparam(${i}, ${node.varname} + daisy.menu_button_incr ${node.type == "float" ? '* ' + asCppNumber(node.stepsize, node.type) : ""});` : ""}
+		${defines.OOPSY_OLED_DISPLAY_WIDTH < 128 ? `snprintf(label, len, "${node.label.substring(0,5).padEnd(5," ")}" FLT_FMT3 "", FLT_VAR3(${node.varname}) );` : `snprintf(label, len, "${node.src ? 
 			`${node.src.substring(0,3).padEnd(3," ")} ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 ""` 
 			: 
 			`%s ${node.label.substring(0,11).padEnd(11," ")}" FLT_FMT3 "", (daisy.param_is_tweaking && ${i} == daisy.param_selected) ? "enc" : "   "`
-			}, FLT_VAR3(${node.varname}) ); 
+			}, FLT_VAR3(${node.varname}) );`}
 		break;`).join("")}
 		}	
 	}
-	#endif //defined(OOPSY_TARGET_HAS_OLED) && defined(OOPSY_HAS_PARAM_VIEW)
-	` : ``}
+	` : ""}
+	` : ""}
 };`
 	app.cpp = {
 		union: `App_${name} app_${name};`,
