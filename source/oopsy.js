@@ -284,7 +284,7 @@ const component_defs = {
 
 // generate the struct
 function generate_target_struct(target) {
-
+	
 	// flesh out target components:
 	let components = Object.entries(target.components)
 	  .sort((a, b) =>
@@ -311,9 +311,22 @@ function generate_target_struct(target) {
 	});
 	target.components = components;
 	target.name = target.name || "custom"
+
+	if (target.display) {
+		// apply defaults:
+		target.display = Object.assign({
+			driver: "daisy::SSD130x4WireSpi128x64Driver",
+			config: [],
+			dim: [128, 64]
+		}, target.display)
+
+		target.defines.OOPSY_OLED_DISPLAY_WIDTH = target.display.dim[0]
+		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
+	}
   
 	return `
 #include "daisy_seed.h"
+${target.display ? `#include "dev/oled_ssd130x.h"` : ""}
 // name: ${target.name}
 struct Daisy {
   
@@ -345,7 +358,7 @@ struct Daisy {
 		cfg[${i}].InitSingle(seed.GetPin(${e.pin}));`).join("")}
 		seed.adc.Init(cfg, ANALOG_COUNT);
 		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-		${e.name}.Init(seed.adc.GetPtr(${i}), seed.AudioCallbackRate());`).join("")}
+		${e.name}.Init(seed.adc.GetPtr(${i}), seed.AudioCallbackRate(), ${e.flip}, ${e.invert});`).join("")}
 		${components.filter((e) => e.typename == "daisy::Led").map((e, i) => `
 		${e.name}.Init(seed.GetPin(${e.pin}), ${e.invert});
 		${e.name}.Set(0.0f);`).join("")}	
@@ -364,11 +377,18 @@ struct Daisy {
 		${e.name}.chn        = ${e.channel};
 		seed.dac.Init(${e.name});
 		seed.dac.WriteValue(${e.channel}, 0);`).join("")}
+		${target.display ? `
+		daisy::OledDisplay<${target.display.driver}>::Config display_config;
+		display_config.driver_config.transport_config.Defaults(); ${(target.display.config || []).map(e=>`
+		${e}`).join("")}
+		display.Init(display_config);`:`// no display`}
 	}
   
 	void ProcessAllControls() {
 		${components.filter((e) => e.process).map((e) => `
 		${template(e.process, e)}`).join("")}
+		${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`
+		${template(m, e)}`).join("")).join("")}
 	}
 	
 	void PostProcess() {
@@ -399,6 +419,9 @@ struct Daisy {
 	daisy::DaisySeed seed;
 	${components.map((e) => `
 	${e.typename} ${e.name};`).join("")}
+	${target.display ? `daisy::OledDisplay<${target.display.driver}> display;`:`// no display`}
+	int menu_click = 0, menu_hold = 0, menu_rotate = 0;
+
 };`;
 }
 
@@ -541,27 +564,35 @@ function run() {
 			hardware.struct = generate_target_struct(hardware);
 			// generate IO
 			for (let component of hardware.components) {
-				for (let mapping of component.mapping) {
-					let name = template(mapping.name, component);
-					if (mapping.get) {
-						// an input
-						hardware.inputs[name] = {
-							code: template(mapping.get, component),
-							automap: component.automap && name == component.name,
-							range: mapping.range,
-							where: mapping.where
+
+				// meta-elements are handled separately
+				if (component.meta) {
+					
+				} else {
+					// else it is available for gen mapping:
+
+					for (let mapping of component.mapping) {
+						let name = template(mapping.name, component);
+						if (mapping.get) {
+							// an input
+							hardware.inputs[name] = {
+								code: template(mapping.get, component),
+								automap: component.automap && name == component.name,
+								range: mapping.range,
+								where: mapping.where
+							}
+							hardware.labels.params[name] = name
 						}
-						hardware.labels.params[name] = name
-					}
-					if (mapping.set) {
-						// an output
-						hardware.outputs[name] = {
-							code: template(mapping.set, component),
-							automap: component.automap && name == component.name,
-							range: mapping.range,
-							where: mapping.where || "audio"
+						if (mapping.set) {
+							// an output
+							hardware.outputs[name] = {
+								code: template(mapping.set, component),
+								automap: component.automap && name == component.name,
+								range: mapping.range,
+								where: mapping.where || "audio"
+							}
+							hardware.labels.outs[name] = name
 						}
-						hardware.labels.outs[name] = name
 					}
 				}
 			}
@@ -572,7 +603,7 @@ function run() {
 			if (hardware.labels.outs[map]) hardware.labels.outs[alias] = map
 			if (hardware.labels.datas[map]) hardware.labels.datas[alias] = map
 		}
-		
+
 		if (OOPSY_TARGET_SEED) hardware.defines.OOPSY_TARGET_SEED = OOPSY_TARGET_SEED
 	}
 
@@ -588,8 +619,6 @@ function run() {
 	//hardware.defines.OOPSY_USE_LOGGING = 1
 	//hardware.defines.OOPSY_USE_USB_SERIAL_INPUT = 1
 
-	//console.log(hardware)
-
 	// verify and analyze cpps:
 	assert(cpps.length > 0, "an argument specifying the path to at least one gen~ exported cpp file is required");
 	if (hardware.max_apps && cpps.length > hardware.max_apps) {
@@ -604,7 +633,6 @@ function run() {
 		}
 	})
 	let build_name = apps.map(v=>v.patch.name).join("_")
-
 
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
@@ -639,6 +667,10 @@ function run() {
 	}
 	if (defines.OOPSY_TARGET_HAS_OLED && defines.OOPSY_HAS_PARAM_VIEW && defines.OOPSY_HAS_ENCODER) {
 		defines.OOPSY_CAN_PARAM_TWEAK = 1
+	}
+	if (defines.OOPSY_TARGET_HAS_OLED) {
+		if (!defines.OOPSY_OLED_DISPLAY_WIDTH) defines.OOPSY_OLED_DISPLAY_WIDTH = 128
+		if (!defines.OOPSY_OLED_DISPLAY_HEIGHT) defines.OOPSY_OLED_DISPLAY_HEIGHT = 64
 	}
 	if (options.fastmath) {
 		hardware.defines.GENLIB_USE_FASTMATH = 1;
