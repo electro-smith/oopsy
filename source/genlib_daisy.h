@@ -129,17 +129,19 @@ namespace oopsy {
 	};
 	typedef enum {
 		#ifdef OOPSY_TARGET_HAS_OLED
-		MODE_SCOPE,
-		#ifdef OOPSY_HAS_PARAM_VIEW
-		MODE_PARAMS,
-		#endif
-		MODE_CONSOLE,
+			MODE_SCOPE,
+			#ifdef OOPSY_HAS_PARAM_VIEW
+				MODE_PARAMS,
+			#endif
+			MODE_CONSOLE,
 		#endif
 		#ifdef OOPSY_MULTI_APP
-		MODE_MENU,
+			MODE_MENU,
 		#endif
 		MODE_COUNT
 	} Mode;
+
+	
 
 	struct GenDaisy {
 
@@ -148,7 +150,7 @@ namespace oopsy {
 
 		int mode, screensave=0;
 		int app_count = 1, app_selected = 0, app_selecting = 0, app_load_scheduled = 0;
-		int menu_button_held = 0, menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
+		int /*menu_button_held = 0, */menu_button_released = 0, menu_button_held_ms = 0, menu_button_incr = 0;
 		int is_mode_selecting = 0;
 		int param_count = 0;
 		#ifdef OOPSY_HAS_PARAM_VIEW
@@ -171,10 +173,6 @@ namespace oopsy {
 		bool nullAudioCallbackRunning = false;
 		
 		#ifdef OOPSY_TARGET_HAS_OLED
-		
-		// TODO: fix this once width & height can be derived as static constexpr from the display class:
-		#define OLED_DISPLAY_WIDTH (128)
-		#define OLED_DISPLAY_HEIGHT (64) 
 
 		enum {
 			SCOPESTYLE_OVERLAY = 0,
@@ -199,7 +197,7 @@ namespace oopsy {
 		char * console_stats;
 		char * console_memory;
 		char ** console_lines;
-		float scope_data[OLED_DISPLAY_WIDTH*2][2]; // 128 pixels
+		float scope_data[OOPSY_OLED_DISPLAY_WIDTH*2][2]; // 128 pixels
 		char scope_label[11];
 		#endif // OOPSY_TARGET_HAS_OLED
 
@@ -420,6 +418,9 @@ namespace oopsy {
 
 			// reset some state:
 			menu_button_incr = 0;
+			#if defined(OOPSY_TARGET_SEED)
+			hardware.menu_rotate = 0;
+			#endif
 			#ifdef OOPSY_TARGET_USES_MIDI_UART
 			midi_out_writeidx = 0;
 			midi_out_readidx = 0;
@@ -462,8 +463,8 @@ namespace oopsy {
 			#endif
 			
 			#ifdef OOPSY_TARGET_HAS_OLED
-			console_cols = OLED_DISPLAY_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
-			console_rows = OLED_DISPLAY_HEIGHT / font.FontHeight; 
+			console_cols = OOPSY_OLED_DISPLAY_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
+			console_rows = OOPSY_OLED_DISPLAY_HEIGHT / font.FontHeight; 
 			console_memory = (char *)calloc(console_cols, console_rows);
 			console_stats = (char *)calloc(console_cols, 1);
 			for (int i=0; i<console_rows; i++) {
@@ -559,7 +560,7 @@ namespace oopsy {
 					hardware.ClearLeds();
 					#endif
 
-					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS * 48/OOPSY_BLOCK_SIZE) {
+					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
 						is_mode_selecting = 1;
 					} 
 					#ifdef OOPSY_TARGET_PETAL
@@ -704,8 +705,8 @@ namespace oopsy {
 						#endif // OOPSY_HAS_PARAM_VIEW
 						case MODE_SCOPE: {
 							showstats = 1;
-							uint8_t h = OLED_DISPLAY_HEIGHT;
-							uint8_t w2 = OLED_DISPLAY_WIDTH/2, w4 = OLED_DISPLAY_WIDTH/4;
+							uint8_t h = OOPSY_OLED_DISPLAY_HEIGHT;
+							uint8_t w2 = OOPSY_OLED_DISPLAY_WIDTH/2, w4 = OOPSY_OLED_DISPLAY_WIDTH/4;
 							uint8_t h2 = h/2, h4 = h/4;
 							size_t zoomlevel = scope_samples();
 							hardware.display.Fill(false);
@@ -714,7 +715,7 @@ namespace oopsy {
 							switch (scope_style) {
 							case SCOPESTYLE_OVERLAY: {
 								// stereo overlay:
-								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+								for (uint_fast8_t i=0; i<OOPSY_OLED_DISPLAY_WIDTH; i++) {
 									int j = i*2;
 									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h2, i, (1.f-scope_data[j+1][0])*h2, 1);
 									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h2, i, (1.f-scope_data[j+1][1])*h2, 1);
@@ -723,7 +724,7 @@ namespace oopsy {
 							case SCOPESTYLE_TOPBOTTOM:
 							{
 								// stereo top-bottom
-								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+								for (uint_fast8_t i=0; i<OOPSY_OLED_DISPLAY_WIDTH; i++) {
 									int j = i*2;
 									hardware.display.DrawLine(i, (1.f-scope_data[j][0])*h4, i, (1.f-scope_data[j+1][0])*h4, 1);
 									hardware.display.DrawLine(i, (1.f-scope_data[j][1])*h4+h2, i, (1.f-scope_data[j+1][1])*h4+h2, 1);
@@ -740,7 +741,7 @@ namespace oopsy {
 							} break;
 							default:
 							{
-								for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+								for (uint_fast8_t i=0; i<OOPSY_OLED_DISPLAY_WIDTH; i++) {
 									int j = i*2;
 									hardware.display.DrawPixel(
 										w2 + h2*scope_data[j][0],
@@ -749,7 +750,7 @@ namespace oopsy {
 									);
 								}
 
-								// for (uint_fast8_t i=0; i<OLED_DISPLAY_WIDTH; i++) {
+								// for (uint_fast8_t i=0; i<OOPSY_OLED_DISPLAY_WIDTH; i++) {
 								// 	int j = i*2;
 								// 	hardware.display.DrawLine(
 								// 		w2 + h2*scope_data[j][0],
@@ -786,7 +787,7 @@ namespace oopsy {
 								} break;
 								case SCOPEOPTION_ZOOM: {
 									// each pixel is zoom samples; zoom/samplerate seconds
-									float scope_duration = OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
+									float scope_duration = OOPSY_OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/hardware.seed.AudioSampleRate());
 									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
 									hardware.display.SetCursor(0, h - font.FontHeight);
 									hardware.display.WriteString(scope_label, font, true);
@@ -804,7 +805,7 @@ namespace oopsy {
 						}
 					}
 					if (is_mode_selecting) {
-						hardware.display.DrawRect(0, 0, OLED_DISPLAY_WIDTH-1, OLED_DISPLAY_HEIGHT-1, 1);
+						hardware.display.DrawRect(0, 0, OOPSY_OLED_DISPLAY_WIDTH-1, OOPSY_OLED_DISPLAY_HEIGHT-1, 1);
 					} 
 					if (showstats) {
 						int offset = 0;
@@ -814,7 +815,7 @@ namespace oopsy {
 						#endif
 						offset += snprintf(console_stats+offset, console_cols-offset, "%02d%%", int(audioCpuUsage));
 						// stats:
-						hardware.display.SetCursor(OLED_DISPLAY_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
+						hardware.display.SetCursor(OOPSY_OLED_DISPLAY_WIDTH - (offset) * font.FontWidth, font.FontHeight * 0);
 						hardware.display.WriteString(console_stats, font, true);
 					}
 					#endif //OOPSY_TARGET_HAS_OLED
@@ -851,8 +852,12 @@ namespace oopsy {
 
 			hardware.ProcessAllControls();
 
-			#if defined(OOPSY_TARGET_FIELD)
-			menu_button_held = hardware.GetSwitch(0)->Pressed();
+			#if defined(OOPSY_TARGET_SEED)
+			menu_button_incr += hardware.menu_rotate;
+			menu_button_held_ms = hardware.menu_hold;
+			if (hardware.menu_click) menu_button_released = hardware.menu_click;
+			#elif defined(OOPSY_TARGET_FIELD)
+			//menu_button_held = hardware.GetSwitch(0)->Pressed();
 			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
 			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
 			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
@@ -862,7 +867,7 @@ namespace oopsy {
 			// menu_button_held_ms = hardware.tap.TimeHeldMs();
 			// if (hardware.tap_.FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_POD) || defined(OOPSY_TARGET_PETAL) || defined(OOPSY_TARGET_PATCH)
-            menu_button_held = hardware.encoder.Pressed();
+            //menu_button_held = hardware.encoder.Pressed();
 			menu_button_incr += hardware.encoder.Increment();
 			menu_button_held_ms = hardware.encoder.TimeHeldMs();
 			if (hardware.encoder.FallingEdge()) menu_button_released = 1;
@@ -902,7 +907,7 @@ namespace oopsy {
 					scope_data[scope_step][0] = (max0); 
 					scope_data[scope_step][1] = (max1);
 					scope_step++;
-					if (scope_step >= OLED_DISPLAY_WIDTH*2) scope_step = 0;
+					if (scope_step >= OOPSY_OLED_DISPLAY_WIDTH*2) scope_step = 0;
 				}
 			}
 			#endif
