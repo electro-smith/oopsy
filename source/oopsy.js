@@ -319,7 +319,7 @@ function generate_target_struct(target) {
 			config: [],
 			dim: [128, 64]
 		}, target.display)
-
+		target.defines.OOPSY_TARGET_HAS_OLED = 1
 		target.defines.OOPSY_OLED_DISPLAY_WIDTH = target.display.dim[0]
 		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
 	}
