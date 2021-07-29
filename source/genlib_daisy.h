@@ -280,8 +280,7 @@ namespace oopsy {
 			sdconfig.Defaults(); // 4-bit, 50MHz
 			// sdconfig.clock_powersave = false;
 			// sdconfig.speed           = daisy::SdmmcHandler::Speed::FAST;
-			// sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_4;
-			// handler.Init(sdconfig);
+			sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_1;
 			handler.Init(sdconfig);
 			dsy_fatfs_init();
 			f_mount(&SDFatFS, SDPath, 1);
