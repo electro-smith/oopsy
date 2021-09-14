@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 433.0, 210.0, 1174.0, 718.0 ],
+		"rect" : [ 189.0, 125.0, 1174.0, 718.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -66,7 +66,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 532.166655999999875, 152.0, 109.0, 47.0 ],
-					"presentation_linecount" : 11,
 					"text" : "note 36 on/off\n\nnote 38 on/off"
 				}
 
@@ -127,7 +126,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 823.0, 152.0, 62.0, 33.0 ],
-					"presentation_linecount" : 5,
 					"text" : "program change"
 				}
 
@@ -153,7 +151,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 930.800000000000068, 152.0, 60.0, 20.0 ],
-					"presentation_linecount" : 2,
 					"text" : "pressure"
 				}
 
@@ -204,7 +201,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 1047.699999999999818, 152.0, 52.0, 20.0 ],
-					"presentation_linecount" : 2,
 					"text" : "bend"
 				}
 
@@ -406,7 +402,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 449.0, 101.0, 306.0, 87.0 ],
-													"presentation_linecount" : 6,
 													"text" : "Simple fixed-pitch note out events for drum-like gates. \nVelocity is mapped to 0..1; where 0 means note off, any other number is note on. \nChannel: 1. Add _ch2 etc. for a different channel. \nWarning: note events shorter than the block size could be missed. "
 												}
 
@@ -617,7 +612,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 397.0, 140.0, 288.0, 33.0 ],
-													"presentation_linecount" : 2,
 													"text" : "outputs zero after a MIDI \"stop\" event, and non-zero after a MIDI \"play\" or \"continue\" event."
 												}
 
@@ -728,7 +722,6 @@
 					}
 ,
 					"patching_rect" : [ 187.5, 154.0, 133.0, 22.0 ],
-					"presentation_linecount" : 3,
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -861,7 +854,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 348.0, 285.5, 319.0, 33.0 ],
-													"presentation_linecount" : 2,
 													"text" : "NOTE: for a multi-app firmware, program change events will switch apps."
 												}
 
@@ -874,7 +866,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 348.0, 226.5, 299.0, 47.0 ],
-													"presentation_linecount" : 4,
 													"text" : "MIDI program changes will need @min 0 @max 127\nChannels: responds to all channels by default. Add _ch3 etc. for a specific channel. "
 												}
 
@@ -899,7 +890,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 49.0, 226.5, 281.0, 87.0 ],
-													"presentation_linecount" : 6,
 													"text" : "Channel pressure maps to 0..1 (or @min..@max)\nChannels: responds to all channels by default. Add _ch3 etc. for a specific channel. \n\nThis is not polyphonic aftertouch; for that, see the note out example."
 												}
 
@@ -912,7 +902,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 348.0, 109.5, 281.0, 47.0 ],
-													"presentation_linecount" : 3,
 													"text" : "Maps full range of MIDI pitch bend to @min..@max \nChannels: responds to all channels by default. Add _ch3 etc. for a specific channel. "
 												}
 
@@ -937,7 +926,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 49.0, 109.5, 281.0, 47.0 ],
-													"presentation_linecount" : 2,
 													"text" : "Range: MIDI 0..127 maps to 0..1 (or @min..@max)\nChannels: responds to all channels by default. Add _ch3 etc. for a specific channel. "
 												}
 
@@ -1259,7 +1247,6 @@
 					}
 ,
 					"patching_rect" : [ 183.5, 372.0, 141.0, 22.0 ],
-					"presentation_linecount" : 3,
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -1901,7 +1888,6 @@
 					}
 ,
 					"patching_rect" : [ 33.5, 372.0, 129.0, 22.0 ],
-					"presentation_linecount" : 4,
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -2003,7 +1989,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 793.0, 636.0, 849.0, 324.0 ],
+						"rect" : [ 660.0, 467.0, 849.0, 324.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -2082,7 +2068,7 @@
 										}
 ,
 										"classnamespace" : "dsp.gen",
-										"rect" : [ 429.0, 127.0, 1028.0, 565.0 ],
+										"rect" : [ 165.0, 101.0, 1028.0, 565.0 ],
 										"bglocked" : 0,
 										"openinpresentation" : 0,
 										"default_fontsize" : 12.0,
@@ -2154,7 +2140,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 832.0, 188.0, 161.0, 74.0 ],
-													"presentation_linecount" : 5,
 													"text" : "Optional: set MIDI channel for a note. MID channel can be 1, 2, 3 etc. up to 16.  \nIf absent, channel 1 is assumed. "
 												}
 
@@ -2179,7 +2164,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 640.0, 188.0, 161.0, 47.0 ],
-													"presentation_linecount" : 3,
 													"text" : "Optional: polyphonic pressure (aftertouch) also ranges from 0 to 1"
 												}
 
@@ -2634,7 +2618,7 @@
 																	"numinlets" : 1,
 																	"numoutlets" : 1,
 																	"outlettype" : [ "" ],
-																	"patching_rect" : [ 180.0, 297.0, 32.0, 22.0 ],
+																	"patching_rect" : [ 180.0, 299.0, 32.0, 22.0 ],
 																	"text" : "+ 36"
 																}
 
@@ -2820,6 +2804,13 @@
 															}
 , 															{
 																"patchline" : 																{
+																	"destination" : [ "obj-16", 0 ],
+																	"source" : [ "obj-15", 0 ]
+																}
+
+															}
+, 															{
+																"patchline" : 																{
 																	"destination" : [ "obj-10", 0 ],
 																	"source" : [ "obj-16", 0 ]
 																}
@@ -2885,7 +2876,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 28.0, 158.5, 173.0, 33.0 ],
-													"presentation_linecount" : 3,
 													"text" : "A note output needs at minimum a pitch and a velocity"
 												}
 
@@ -2897,8 +2887,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 28.0, 261.0, 173.0, 60.0 ],
-													"presentation_linecount" : 4,
+													"patching_rect" : [ 28.0, 261.0, 175.0, 60.0 ],
 													"text" : "Only integer (whole number) pitches are handled. For microtonalities you will need to use pitch bend."
 												}
 
@@ -2911,7 +2900,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 218.0, 188.0, 161.0, 33.0 ],
-													"presentation_linecount" : 2,
 													"text" : "Pitches use standard MIDI note values of 0..127"
 												}
 
@@ -3098,7 +3086,6 @@
 					}
 ,
 					"patching_rect" : [ 183.5, 402.0, 93.0, 22.0 ],
-					"presentation_linecount" : 3,
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -3625,8 +3612,8 @@
 									"id" : "obj-16",
 									"maxclass" : "newobj",
 									"numinlets" : 6,
-									"numoutlets" : 8,
-									"outlettype" : [ "signal", "signal", "signal", "signal", "signal", "signal", "signal", "signal" ],
+									"numoutlets" : 5,
+									"outlettype" : [ "signal", "signal", "signal", "signal", "signal" ],
 									"patcher" : 									{
 										"fileversion" : 1,
 										"appversion" : 										{
@@ -3675,7 +3662,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 491.0, 217.5, 274.0, 47.0 ],
-													"presentation_linecount" : 3,
 													"text" : "For many common kinds of midi inputs, there are dedicated [param] alternatives that will be easier to use than this."
 												}
 
@@ -3688,7 +3674,6 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 491.0, 72.0, 261.0, 47.0 ],
-													"presentation_linecount" : 3,
 													"text" : "\"midithru\" does the same thing, but it ALSO forwards all incoming MIDI data to the hardware output."
 												}
 
