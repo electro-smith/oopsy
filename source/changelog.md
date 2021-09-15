@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.4.0-beta
+
 - Params:
   - Params like "knob1_int_foo" or "knob2_bool_bar" will be locked to integer/bool values within their respective @min/@max ranges
 - MIDI:
@@ -42,6 +44,8 @@
   - Modified config JSON and genlib_daisy.h to create more flexibiity for custom Seed targets
 - OLED UI:
   - Removed endless menu rotation so that scrolling to beginning/end is easier
+- Custom seed projects
+  - New JSON structure for more concise and flexible pin mappings
 
 ## v0.3.0-beta
 
