@@ -38,6 +38,7 @@
       "cv1": "cvout1",
       "cv2": "cvout2",
       "gate1": "gateout1",
+      "gate2": "gateout2",
 
       "cv": "cvout1",
       "gate": "gateout1"
