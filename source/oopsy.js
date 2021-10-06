@@ -125,7 +125,7 @@ cmds: 	up/upload = (default) generate & upload
 	  	gen/generate = generate only
 
 target: path to a JSON for the hardware config, 
-		or simply "patch", "field", "petal", "pod" etc. 
+		or simply "patch", "patch_sm", "field", "petal", "pod" etc. 
 		Defaults to "daisy.patch.json"
 
 32kHz, 48kHz, "96kHz" will set the sampling rate of the binary
@@ -464,6 +464,7 @@ function run() {
 			case "field":
 			case "petal":
 			case "patch": 
+			case "patch_sm":
 			case "versio": target = arg; break;
 			case "watch": watch=true; break;
 
