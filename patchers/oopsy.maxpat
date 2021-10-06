@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 8,
+			"revision" : 11,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 356.0, 113.0, 1246.0, 808.0 ],
+		"rect" : [ 213.0, 106.0, 1076.0, 652.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 1,
 		"default_fontsize" : 12.0,
@@ -341,7 +341,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio" ],
+					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -365,13 +365,13 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 839.0, 277.0, 807.0, 498.0 ],
+						"rect" : [ 483.0, 255.0, 807.0, 498.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -399,6 +399,7 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-31",
@@ -415,11 +416,11 @@
 								"box" : 								{
 									"id" : "obj-29",
 									"maxclass" : "newobj",
-									"numinlets" : 6,
-									"numoutlets" : 6,
-									"outlettype" : [ "", "", "", "", "", "" ],
-									"patching_rect" : [ 59.0, 140.0, 207.0, 22.0 ],
-									"text" : "routepass patch field petal pod versio"
+									"numinlets" : 7,
+									"numoutlets" : 7,
+									"outlettype" : [ "", "", "", "", "", "", "" ],
+									"patching_rect" : [ 59.0, 140.0, 263.0, 22.0 ],
+									"text" : "routepass patch patch_sm field petal pod versio"
 								}
 
 							}
@@ -562,8 +563,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 16.0, 47.0, 413.0, 22.0 ],
-									"text" : "clear, append patch, append field, append petal, append pod, append versio"
+									"patching_rect" : [ 16.0, 47.0, 516.0, 22.0 ],
+									"text" : "clear, append patch, append patch_sm, append field, append petal, append pod, append versio"
 								}
 
 							}
@@ -672,6 +673,13 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-27", 0 ],
+									"source" : [ "obj-29", 6 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-37", 0 ],
 									"source" : [ "obj-29", 5 ]
 								}
 
@@ -960,7 +968,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -1298,6 +1306,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -1341,7 +1351,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
