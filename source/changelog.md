@@ -38,6 +38,7 @@
   - Updates to makefiles to support SDcard and fix some compilation errors
   - Code generation cleanup
 - Targets:
+  - Support for the Daisy Patch SM on the patch.Init()
   - Support for Noise Engineering's Versio, including all on-panel controls and LEDs, and template patch. 
   - Param view added to Daisy Field; params not tweakable (because of no encoder) but at least visible
   - Added ability to select custom JSON config from within oopsy.maxpat via "browse" button or @target argument
