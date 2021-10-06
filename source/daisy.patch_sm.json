@@ -1,16 +1,12 @@
 {
   "max_apps":8,
   "defines": {
-    "OOPSY_TARGET_PATCH": 1,
-    "OOPSY_TARGET_HAS_OLED": 1,
-    "OOPSY_IO_COUNT": 4,
-    "OOPSY_TARGET_HAS_MIDI_INPUT": 1,
-    "OOPSY_TARGET_HAS_MIDI_OUTPUT": 1,
-    "OOPSY_HAS_ENCODER": 1
+    "OOPSY_TARGET_PATCH_SM": 1,
+    "OOPSY_IO_COUNT": 4
   },
   "inserts": [
     { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
-    { "where": "header", "code": "typedef daisy::DaisyPatchSM Daisy;" }
+    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" }
   ],
   "labels": {
     "params": {
@@ -21,17 +17,29 @@
       "gate1": "gt1",
       "gate2": "gt2",
 
+      "sw": "sw",
+      "sw1": "sw",
+      "sw2": "button",
+      "button": "button",
+      "press": "button",
+
       "knob": "kn1",
       "cv": "kn1",
       "cv1": "kn1",
       "cv2": "kn2",
       "cv3": "kn3",
       "cv4": "kn4",
+      "cv5": "cv5",
+      "cv6": "cv6",
+      "cv7": "cv7",
+      "cv8": "cv8",
+
       "ctrl": "kn1",
       "ctrl1": "kn1",
       "ctrl2": "kn2",
       "ctrl3": "kn3",
       "ctrl4": "kn4",
+
       "gate": "gt1"
     },
     "outs": {
@@ -50,25 +58,47 @@
   "inputs": {
     "kn1": {
       "automap": true,
-      "code": "hardware.GetKnobValue(hardware.CTRL_1);"
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_1);"
     },
     "kn2": {
       "automap": true,
-      "code": "hardware.GetKnobValue(hardware.CTRL_2);"
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_2);"
     },
     "kn3": {
       "automap": true,
-      "code": "hardware.GetKnobValue(hardware.CTRL_3);"
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_3);"
     },
     "kn4": {
       "automap": true,
-      "code": "hardware.GetKnobValue(hardware.CTRL_4);"
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_4);"
+    },
+    "cv5": {
+      "automap": true,
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_5);"
+    },
+    "cv6": {
+      "automap": true,
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_6);"
+    },
+    "cv7": {
+      "automap": true,
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_7);"
+    },
+    "cv8": {
+      "automap": true,
+      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_8);"
     },
     "gt1": {
-      "code": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f);"
+      "code": "(hardware.gate_in_1.State()?1.f:0.f);"
     },
     "gt2": {
-      "code": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f);"
+      "code": "(hardware.gate_in_2.State()?1.f:0.f);"
+    },
+    "button": {
+      "code": "dsy_gpio_read(&hardware.B7);"
+    },
+    "sw": {
+      "code": "dsy_gpio_read(&hardware.B8);"
     }
   },
   "outputs": {
