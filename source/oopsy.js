@@ -758,8 +758,34 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	oopsy::daisy.hardware.Init(${options.boost|false}); 
+	#ifdef OOPSY_TARGET_PATCH_SM
+	oopsy::daisy.hardware.Init(); 
+	daisy::SaiHandle::Config::SampleRate sr = daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ;
+	float sr_flt;
+	switch (sr)
+	{
+		case daisy::SaiHandle::Config::SampleRate::SAI_8KHZ:
+			sr_flt = 8000;
+			break;
+		case daisy::SaiHandle::Config::SampleRate::SAI_16KHZ:
+			sr_flt = 16000;
+			break;
+		case daisy::SaiHandle::Config::SampleRate::SAI_32KHZ:
+			sr_flt = 32000;
+			break;
+		default:
+		case daisy::SaiHandle::Config::SampleRate::SAI_48KHZ:
+			sr_flt = 48000;
+			break;
+		case daisy::SaiHandle::Config::SampleRate::SAI_96KHZ:
+			sr_flt = 96000;
+			break;
+	}
+	oopsy::daisy.hardware.SetAudioSampleRate(sr_flt);
+	#else
+  oopsy::daisy.hardware.Init(${options.boost|false}); 
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
+	#endif
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
 	// insert custom hardware initialization here
@@ -1538,7 +1564,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
+		#ifdef OOPSY_TARGET_PATCH_SM
+		daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());
+		#else
 		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
+		#endif
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		
 		daisy.param_count = ${gen.params.length};
