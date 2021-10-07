@@ -7,6 +7,14 @@
   "inserts": [
     { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
     { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" },
+    { "where": "header", "code": "daisy::Switch sw_class;" },
+    { "where": "init", "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000, daisy::Switch::Type::TYPE_TOGGLE, daisy::Switch::Polarity::POLARITY_INVERTED, daisy::Switch::Pull::PULL_UP);"},
+    { "where": "audio", "code": "sw_class.Debounce();" },
+
+    { "where": "header", "code": "daisy::Switch button_class;" },
+    { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000, daisy::Switch::Type::TYPE_MOMENTARY, daisy::Switch::Polarity::POLARITY_INVERTED, daisy::Switch::Pull::PULL_UP);"},
+    { "where": "audio", "code": "button_class.Debounce();" },
+
     { "where": "audio", "code": "hardware.ProcessAllControls();" }
   ],
   "labels": {
@@ -96,10 +104,10 @@
       "code": "(hardware.gate_in_2.State()?1.f:0.f);"
     },
     "button": {
-      "code": "dsy_gpio_read(&hardware.B7);"
+      "code": "(button_class.Pressed() ? 1.f : 0.f);"
     },
     "sw": {
-      "code": "dsy_gpio_read(&hardware.B8);"
+      "code": "(sw_class.Pressed() ? 1.f : 0.f);"
     }
   },
   "outputs": {
