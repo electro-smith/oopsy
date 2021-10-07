@@ -493,7 +493,6 @@ namespace oopsy {
 			#endif
 
 			#ifdef OOPSY_TARGET_PATCH_SM
-			hardware.adc.Start();
 			hardware.StartAudio(nullAudioCallback);
 			#else
 			hardware.seed.adc.Start();

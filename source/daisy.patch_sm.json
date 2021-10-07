@@ -2,11 +2,12 @@
   "max_apps":8,
   "defines": {
     "OOPSY_TARGET_PATCH_SM": 1,
-    "OOPSY_IO_COUNT": 4
+    "OOPSY_IO_COUNT": 2
   },
   "inserts": [
     { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
-    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" }
+    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" },
+    { "where": "audio", "code": "hardware.ProcessAllControls();" }
   ],
   "labels": {
     "params": {
