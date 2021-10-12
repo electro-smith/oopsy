@@ -13,9 +13,7 @@
 
     { "where": "header", "code": "daisy::Switch button_class;" },
     { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000);"},
-    { "where": "audio", "code": "button_class.Debounce();" },
-
-    { "where": "audio", "code": "hardware.ProcessAllControls();" }
+    { "where": "audio", "code": "button_class.Debounce();" }
   ],
   "labels": {
     "params": {
