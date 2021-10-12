@@ -8,11 +8,11 @@
     { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
     { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" },
     { "where": "header", "code": "daisy::Switch sw_class;" },
-    { "where": "init", "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000, daisy::Switch::Type::TYPE_TOGGLE, daisy::Switch::Polarity::POLARITY_INVERTED, daisy::Switch::Pull::PULL_UP);"},
+    { "where": "init", "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000);"},
     { "where": "audio", "code": "sw_class.Debounce();" },
 
     { "where": "header", "code": "daisy::Switch button_class;" },
-    { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000, daisy::Switch::Type::TYPE_MOMENTARY, daisy::Switch::Polarity::POLARITY_INVERTED, daisy::Switch::Pull::PULL_UP);"},
+    { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000);"},
     { "where": "audio", "code": "button_class.Debounce();" },
 
     { "where": "audio", "code": "hardware.ProcessAllControls();" }
