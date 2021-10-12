@@ -67,35 +67,35 @@
   "inputs": {
     "kn1": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_1);"
+      "code": "hardware.GetAdcValue(Daisy::CV_1);"
     },
     "kn2": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_2);"
+      "code": "hardware.GetAdcValue(Daisy::CV_2);"
     },
     "kn3": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_3);"
+      "code": "hardware.GetAdcValue(Daisy::CV_3);"
     },
     "kn4": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_4);"
+      "code": "hardware.GetAdcValue(Daisy::CV_4);"
     },
     "cv5": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_5);"
+      "code": "hardware.GetAdcValue(Daisy::CV_5);"
     },
     "cv6": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_6);"
+      "code": "hardware.GetAdcValue(Daisy::CV_6);"
     },
     "cv7": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_7);"
+      "code": "hardware.GetAdcValue(Daisy::CV_7);"
     },
     "cv8": {
       "automap": true,
-      "code": "hardware.GetAdcValue(daisy::patch_sm::CV_8);"
+      "code": "hardware.GetAdcValue(Daisy::CV_8);"
     },
     "gt1": {
       "code": "(hardware.gate_in_1.State()?1.f:0.f);"
@@ -113,11 +113,11 @@
   "outputs": {
     "cvout1": {
       "where": "main",
-      "code": "hardware.WriteCvOut(Daisy::CV_OUT_1, $<name>);"
+      "code": "hardware.WriteCvOut(Daisy::CV_OUT_1, $<name> * 5.f);"
     },
     "cvout2": {
       "where": "main",
-      "code": "hardware.WriteCvOut(Daisy::CV_OUT_2, $<name>);"
+      "code": "hardware.WriteCvOut(Daisy::CV_OUT_2, $<name> * 5.f);"
     },
     "gateout1":  {
       "where": "audio",
