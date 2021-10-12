@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 302.0, 131.0, 817.0, 630.0 ],
+		"rect" : [ 299.0, 233.0, 1003.0, 630.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -510,7 +510,7 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "field", "@target", "patch" ],
+					"args" : [ "field", "@target", "patch_sm" ],
 					"bgmode" : 0,
 					"border" : 0,
 					"clickthrough" : 0,
@@ -577,6 +577,43 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-24",
+									"maxclass" : "newobj",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 308.5, 312.0, 31.0, 22.0 ],
+									"text" : "max"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-23",
+									"linecount" : 2,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 419.211711704730988, 312.0, 96.0, 33.0 ],
+									"text" : "\"out 4 cvout2\" would also work"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-8",
+									"linecount" : 6,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 589.0, 211.0, 80.288288295269012, 87.0 ],
+									"presentation_linecount" : 7,
+									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related)"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-22",
 									"maxclass" : "newobj",
 									"numinlets" : 0,
@@ -630,7 +667,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 308.5, 495.0, 189.0, 33.0 ],
+									"patching_rect" : [ 308.5, 495.0, 193.0, 33.0 ],
 									"text" : "cvout2 is connected directly to the front panel LED"
 								}
 
@@ -643,30 +680,6 @@
 									"numoutlets" : 0,
 									"patching_rect" : [ 786.5, 351.5, 69.0, 22.0 ],
 									"text" : "out 6 gate2"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-21",
-									"maxclass" : "newobj",
-									"numinlets" : 2,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 398.5, 323.0, 36.5, 22.0 ],
-									"text" : "min"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-20",
-									"maxclass" : "newobj",
-									"numinlets" : 2,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 308.5, 323.0, 38.0, 22.0 ],
-									"text" : "max"
 								}
 
 							}
@@ -735,7 +748,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 308.5, 453.0, 189.0, 33.0 ],
-									"text" : "The CV outputs expect a value in terms of voltage from 0v to 5v "
+									"text" : "The CV outputs will map the 0-1 range to 0-5v"
 								}
 
 							}
@@ -745,8 +758,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 398.5, 350.0, 74.0, 22.0 ],
-									"text" : "out 4 cvout2"
+									"patching_rect" : [ 398.5, 350.0, 55.0, 22.0 ],
+									"text" : "out 4 led"
 								}
 
 							}
@@ -812,13 +825,12 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-16",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 416.0, 171.0, 86.0, 49.0 ],
-									"text" : "param ctrl4 @min -10 @max 10"
+									"patching_rect" : [ 416.0, 119.900900900363922, 69.0, 22.0 ],
+									"text" : "param ctrl4"
 								}
 
 							}
@@ -829,20 +841,21 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 398.5, 145.5, 69.0, 22.0 ],
-									"text" : "param ctrl3"
+									"patching_rect" : [ 398.5, 96.0, 69.0, 22.0 ],
+									"text" : "param ctrl2"
 								}
 
 							}
 , 							{
 								"box" : 								{
 									"id" : "obj-14",
+									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 327.5, 119.900900900363922, 69.0, 22.0 ],
-									"text" : "param ctrl2"
+									"patching_rect" : [ 320.5, 119.900900900363922, 73.0, 49.0 ],
+									"text" : "param ctrl3 @min -0.5 @max 0.5"
 								}
 
 							}
@@ -853,7 +866,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 436.211711704730988, 225.0, 74.288288295269012, 47.0 ],
+									"patching_rect" : [ 419.211711704730988, 151.0, 74.288288295269012, 47.0 ],
 									"text" : "cv1, knob1, cv1_foo, etc. all work"
 								}
 
@@ -948,28 +961,21 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-20", 1 ],
+									"destination" : [ "obj-24", 1 ],
 									"source" : [ "obj-14", 0 ]
 								}
 
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-21", 0 ],
+									"destination" : [ "obj-29", 0 ],
 									"source" : [ "obj-15", 0 ]
 								}
 
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-21", 1 ],
-									"source" : [ "obj-16", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-20", 0 ],
+									"destination" : [ "obj-24", 0 ],
 									"source" : [ "obj-2", 0 ]
 								}
 
@@ -977,14 +983,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-28", 0 ],
-									"source" : [ "obj-20", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-29", 0 ],
-									"source" : [ "obj-21", 0 ]
+									"source" : [ "obj-24", 0 ]
 								}
 
 							}
