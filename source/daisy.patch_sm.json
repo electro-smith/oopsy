@@ -60,9 +60,7 @@
       "cv": "cvout1",
       "gate": "gateout1"
     },
-    "datas": {
-      "midi": "dsy_midi_out"
-    }
+    "datas": {}
   },
   "inputs": {
     "kn1": {
@@ -128,11 +126,5 @@
       "code": "dsy_gpio_write(&hardware.gate_out_2, $<name> > 0.f);"
     }
   },   
-  "datahandlers": {
-    "dsy_midi_out": {
-      "where":"main",
-      "init": "daisy.midi_nullData($<data>)",
-      "code": "daisy.midi_fromData($<data>);"
-    }
-  }
+  "datahandlers": {}
 }
