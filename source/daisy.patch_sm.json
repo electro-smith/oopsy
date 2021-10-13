@@ -47,7 +47,24 @@
       "ctrl3": "kn3",
       "ctrl4": "kn4",
 
-      "gate": "gt1"
+      "gate": "gt1",
+
+      "CV_1": "kn1",
+      "CV_2": "kn2",
+      "CV_3": "kn3",
+      "CV_4": "kn4",
+      "CV_5": "cv5",
+      "CV_6": "cv6",
+      "CV_7": "cv7",
+      "CV_8": "cv8",
+
+      "B7": "button",
+      "B8": "sw",
+
+      "B10": "gt1",
+      "B9": "gt2",
+      "gate_in_1": "gt1",
+      "gate_in_2": "gt2"
     },
     "outs": {
       "cv1": "cvout1",
@@ -57,7 +74,16 @@
 
       "cv": "cvout1",
       "led": "cvout2",
-      "gate": "gateout1"
+      "gate": "gateout1",
+
+      "CV_OUT_1": "cvout1",
+      "C10": "cvout1",
+      "CV_OUT_2": "cvout2",
+
+      "B5": "gateout1",
+      "B6": "gateout2",
+      "gate_out_1": "gateout1",
+      "gate_out_2": "gateout2"
     },
     "datas": {}
   },
