@@ -136,11 +136,11 @@
   "outputs": {
     "cvout1": {
       "where": "main",
-      "code": "hardware.WriteCvOut(daisy::patch_sm::DaisyPatchSM::CV_OUT_1, $<name> * 5.f);"
+      "code": "hardware.WriteCvOut(daisy::patch_sm::CV_OUT_1, $<name> * 5.f);"
     },
     "cvout2": {
       "where": "main",
-      "code": "hardware.WriteCvOut(daisy::patch_sm::DaisyPatchSM::CV_OUT_2, $<name> * 5.f);"
+      "code": "hardware.WriteCvOut(daisy::patch_sm::CV_OUT_2, $<name> * 5.f);"
     },
     "gateout1":  {
       "where": "audio",
