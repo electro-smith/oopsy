@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 356.0, 113.0, 1246.0, 808.0 ],
+		"rect" : [ 108.0, 124.0, 1246.0, 808.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 1,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,31 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-23",
+					"linecount" : 3,
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 471.0, 263.0, 50.0, 49.0 ],
+					"text" : "seed.bluemchen.json"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-20",
+					"maxclass" : "button",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "bang" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 300.0, 113.75, 24.0, 24.0 ]
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-9",
 					"maxclass" : "newobj",
@@ -341,7 +366,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio" ],
+					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/patchers/seed.bluemchen.json", ",", "/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/patchers/seed.bluemchen.json" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -878,7 +903,7 @@
 				"box" : 				{
 					"comment" : "",
 					"id" : "obj-43",
-					"index" : 0,
+					"index" : 1,
 					"maxclass" : "inlet",
 					"numinlets" : 0,
 					"numoutlets" : 1,
@@ -1154,6 +1179,7 @@
 					"readonly" : 1,
 					"rounded" : 0.0,
 					"separator" : "newline",
+					"text" : "oopsy_bluemchen",
 					"textcolor" : [ 1.0, 1.0, 1.0, 1.0 ]
 				}
 
@@ -1298,6 +1324,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -1600,9 +1628,24 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-15", 0 ],
+					"source" : [ "obj-20", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-17", 0 ],
 					"midpoints" : [ 446.5, 211.0, 40.5, 211.0 ],
 					"source" : [ "obj-21", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-23", 1 ],
+					"order" : 0,
+					"source" : [ "obj-21", 2 ]
 				}
 
 			}
@@ -1618,6 +1661,7 @@
 				"patchline" : 				{
 					"destination" : [ "obj-75", 0 ],
 					"midpoints" : [ 472.5, 230.970993000000021, 340.0, 230.970993000000021 ],
+					"order" : 1,
 					"source" : [ "obj-21", 2 ]
 				}
 
@@ -1930,34 +1974,7 @@
 				}
 
 			}
- ],
-		"parameters" : 		{
-			"obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-33" : [ "live.text[1]", "FILTER", 0 ],
-			"obj-34" : [ "live.text[3]", "FILTER", 0 ],
-			"parameterbanks" : 			{
-
-			}
-,
-			"inherited_shortname" : 1
-		}
-,
-		"dependency_cache" : [ 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
- ],
-		"autosave" : 0
+ ]
 	}
 
 }
