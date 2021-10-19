@@ -353,7 +353,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio" ],
+					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -427,11 +427,11 @@
 								"box" : 								{
 									"id" : "obj-29",
 									"maxclass" : "newobj",
-									"numinlets" : 6,
-									"numoutlets" : 6,
-									"outlettype" : [ "", "", "", "", "", "" ],
-									"patching_rect" : [ 60.0, 97.0, 207.0, 22.0 ],
-									"text" : "routepass patch field petal pod versio"
+									"numinlets" : 7,
+									"numoutlets" : 7,
+									"outlettype" : [ "", "", "", "", "", "", "" ],
+									"patching_rect" : [ 60.0, 97.0, 269.0, 22.0 ],
+									"text" : "routepass patch field petal pod versio bluemchen"
 								}
 
 							}
@@ -570,12 +570,13 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-2",
+									"linecount" : 2,
 									"maxclass" : "message",
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 544.0, 343.0, 413.0, 22.0 ],
-									"text" : "clear, append patch, append field, append petal, append pod, append versio"
+									"patching_rect" : [ 544.0, 343.0, 464.0, 35.0 ],
+									"text" : "clear, append patch, append field, append petal, append pod, append versio, append bluemchen"
 								}
 
 							}
@@ -684,6 +685,13 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-27", 0 ],
+									"source" : [ "obj-29", 6 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-37", 0 ],
 									"source" : [ "obj-29", 5 ]
 								}
 

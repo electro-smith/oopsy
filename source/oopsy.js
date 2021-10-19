@@ -460,11 +460,15 @@ function run() {
 			case "gen": action="generate"; break;
 			case "upload":
 			case "up": action="upload"; break;
+
 			case "pod":
 			case "field":
 			case "petal":
 			case "patch": 
 			case "versio": target = arg; break;
+			case "bluemchen": target_path = path.join(__dirname, "..", "patchers", "seed.bluemchen.json"); break;
+			case "nehcmeulb": target_path = path.join(__dirname, "..", "patchers", "seed.nehcmeulb.json"); break;
+
 			case "watch": watch=true; break;
 
 			case "96kHz": 

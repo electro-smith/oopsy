@@ -100,7 +100,7 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "@target", "seed.bluemchen.json" ],
+					"args" : [ "@target", "bluemchen" ],
 					"bgmode" : 0,
 					"border" : 0,
 					"clickthrough" : 0,
@@ -455,11 +455,11 @@
 					"patching_rect" : [ 40.0, 230.0, 144.0, 35.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_nehcmeulb"
+						"exportname" : "oopsy_bluemchen"
 					}
 ,
 					"text" : "gen~",
-					"varname" : "oopsy_nehcmeulb"
+					"varname" : "oopsy_bluemchen"
 				}
 
 			}
