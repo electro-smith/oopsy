@@ -455,11 +455,11 @@
 					"patching_rect" : [ 40.0, 230.0, 144.0, 35.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_bluemchen"
+						"exportname" : "oopsy_nehcmeulb"
 					}
 ,
 					"text" : "gen~",
-					"varname" : "oopsy_bluemchen"
+					"varname" : "oopsy_nehcmeulb"
 				}
 
 			}

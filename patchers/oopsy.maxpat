@@ -366,7 +366,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/patchers/seed.bluemchen.json", ",", "/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/patchers/seed.bluemchen.json" ],
+					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -903,7 +903,7 @@
 				"box" : 				{
 					"comment" : "",
 					"id" : "obj-43",
-					"index" : 1,
+					"index" : 0,
 					"maxclass" : "inlet",
 					"numinlets" : 0,
 					"numoutlets" : 1,
@@ -1179,7 +1179,6 @@
 					"readonly" : 1,
 					"rounded" : 0.0,
 					"separator" : "newline",
-					"text" : "oopsy_bluemchen",
 					"textcolor" : [ 1.0, 1.0, 1.0, 1.0 ]
 				}
 
@@ -1974,7 +1973,34 @@
 				}
 
 			}
- ]
+ ],
+		"parameters" : 		{
+			"obj-32" : [ "live.text[2]", "FILTER", 0 ],
+			"obj-33" : [ "live.text[1]", "FILTER", 0 ],
+			"obj-34" : [ "live.text[3]", "FILTER", 0 ],
+			"parameterbanks" : 			{
+
+			}
+,
+			"inherited_shortname" : 1
+		}
+,
+		"dependency_cache" : [ 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+ ],
+		"autosave" : 0
 	}
 
 }
