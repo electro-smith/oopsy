@@ -136,8 +136,8 @@
 					"id" : "obj-3",
 					"maxclass" : "newobj",
 					"numinlets" : 2,
-					"numoutlets" : 2,
-					"outlettype" : [ "signal", "signal" ],
+					"numoutlets" : 3,
+					"outlettype" : [ "signal", "signal", "signal" ],
 					"patcher" : 					{
 						"fileversion" : 1,
 						"appversion" : 						{
@@ -149,7 +149,7 @@
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 84.0, 102.0, 844.0, 587.0 ],
+						"rect" : [ 715.0, 114.0, 844.0, 587.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -206,10 +206,9 @@
 									"id" : "obj-26",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 410.0, 248.0, 83.0, 22.0 ],
-									"text" : "history cvout2"
+									"numoutlets" : 0,
+									"patching_rect" : [ 410.0, 248.0, 74.0, 22.0 ],
+									"text" : "out 4 cvout2"
 								}
 
 							}
@@ -325,10 +324,9 @@
 									"id" : "obj-6",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 162.0, 248.0, 83.0, 22.0 ],
-									"text" : "history cvout1"
+									"numoutlets" : 0,
+									"patching_rect" : [ 162.0, 248.0, 74.0, 22.0 ],
+									"text" : "out 3 cvout1"
 								}
 
 							}

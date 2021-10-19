@@ -270,12 +270,12 @@ const component_defs = {
 		mapping: [
 			{
 				name: "${name}1",
-				set: "hardware.${name}.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095)",
+				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);",
 				where: "main"
 			},
 			{
 				name: "${name}2",
-				set: "hardware.${name}.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095)",
+				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);",
 				where: "main"
 			}
 		]
@@ -602,6 +602,7 @@ function run() {
 				}
 			}
 		}
+
 		for (let alias in hardware.aliases) {
 			let map = hardware.aliases[alias]
 			if (hardware.labels.params[map]) hardware.labels.params[alias] = map
