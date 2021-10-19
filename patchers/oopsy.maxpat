@@ -4,7 +4,7 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 8,
+			"revision" : 11,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
@@ -353,7 +353,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen" ],
+					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -377,7 +377,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -411,6 +411,7 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-31",
@@ -431,7 +432,7 @@
 									"numoutlets" : 7,
 									"outlettype" : [ "", "", "", "", "", "", "" ],
 									"patching_rect" : [ 60.0, 97.0, 269.0, 22.0 ],
-									"text" : "routepass patch field petal pod versio bluemchen"
+									"text" : "routepass patch patch_sm field petal pod versio bluemchen"
 								}
 
 							}
@@ -576,7 +577,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 544.0, 343.0, 464.0, 35.0 ],
-									"text" : "clear, append patch, append field, append petal, append pod, append versio, append bluemchen"
+									"text" : "clear, append patch, append patch_sm, append field, append petal, append pod, append versio, append bluemchen"
 								}
 
 							}
@@ -987,7 +988,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -1370,7 +1371,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}

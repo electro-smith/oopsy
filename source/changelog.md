@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.0-beta
+
+- Targets:
+  - Support for the Daisy Patch SM on the patch.Init()
+
 ## v0.4.0-beta
 
 - Params:

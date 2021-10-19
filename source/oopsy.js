@@ -125,7 +125,7 @@ cmds: 	up/upload = (default) generate & upload
 	  	gen/generate = generate only
 
 target: path to a JSON for the hardware config, 
-		or simply "patch", "field", "petal", "pod" etc. 
+		or simply "patch", "patch_sm", "field", "petal", "pod" etc. 
 		Defaults to "daisy.patch.json"
 
 32kHz, 48kHz, "96kHz" will set the sampling rate of the binary
@@ -465,6 +465,7 @@ function run() {
 			case "field":
 			case "petal":
 			case "patch": 
+			case "patch_sm":
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "..", "patchers", "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "..", "patchers", "seed.nehcmeulb.json"); break;
@@ -761,7 +762,11 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	oopsy::daisy.hardware.Init(${options.boost|false}); 
+	#ifdef OOPSY_TARGET_PATCH_SM
+	oopsy::daisy.hardware.Init(); 
+	#else
+  oopsy::daisy.hardware.Init(${options.boost|false}); 
+	#endif
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
@@ -1541,7 +1546,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
+		#ifdef OOPSY_TARGET_PATCH_SM
+		daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());
+		#else
 		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
+		#endif
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		
 		daisy.param_count = ${gen.params.length};
