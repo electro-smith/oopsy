@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 299.0, 233.0, 1003.0, 630.0 ],
+		"rect" : [ 226.0, 177.0, 1003.0, 630.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -595,7 +595,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 419.211711704730988, 312.0, 96.0, 33.0 ],
-									"text" : "\"out 4 cvout2\" would also work"
+									"text" : "\"out 4 led\" would also work"
 								}
 
 							}
@@ -606,8 +606,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 589.0, 211.0, 80.288288295269012, 87.0 ],
-									"presentation_linecount" : 7,
+									"patching_rect" : [ 589.0, 211.0, 83.0, 87.0 ],
 									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related)"
 								}
 
@@ -758,8 +757,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 398.5, 350.0, 55.0, 22.0 ],
-									"text" : "out 4 led"
+									"patching_rect" : [ 398.5, 350.0, 74.0, 22.0 ],
+									"text" : "out 4 cvout2"
 								}
 
 							}
@@ -829,8 +828,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 416.0, 119.900900900363922, 69.0, 22.0 ],
-									"text" : "param ctrl4"
+									"patching_rect" : [ 416.0, 119.900900900363922, 65.0, 22.0 ],
+									"text" : "param cv4"
 								}
 
 							}
@@ -841,8 +840,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 398.5, 96.0, 69.0, 22.0 ],
-									"text" : "param ctrl2"
+									"patching_rect" : [ 398.5, 96.0, 65.0, 22.0 ],
+									"text" : "param cv2"
 								}
 
 							}
@@ -854,8 +853,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 320.5, 119.900900900363922, 73.0, 49.0 ],
-									"text" : "param ctrl3 @min -0.5 @max 0.5"
+									"patching_rect" : [ 320.5, 119.900900900363922, 67.0, 49.0 ],
+									"text" : "param cv3 @min 0.5 @max 1"
 								}
 
 							}
@@ -878,8 +877,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 308.5, 96.0, 69.0, 22.0 ],
-									"text" : "param ctrl1"
+									"patching_rect" : [ 308.5, 96.0, 65.0, 22.0 ],
+									"text" : "param cv1"
 								}
 
 							}
@@ -1024,7 +1023,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "ctrl1",
+					"attr" : "cv1",
 					"id" : "obj-2",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1036,7 +1035,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "ctrl2",
+					"attr" : "cv2",
 					"id" : "obj-4",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1048,7 +1047,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "ctrl3",
+					"attr" : "cv3",
 					"id" : "obj-5",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1060,7 +1059,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "ctrl4",
+					"attr" : "cv4",
 					"id" : "obj-6",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
