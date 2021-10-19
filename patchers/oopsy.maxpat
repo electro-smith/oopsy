@@ -353,7 +353,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen" ],
+					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "nehcmeulb" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -383,7 +383,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 613.0, 269.0, 1033.0, 506.0 ],
+						"rect" : [ 613.0, 269.0, 918.0, 472.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -428,11 +428,11 @@
 								"box" : 								{
 									"id" : "obj-29",
 									"maxclass" : "newobj",
-									"numinlets" : 7,
-									"numoutlets" : 7,
-									"outlettype" : [ "", "", "", "", "", "", "" ],
-									"patching_rect" : [ 60.0, 97.0, 269.0, 22.0 ],
-									"text" : "routepass patch patch_sm field petal pod versio bluemchen"
+									"numinlets" : 8,
+									"numoutlets" : 8,
+									"outlettype" : [ "", "", "", "", "", "", "", "" ],
+									"patching_rect" : [ 60.0, 97.0, 331.0, 22.0 ],
+									"text" : "routepass patch field petal pod versio bluemchen nehcmeulb"
 								}
 
 							}
@@ -576,8 +576,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 544.0, 343.0, 464.0, 35.0 ],
-									"text" : "clear, append patch, append patch_sm, append field, append petal, append pod, append versio, append bluemchen"
+									"patching_rect" : [ 544.0, 329.0, 338.0, 35.0 ],
+									"text" : "clear, append patch, append patch_sm, append field, append petal, append pod, append versio, append bluemchen, append nehcmeulb"
 								}
 
 							}
@@ -686,6 +686,13 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-27", 0 ],
+									"source" : [ "obj-29", 7 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-37", 0 ],
 									"source" : [ "obj-29", 6 ]
 								}
 

@@ -1,0 +1,45 @@
+{
+	"name":"nehcmeulb",
+	"max_apps": 8,
+	"defines": {
+		"OOPSY_TARGET_HAS_MIDI_OUTPUT": 1
+	},
+	"display": {
+		"driver": "daisy::SSD130xI2c64x32Driver", 
+		"dim": [64, 32]
+	},
+	"components": {
+		"knob1": {
+			"component": "AnalogControl",
+			"pin": 16
+		},
+		"knob2": {
+			"component": "AnalogControl",
+			"pin": 15
+		},
+		"cv1": {
+			"component": "AnalogControl",
+			"pin": 21,
+			"flip": true
+		},
+		"cv2": {
+			"component": "AnalogControl",
+			"pin": 18,
+			"flip": true
+		},
+		"cvout": {
+			"component": "CVOuts"
+		},
+		"encoder": {
+			"component": "Encoder",
+			"pin": {"a":27, "b":26, "click":28 },
+			"meta": [
+				"menu_hold = ${name}.TimeHeldMs();",
+				"menu_click = ${name}.FallingEdge();",
+				"menu_rotate = ${name}.Increment();"
+			]
+		}
+	},
+	"aliases": {
+	}
+}
