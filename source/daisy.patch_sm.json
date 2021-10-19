@@ -67,6 +67,9 @@
       "gate_in_2": "gt2"
     },
     "outs": {
+      "cvout1": "cvout1",
+      "cvout2": "cvout2",
+      
       "cv1": "cvout1",
       "cv2": "cvout2",
       "gate1": "gateout1",
