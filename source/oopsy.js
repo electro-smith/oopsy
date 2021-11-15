@@ -466,6 +466,7 @@ function run() {
 			case "petal":
 			case "patch": 
 			case "patch_sm":
+			case "patch_init":
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;

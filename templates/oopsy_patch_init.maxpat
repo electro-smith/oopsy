@@ -40,6 +40,26 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"args" : [ "patch_init" ],
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 788.0, 63.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"attr" : "cv5",
 					"id" : "obj-39",
 					"maxclass" : "attrui",
@@ -232,10 +252,10 @@
 					"patching_rect" : [ 472.833333333333314, 76.5, 41.999999999999943, 48.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_longname" : "cv4",
+							"parameter_longname" : "knob4",
 							"parameter_mmax" : 1.0,
 							"parameter_modmode" : 1,
-							"parameter_shortname" : "cv4",
+							"parameter_shortname" : "knob4",
 							"parameter_type" : 0,
 							"parameter_unitstyle" : 1
 						}
@@ -257,10 +277,10 @@
 					"patching_rect" : [ 426.166666666666629, 76.5, 42.0, 48.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_longname" : "cv3",
+							"parameter_longname" : "knob3",
 							"parameter_mmax" : 1.0,
 							"parameter_modmode" : 1,
-							"parameter_shortname" : "cv3",
+							"parameter_shortname" : "knob3",
 							"parameter_type" : 0,
 							"parameter_unitstyle" : 1
 						}
@@ -282,10 +302,10 @@
 					"patching_rect" : [ 379.499999999999943, 76.5, 42.0, 48.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_longname" : "cv2",
+							"parameter_longname" : "knob2",
 							"parameter_mmax" : 1.0,
 							"parameter_modmode" : 1,
-							"parameter_shortname" : "cv2",
+							"parameter_shortname" : "knob2",
 							"parameter_type" : 0,
 							"parameter_unitstyle" : 1
 						}
@@ -307,10 +327,10 @@
 					"patching_rect" : [ 332.833333333333258, 76.5, 42.0, 48.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_longname" : "cv1",
+							"parameter_longname" : "knob1",
 							"parameter_mmax" : 1.0,
 							"parameter_modmode" : 1,
-							"parameter_shortname" : "cv1",
+							"parameter_shortname" : "knob1",
 							"parameter_type" : 0,
 							"parameter_unitstyle" : 1
 						}
@@ -340,12 +360,11 @@
 					"fontname" : "Arial Italic",
 					"fontsize" : 18.0,
 					"id" : "obj-24",
-					"linecount" : 2,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 22.0, 221.0, 47.0 ],
-					"text" : "Template for DaisyPatch Submodule"
+					"patching_rect" : [ 24.0, 22.0, 221.0, 27.0 ],
+					"text" : "Template for patch.Init()"
 				}
 
 			}
@@ -510,26 +529,6 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "field", "@target", "patch_sm" ],
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-9",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "oopsy.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 760.5, 63.0, 128.0, 128.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"fontsize" : 24.0,
 					"id" : "obj-3",
 					"maxclass" : "newobj",
@@ -595,7 +594,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 419.211711704730988, 312.0, 96.0, 33.0 ],
-									"text" : "\"out 4 led\" would also work"
+									"text" : "\"out 4 cvout2\" would also work"
 								}
 
 							}
@@ -757,8 +756,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 398.5, 350.0, 74.0, 22.0 ],
-									"text" : "out 4 cvout2"
+									"patching_rect" : [ 398.5, 350.0, 55.0, 22.0 ],
+									"text" : "out 4 led"
 								}
 
 							}
@@ -828,8 +827,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 416.0, 119.900900900363922, 65.0, 22.0 ],
-									"text" : "param cv4"
+									"patching_rect" : [ 416.0, 119.900900900363922, 69.0, 22.0 ],
+									"text" : "param ctrl4"
 								}
 
 							}
@@ -840,8 +839,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 398.5, 96.0, 65.0, 22.0 ],
-									"text" : "param cv2"
+									"patching_rect" : [ 398.5, 96.0, 69.0, 22.0 ],
+									"text" : "param ctrl2"
 								}
 
 							}
@@ -853,8 +852,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 320.5, 119.900900900363922, 67.0, 49.0 ],
-									"text" : "param cv3 @min 0.5 @max 1"
+									"patching_rect" : [ 320.5, 119.900900900363922, 73.0, 49.0 ],
+									"text" : "param ctrl3 @min -0.5 @max 0.5"
 								}
 
 							}
@@ -866,7 +865,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 419.211711704730988, 151.0, 74.288288295269012, 47.0 ],
-									"text" : "cv1, cv1_foo, etc. all work"
+									"text" : "cv1, knob1, cv1_foo, etc. all work"
 								}
 
 							}
@@ -877,8 +876,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 308.5, 96.0, 65.0, 22.0 ],
-									"text" : "param cv1"
+									"patching_rect" : [ 308.5, 96.0, 69.0, 22.0 ],
+									"text" : "param ctrl1"
 								}
 
 							}
@@ -1013,17 +1012,17 @@
 					"patching_rect" : [ 47.0, 363.0, 195.0, 35.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_patch_sm"
+						"exportname" : "oopsy_patch_init"
 					}
 ,
 					"text" : "gen~",
-					"varname" : "oopsy_patch_sm"
+					"varname" : "oopsy_patch_init"
 				}
 
 			}
 , 			{
 				"box" : 				{
-					"attr" : "cv1",
+					"attr" : "ctrl1",
 					"id" : "obj-2",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1035,7 +1034,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "cv2",
+					"attr" : "ctrl2",
 					"id" : "obj-4",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1047,7 +1046,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "cv3",
+					"attr" : "ctrl3",
 					"id" : "obj-5",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1059,7 +1058,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "cv4",
+					"attr" : "ctrl4",
 					"id" : "obj-6",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -1314,11 +1313,11 @@
 			"obj-11" : [ "live.gain~", "live.gain~", 0 ],
 			"obj-21" : [ "cv8", "cv8", 0 ],
 			"obj-23" : [ "cv7", "cv7", 0 ],
-			"obj-25" : [ "cv4", "cv4", 0 ],
+			"obj-25" : [ "knob4", "knob4", 0 ],
 			"obj-26" : [ "cv6", "cv6", 0 ],
-			"obj-27" : [ "cv3", "cv3", 0 ],
-			"obj-28" : [ "cv2", "cv2", 0 ],
-			"obj-29" : [ "cv1", "cv1", 0 ],
+			"obj-27" : [ "knob3", "knob3", 0 ],
+			"obj-28" : [ "knob2", "knob2", 0 ],
+			"obj-29" : [ "knob1", "knob1", 0 ],
 			"obj-30" : [ "cv5", "cv5", 0 ],
 			"obj-7::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-7::obj-35" : [ "[5]", "Level", 0 ],
@@ -1368,27 +1367,6 @@
 				"implicit" : 1
 			}
 , 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
 				"name" : "demosound.maxpat",
 				"bootpath" : "C74:/help/msp",
 				"type" : "JSON",
@@ -1421,6 +1399,27 @@
 , 			{
 				"name" : "interfacecolor.js",
 				"bootpath" : "C74:/interfaces",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}

@@ -6,7 +6,14 @@
   },
   "inserts": [
     { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
-    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" }
+    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" },
+    { "where": "header", "code": "daisy::Switch sw_class;" },
+    { "where": "init", "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000);"},
+    { "where": "audio", "code": "sw_class.Debounce();" },
+
+    { "where": "header", "code": "daisy::Switch button_class;" },
+    { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000);"},
+    { "where": "audio", "code": "button_class.Debounce();" }
   ],
   "labels": {
     "params": {
@@ -16,6 +23,12 @@
       "knob4": "kn4",
       "gate1": "gt1",
       "gate2": "gt2",
+
+      "sw": "sw",
+      "sw1": "sw",
+      "sw2": "button",
+      "button": "button",
+      "press": "button",
 
       "knob": "kn1",
       "cv": "kn1",
@@ -45,13 +58,15 @@
       "CV_7": "cv7",
       "CV_8": "cv8",
 
+      "B7": "button",
+      "B8": "sw",
+
       "B10": "gt1",
       "B9": "gt2",
       "gate_in_1": "gt1",
       "gate_in_2": "gt2"
     },
     "outs": {
-      "cv": "cvout1",
       "cv1": "cvout1",
       "cv2": "cvout2",
       "gate1": "gateout1",
@@ -60,6 +75,8 @@
       "cvout1": "cvout1",
       "cvout2": "cvout2",
 
+      "cv": "cvout1",
+      "led": "cvout2",
       "gate": "gateout1",
 
       "CV_OUT_1": "cvout1",
@@ -111,6 +128,12 @@
     },
     "gt2": {
       "code": "(hardware.gate_in_2.State()?1.f:0.f);"
+    },
+    "button": {
+      "code": "(button_class.Pressed() ? 1.f : 0.f);"
+    },
+    "sw": {
+      "code": "(sw_class.Pressed() ? 1.f : 0.f);"
     }
   },
   "outputs": {
