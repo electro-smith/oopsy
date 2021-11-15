@@ -1,12 +1,22 @@
 {
-	"max_apps":1,
+	"som": "seed",
+	"max_apps": 1,
 	"defines": {
 		"OOPSY_TARGET_VERSIO": 1
 	},
-    "inserts": [
-		{ "where": "header", "code": "#include \"daisy_versio.h\"" },
-		{ "where": "header", "code": "typedef daisy::DaisyVersio Daisy;" },
-		{ "where": "post_audio", "code": "hardware.UpdateLeds();" }
+	"inserts": [
+		{
+			"where": "header",
+			"code": "#include \"daisy_versio.h\""
+		},
+		{
+			"where": "header",
+			"code": "typedef daisy::DaisyVersio Daisy;"
+		},
+		{
+			"where": "post_audio",
+			"code": "hardware.UpdateLeds();"
+		}
 	],
 	"labels": {
 		"params": {
@@ -21,7 +31,6 @@
 			"sw1": "sw1",
 			"sw2": "sw2",
 			"gate1": "gt1",
-
 			"cv1": "kn1",
 			"cv2": "kn2",
 			"cv3": "kn3",
@@ -38,18 +47,16 @@
 			"ctrl7": "kn7",
 			"switch1": "sw1",
 			"switch2": "sw2",
-
 			"knob": "kn1",
 			"button": "bt1",
 			"ctrl": "kn1",
 			"cv": "kn1",
 			"switch": "sw1",
 			"gate": "gt1",
-
 			"tap": "bt1",
 			"fsu": "bt1",
 			"abc": "sw1",
-			"xyz": "sw2"			
+			"xyz": "sw2"
 		},
 		"outs": {
 			"led1": "led1",
@@ -62,31 +69,31 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_0);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_0);"
 		},
 		"kn2": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn3": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn4": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn5": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn6": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn7": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"sw1": {
 			"code": "(hardware.sw[0].Read()/2.f);"
@@ -123,5 +130,5 @@
 			"code": "hardware.leds[3].Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		}
 	},
-    "datahandlers": {}
+	"datahandlers": {}
 }

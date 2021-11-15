@@ -1,12 +1,19 @@
 {
-    "max_apps":8,
+	"som": "seed",
+	"max_apps": 8,
 	"defines": {
 		"OOPSY_TARGET_PETAL": 1,
 		"OOPSY_HAS_ENCODER": 1
 	},
-    "inserts": [
-		{ "where": "header", "code": "#include \"daisy_petal.h\"" },
-		{ "where": "header", "code": "typedef daisy::DaisyPetal Daisy;" }
+	"inserts": [
+		{
+			"where": "header",
+			"code": "#include \"daisy_petal.h\""
+		},
+		{
+			"where": "header",
+			"code": "typedef daisy::DaisyPetal Daisy;"
+		}
 	],
 	"labels": {
 		"params": {
@@ -24,7 +31,6 @@
 			"sw6": "sw6",
 			"sw7": "sw7",
 			"exp1": "exp",
-
 			"ctrl1": "kn1",
 			"ctrl2": "kn2",
 			"ctrl3": "kn3",
@@ -55,27 +61,27 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn3": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn4": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn5": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn6": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"sw1": {
 			"code": "(hardware.switches[0].Pressed()?1.f:0.f);"
@@ -120,6 +126,5 @@
 			"code": "hardware.SetFootswitchLed(daisy::DaisyPetal::FOOTSWITCH_LED_4, $<name>);"
 		}
 	},
-    "datahandlers": {
-	}
+	"datahandlers": {}
 }

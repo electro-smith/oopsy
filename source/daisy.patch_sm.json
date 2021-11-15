@@ -1,19 +1,43 @@
 {
-  "max_apps":8,
+  "som": "patch_sm",
+  "max_apps": 8,
   "defines": {
     "OOPSY_TARGET_PATCH_SM": 1,
     "OOPSY_IO_COUNT": 2
   },
   "inserts": [
-    { "where": "header", "code": "#include \"daisy_patch_sm.h\"" },
-    { "where": "header", "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;" },
-    { "where": "header", "code": "daisy::Switch sw_class;" },
-    { "where": "init", "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000);"},
-    { "where": "audio", "code": "sw_class.Debounce();" },
-
-    { "where": "header", "code": "daisy::Switch button_class;" },
-    { "where": "init", "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000);"},
-    { "where": "audio", "code": "button_class.Debounce();" }
+    {
+      "where": "header",
+      "code": "#include \"daisy_patch_sm.h\""
+    },
+    {
+      "where": "header",
+      "code": "typedef daisy::patch_sm::DaisyPatchSM Daisy;"
+    },
+    {
+      "where": "header",
+      "code": "daisy::Switch sw_class;"
+    },
+    {
+      "where": "init",
+      "code": "sw_class.Init(oopsy::daisy.hardware.B8, 1000);"
+    },
+    {
+      "where": "audio",
+      "code": "sw_class.Debounce();"
+    },
+    {
+      "where": "header",
+      "code": "daisy::Switch button_class;"
+    },
+    {
+      "where": "init",
+      "code": "button_class.Init(oopsy::daisy.hardware.B7, 1000);"
+    },
+    {
+      "where": "audio",
+      "code": "button_class.Debounce();"
+    }
   ],
   "labels": {
     "params": {
@@ -23,13 +47,11 @@
       "knob4": "kn4",
       "gate1": "gt1",
       "gate2": "gt2",
-
       "sw": "sw",
       "sw1": "sw",
       "sw2": "button",
       "button": "button",
       "press": "button",
-
       "knob": "kn1",
       "cv": "kn1",
       "cv1": "kn1",
@@ -40,15 +62,12 @@
       "cv6": "cv6",
       "cv7": "cv7",
       "cv8": "cv8",
-
       "ctrl": "kn1",
       "ctrl1": "kn1",
       "ctrl2": "kn2",
       "ctrl3": "kn3",
       "ctrl4": "kn4",
-
       "gate": "gt1",
-
       "CV_1": "kn1",
       "CV_2": "kn2",
       "CV_3": "kn3",
@@ -57,10 +76,8 @@
       "CV_6": "cv6",
       "CV_7": "cv7",
       "CV_8": "cv8",
-
       "B7": "button",
       "B8": "sw",
-
       "B10": "gt1",
       "B9": "gt2",
       "gate_in_1": "gt1",
@@ -74,15 +91,12 @@
       "cv2": "cvout2",
       "gate1": "gateout1",
       "gate2": "gateout2",
-
       "cv": "cvout1",
       "led": "cvout2",
       "gate": "gateout1",
-
       "CV_OUT_1": "cvout1",
       "C10": "cvout1",
       "CV_OUT_2": "cvout2",
-
       "B5": "gateout1",
       "B6": "gateout2",
       "gate_out_1": "gateout1",
@@ -145,14 +159,14 @@
       "where": "main",
       "code": "hardware.WriteCvOut(daisy::patch_sm::CV_OUT_2, $<name> * 5.f);"
     },
-    "gateout1":  {
+    "gateout1": {
       "where": "audio",
       "code": "dsy_gpio_write(&hardware.gate_out_1, $<name> > 0.f);"
     },
-    "gateout2":  {
+    "gateout2": {
       "where": "audio",
       "code": "dsy_gpio_write(&hardware.gate_out_2, $<name> > 0.f);"
     }
-  },   
+  },
   "datahandlers": {}
 }

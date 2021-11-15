@@ -1,14 +1,24 @@
 {
-    "max_apps":1,
+	"som": "seed",
+	"max_apps": 1,
 	"defines": {
 		"OOPSY_TARGET_POD": 1,
 		"OOPSY_TARGET_HAS_MIDI_INPUT": 1,
 		"OOPSY_HAS_ENCODER": 1
 	},
-    "inserts": [
-		{ "where": "header", "code": "#include \"daisy_pod.h\"" },
-		{ "where": "header", "code": "typedef daisy::DaisyPod Daisy;" },
-		{ "where": "post_audio", "code": "hardware.UpdateLeds();" }
+	"inserts": [
+		{
+			"where": "header",
+			"code": "#include \"daisy_pod.h\""
+		},
+		{
+			"where": "header",
+			"code": "typedef daisy::DaisyPod Daisy;"
+		},
+		{
+			"where": "post_audio",
+			"code": "hardware.UpdateLeds();"
+		}
 	],
 	"labels": {
 		"params": {
@@ -18,7 +28,6 @@
 			"sw2": "sw2",
 			"sw3": "enp",
 			"encoder": "enc",
-
 			"ctrl1": "kn1",
 			"ctrl2": "kn2",
 			"switch1": "sw1",
@@ -32,7 +41,6 @@
 		"outs": {
 			"led1": "led1",
 			"led2": "led2",
-
 			"led": "led1"
 		},
 		"datas": {}
@@ -40,11 +48,11 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"sw1": {
 			"code": "(hardware.button1.Pressed()?1.f:0.f);"
@@ -69,5 +77,5 @@
 			"code": "hardware.led2.Set(clamp(-$<name>, 0.f, 1.f), clamp($<name>, 0.f, 1.f), 0.f);"
 		}
 	},
-    "datahandlers": {}
+	"datahandlers": {}
 }

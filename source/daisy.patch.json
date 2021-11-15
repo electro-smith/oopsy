@@ -1,94 +1,99 @@
 {
-    "max_apps":8,
-	  "defines": {
-      "OOPSY_TARGET_PATCH": 1,
-      "OOPSY_TARGET_HAS_OLED": 1,
-      "OOPSY_IO_COUNT": 4,
-      "OOPSY_TARGET_HAS_MIDI_INPUT": 1,
-      "OOPSY_TARGET_HAS_MIDI_OUTPUT": 1,
-      "OOPSY_HAS_ENCODER": 1
+  "som": "seed",
+  "max_apps": 8,
+  "defines": {
+    "OOPSY_TARGET_PATCH": 1,
+    "OOPSY_TARGET_HAS_OLED": 1,
+    "OOPSY_IO_COUNT": 4,
+    "OOPSY_TARGET_HAS_MIDI_INPUT": 1,
+    "OOPSY_TARGET_HAS_MIDI_OUTPUT": 1,
+    "OOPSY_HAS_ENCODER": 1
+  },
+  "inserts": [
+    {
+      "where": "header",
+      "code": "#include \"daisy_patch.h\""
     },
-    "inserts": [
-      { "where": "header", "code": "#include \"daisy_patch.h\"" },
-      { "where": "header", "code": "typedef daisy::DaisyPatch Daisy;" }
-    ],
-    "labels": {
-      "params": {
-        "knob1": "kn1",
-        "knob2": "kn2",
-        "knob3": "kn3",
-        "knob4": "kn4",
-        "gate1": "gt1",
-        "gate2": "gt2",
-
-        "knob": "kn1",
-        "cv": "kn1",
-        "cv1": "kn1",
-        "cv2": "kn2",
-        "cv3": "kn3",
-        "cv4": "kn4",
-        "ctrl": "kn1",
-        "ctrl1": "kn1",
-        "ctrl2": "kn2",
-        "ctrl3": "kn3",
-        "ctrl4": "kn4",
-        "gate": "gt1"
-      },
-      "outs": {
-        "cv1": "cvout1",
-        "cv2": "cvout2",
-        "gate1": "gateout1",
-
-        "cv": "cvout1",
-        "gate": "gateout1"
-      },
-      "datas": {
-        "midi": "dsy_midi_out"
-      }
-    },
-    "inputs": {
-      "kn1": {
-        "automap": true,
-        "code": "hardware.GetKnobValue(hardware.CTRL_1);"
-      },
-      "kn2": {
-        "automap": true,
-        "code": "hardware.GetKnobValue(hardware.CTRL_2);"
-      },
-      "kn3": {
-        "automap": true,
-        "code": "hardware.GetKnobValue(hardware.CTRL_3);"
-      },
-      "kn4": {
-        "automap": true,
-        "code": "hardware.GetKnobValue(hardware.CTRL_4);"
-      },
-      "gt1": {
-        "code": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f);"
-      },
-      "gt2": {
-        "code": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f);"
-      }
-    },
-    "outputs": {
-      "cvout1": {
-        "where": "main",
-        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);"
-      },
-      "cvout2": {
-        "where": "main",
-        "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);"
-      },
-      "gateout1":  {
-        "where": "audio",
-        "code": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f);"
-      }
-    },   
-    "datahandlers": {
-      "dsy_midi_out": {
-        "where":"main",
-        "init": "daisy.midi_nullData($<data>)",
-        "code": "daisy.midi_fromData($<data>);"
-      }
+    {
+      "where": "header",
+      "code": "typedef daisy::DaisyPatch Daisy;"
     }
+  ],
+  "labels": {
+    "params": {
+      "knob1": "kn1",
+      "knob2": "kn2",
+      "knob3": "kn3",
+      "knob4": "kn4",
+      "gate1": "gt1",
+      "gate2": "gt2",
+      "knob": "kn1",
+      "cv": "kn1",
+      "cv1": "kn1",
+      "cv2": "kn2",
+      "cv3": "kn3",
+      "cv4": "kn4",
+      "ctrl": "kn1",
+      "ctrl1": "kn1",
+      "ctrl2": "kn2",
+      "ctrl3": "kn3",
+      "ctrl4": "kn4",
+      "gate": "gt1"
+    },
+    "outs": {
+      "cv1": "cvout1",
+      "cv2": "cvout2",
+      "gate1": "gateout1",
+      "cv": "cvout1",
+      "gate": "gateout1"
+    },
+    "datas": {
+      "midi": "dsy_midi_out"
+    }
+  },
+  "inputs": {
+    "kn1": {
+      "automap": true,
+      "code": "hardware.GetKnobValue(hardware.CTRL_1);"
+    },
+    "kn2": {
+      "automap": true,
+      "code": "hardware.GetKnobValue(hardware.CTRL_2);"
+    },
+    "kn3": {
+      "automap": true,
+      "code": "hardware.GetKnobValue(hardware.CTRL_3);"
+    },
+    "kn4": {
+      "automap": true,
+      "code": "hardware.GetKnobValue(hardware.CTRL_4);"
+    },
+    "gt1": {
+      "code": "(hardware.gate_input[hardware.GATE_IN_1].State()?1.f:0.f);"
+    },
+    "gt2": {
+      "code": "(hardware.gate_input[hardware.GATE_IN_2].State()?1.f:0.f);"
+    }
+  },
+  "outputs": {
+    "cvout1": {
+      "where": "main",
+      "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);"
+    },
+    "cvout2": {
+      "where": "main",
+      "code": "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);"
+    },
+    "gateout1": {
+      "where": "audio",
+      "code": "dsy_gpio_write(&hardware.gate_output, $<name> > 0.f);"
+    }
+  },
+  "datahandlers": {
+    "dsy_midi_out": {
+      "where": "main",
+      "init": "daisy.midi_nullData($<data>)",
+      "code": "daisy.midi_fromData($<data>);"
+    }
+  }
 }
