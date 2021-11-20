@@ -2,7 +2,6 @@
   "som": "patch_sm",
   "max_apps": 8,
   "defines": {
-    "OOPSY_TARGET_PATCH_SM": 1,
     "OOPSY_IO_COUNT": 2
   },
   "inserts": [
