@@ -146,10 +146,10 @@ namespace oopsy {
 	struct GenDaisy {
 
 		Daisy hardware;
-		#ifdef OOPSY_TARGET_PATCH_SM
-		Daisy *sub_board = &hardware;
+		#ifdef OOPSY_SOM_PATCH_SM
+		Daisy *som = &hardware;
 		#else
-		daisy::DaisySeed *sub_board = &hardware.seed;
+		daisy::DaisySeed *som = &hardware.seed;
 		#endif
 		AppDef * appdefs = nullptr;
 
@@ -392,7 +392,7 @@ namespace oopsy {
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
 			nullAudioCallbackRunning = false;
-			sub_board->ChangeAudioCallback(nullAudioCallback);
+			som->ChangeAudioCallback(nullAudioCallback);
 			while (!nullAudioCallbackRunning) daisy::System::Delay(1);
 			// reset memory
 			oopsy::init();
@@ -406,9 +406,9 @@ namespace oopsy {
 			paramCallback = newapp.staticParamCallback;
 			#endif
 
-			sub_board->ChangeAudioCallback(newapp.staticAudioCallback);
+			som->ChangeAudioCallback(newapp.staticAudioCallback);
 			log("gen~ %s", appdefs[app_selected].name);
-			log("SR %dkHz / %dHz", (int)(sub_board->AudioSampleRate()/1000), (int)sub_board->AudioCallbackRate());
+			log("SR %dkHz / %dHz", (int)(som->AudioSampleRate()/1000), (int)som->AudioCallbackRate());
 			{
 				log("%d%s/%dKB+%d%s/%dMB", 
 					oopsy::sram_used > 1024 ? oopsy::sram_used/1024 : oopsy::sram_used, 
@@ -453,9 +453,9 @@ namespace oopsy {
 			mode = 0;
 
 			#ifdef OOPSY_USE_USB_SERIAL_INPUT
-				sub_board->usb.Init(daisy::UsbHandle::FS_INTERNAL);
+				som->usb.Init(daisy::UsbHandle::FS_INTERNAL);
 				daisy::System::Delay(500);
-				sub_board->usb.SetReceiveCallback(UsbCallback, daisy::UsbHandle::FS_INTERNAL);
+				som->usb.SetReceiveCallback(UsbCallback, daisy::UsbHandle::FS_INTERNAL);
 			#endif
 
 			#ifdef OOPSY_USE_LOGGING
@@ -478,8 +478,8 @@ namespace oopsy {
 			console_line = console_rows-1;
 			#endif
 
-			sub_board->adc.Start();
-			sub_board->StartAudio(nullAudioCallback);
+			som->adc.Start();
+			som->StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
 
@@ -519,7 +519,7 @@ namespace oopsy {
 				t = t1;
 
 				// pulse seed LED for status according to CPU usage:
-				sub_board->SetLed((t % 1000)/10 <= uint32_t(audioCpuUsage));
+				som->SetLed((t % 1000)/10 <= uint32_t(audioCpuUsage));
 
 				if (app_load_scheduled) {
 					app_load_scheduled = 0;
@@ -547,7 +547,7 @@ namespace oopsy {
 				
 				if (uitimer.ready(dt)) {
 					#ifdef OOPSY_USE_LOGGING
-						sub_board->PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
+						som->PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
 					#endif
 					#ifdef OOPSY_USE_USB_SERIAL_INPUT
 					if(update && rx_size > 0) {
@@ -792,7 +792,7 @@ namespace oopsy {
 								} break;
 								case SCOPEOPTION_ZOOM: {
 									// each pixel is zoom samples; zoom/samplerate seconds
-									float scope_duration = OOPSY_OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/sub_board->AudioSampleRate());
+									float scope_duration = OOPSY_OLED_DISPLAY_WIDTH*(1000.f*zoomlevel/som->AudioSampleRate());
 									int offset = snprintf(scope_label, console_cols, "%dx %dms", zoomlevel, (int)ceilf(scope_duration));
 									hardware.display.SetCursor(0, h - font.FontHeight);
 									hardware.display.WriteString(scope_label, font, true);
@@ -1082,7 +1082,7 @@ namespace oopsy {
 			daisy.audio_postperform(buffers, size);
 			// convert elapsed time (us) to CPU percentage (0-100) of available processing time
 			// 100 (%) * (0.000001 * used_us) * callbackrateHz
-			float percent = (daisy::System::GetUs() - start)*0.0001f*daisy.sub_board->AudioCallbackRate();
+			float percent = (daisy::System::GetUs() - start)*0.0001f*daisy.som->AudioCallbackRate();
 			percent = percent > 100.f ? 100.f : percent;
 			// with a falling-only slew to capture spikes, since we care most about worst-case performance
 			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent 

@@ -465,7 +465,7 @@ function run() {
 			case "field":
 			case "petal":
 			case "patch": 
-			case "patch_sm":
+			case "patch_init":
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
@@ -553,6 +553,7 @@ function run() {
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
 	// this script should be revised to eliminate the old workflow
 	{
+		hardware.som = hardware.som || "seed";
 		hardware.inputs = hardware.inputs || {}
 		hardware.outputs = hardware.outputs || {}
 		hardware.datahandlers = hardware.datahandlers || {}
@@ -681,6 +682,9 @@ function run() {
 	if (options.fastmath) {
 		hardware.defines.GENLIB_USE_FASTMATH = 1;
 	}
+	if (hardware.som == 'patch_sm') {
+		hardware.defines.OOPSY_SOM_PATCH_SM = 1;
+	}
 
 	const makefile_path = path.join(build_path, `Makefile`)
 	const bin_path = path.join(build_path, "build", build_name+".bin");
@@ -763,11 +767,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	#ifdef OOPSY_TARGET_PATCH_SM
-	oopsy::daisy.hardware.Init(); 
-	#else
-  oopsy::daisy.hardware.Init(${options.boost|false}); 
-	#endif
+	oopsy::daisy.hardware.Init(${hardware.som == 'seed' ? options.boost|false : ``}); 
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
@@ -1011,6 +1011,7 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 
 function generate_daisy(hardware, nodes) {
 	let daisy = {
+		som: hardware.som,
 		// DEVICE INPUTS:
 		device_inputs: Object.keys(hardware.inputs).map(v => {
 			let name = v
@@ -1547,11 +1548,9 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
-		#ifdef OOPSY_TARGET_PATCH_SM
-		daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());
-		#else
-		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
-		#endif
+		daisy.gen = ${name}::create(${hardware.som == 'seed' 
+		? `daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize()` 
+		: `daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize()`});
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		
 		daisy.param_count = ${gen.params.length};
