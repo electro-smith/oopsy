@@ -340,12 +340,11 @@
 					"fontname" : "Arial Italic",
 					"fontsize" : 18.0,
 					"id" : "obj-24",
-					"linecount" : 2,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 22.0, 221.0, 47.0 ],
-					"text" : "Template for DaisyPatch Submodule"
+					"patching_rect" : [ 24.0, 22.0, 221.0, 27.0 ],
+					"text" : "Template for patch.Init()"
 				}
 
 			}
@@ -853,7 +852,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 320.5, 119.900900900363922, 67.0, 49.0 ],
+									"patching_rect" : [ 320.5, 119.900900900363922, 68.0, 49.0 ],
 									"text" : "param cv3 @min 0.5 @max 1"
 								}
 
@@ -1013,11 +1012,11 @@
 					"patching_rect" : [ 47.0, 363.0, 195.0, 35.0 ],
 					"saved_object_attributes" : 					{
 						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_patch_sm"
+						"exportname" : "oopsy_patch_init"
 					}
 ,
 					"text" : "gen~",
-					"varname" : "oopsy_patch_sm"
+					"varname" : "oopsy_patch_init"
 				}
 
 			}
