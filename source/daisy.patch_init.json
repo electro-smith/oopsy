@@ -46,6 +46,8 @@
       "knob4": "kn4",
       "gate1": "gt1",
       "gate2": "gt2",
+      "switch": "sw",
+      "toggle": "sw",
       "sw": "sw",
       "sw1": "sw",
       "sw2": "button",
@@ -121,19 +123,23 @@
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_4);"
     },
     "cv5": {
-      "automap": true,
+      "input_min": -1,
+      "input_max": 1,
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_5);"
     },
     "cv6": {
-      "automap": true,
+      "input_min": -1,
+      "input_max": 1,
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_6);"
     },
     "cv7": {
-      "automap": true,
+      "input_min": -1,
+      "input_max": 1,
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_7);"
     },
     "cv8": {
-      "automap": true,
+      "input_min": -1,
+      "input_max": 1,
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_8);"
     },
     "gt1": {
