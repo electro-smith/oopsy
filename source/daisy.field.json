@@ -177,15 +177,23 @@
 			"code": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f);"
 		},
 		"cv1": {
+			"input_min": -1,
+			"input_max": 1,
 			"code": "hardware.GetCvValue(0);"
 		},
 		"cv2": {
+			"input_min": -1,
+			"input_max": 1,
 			"code": "hardware.GetCvValue(1);"
 		},
 		"cv3": {
+			"input_min": -1,
+			"input_max": 1,
 			"code": "hardware.GetCvValue(2);"
 		},
 		"cv4": {
+			"input_min": -1,
+			"input_max": 1,
 			"code": "hardware.GetCvValue(3);"
 		},
 		"gt1": {

@@ -1432,6 +1432,24 @@ function generate_app(app, hardware, target, config) {
 		node.src = src;
 		node.label = label;
 
+		// Apply input scaling
+		if (src in hardware.inputs)
+		{
+			let input = hardware.inputs[src];
+			let input_min = input.input_min || 0;
+			let input_max = input.input_max || 1;
+
+			// We ignore this step if the fields are empty
+			if (input_min != 0 || input_max != 1)
+			{
+				let new_range = node.range / (input_max - input_min);
+				node.range = new_range;
+
+				let new_min = node.min - input_min * new_range;
+				node.min = new_min;
+			}
+		}
+
 		let ideal_steps = 100 // about 4 good twists of the encoder
 		if (node.type == "bool" || node.type == "int") {
 			node.stepsize = 1
