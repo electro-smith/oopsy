@@ -153,7 +153,7 @@ const component_defs = {
 		polarity: "daisy::Switch::POLARITY_INVERTED",
 		pull: "daisy::Switch::PULL_UP",
 		process: "${name}.Debounce();",
-		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetUpdateRate(som.AudioCallbackRate());",
 		mapping: [
 			{ name: "${name}", get: "(hardware.${name}.Pressed()?1.f:0.f)", range: [0, 1] },
 			{
@@ -184,11 +184,11 @@ const component_defs = {
 		typename: "daisy::Encoder",
 		pin: "a,b,click",
 		process: "${name}.Debounce();",
-		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetUpdateRate(som.AudioCallbackRate());",
 		mapping: [
 			{
 				name: "${name}",
-				get: "(hardware.${name}.Increment()*0.5f+0.5f)",
+				get: "hardware.${name}.Increment()",
 				range: [-1, 1]
 			},
 			{
@@ -226,9 +226,9 @@ const component_defs = {
 		pin: "a",
 		flip: false,
 		invert: false,
-		slew: "1.0/seed.AudioCallbackRate()",
+		slew: "1.0/som.AudioCallbackRate()",
 		process: "${name}.Process();",
-		updaterate: "${name}.SetSampleRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetSampleRate(som.AudioCallbackRate());",
 		mapping: [{ name: "${name}", get: "(hardware.${name}.Value())", range: [0, 1] }]
 	},
 	Led: {
@@ -270,12 +270,12 @@ const component_defs = {
 		mapping: [
 			{
 				name: "${name}1",
-				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);",
+				set: "hardware.som.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);",
 				where: "main"
 			},
 			{
 				name: "${name}2",
-				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);",
+				set: "hardware.som.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);",
 				where: "main"
 			}
 		]
@@ -325,48 +325,48 @@ function generate_target_struct(target) {
 	}
   
 	return `
-#include "daisy_seed.h"
+#include "daisy_${target.som}.h"
 ${target.display ? `#include "dev/oled_ssd130x.h"` : ""}
 // name: ${target.name}
 struct Daisy {
   
 	void Init(bool boost = false) {
-		seed.Configure();
-		seed.Init(boost);
+		${target.som == 'seed' ? 'som.Configure();' : ''}
+		som.Init(${target.som == 'seed' ? 'boost' : ''});
 		${components.filter((e) => e.init)
 		.map((e) => `
 		${template(e.init, e)}`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::Switch")
 		.map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin}), seed.AudioCallbackRate(), ${e.type}, ${e.polarity}, ${e.pull});`
+		${e.name}.Init(som.GetPin(${e.pin}), som.AudioCallbackRate(), ${e.type}, ${e.polarity}, ${e.pull});`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::Switch3").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}));`
+		${e.name}.Init(som.GetPin(${e.pin.a}), som.GetPin(${e.pin.b}));`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::GateIn").map((e, i) => `
-		dsy_gpio_pin ${e.name}_pin = seed.GetPin(${e.pin});
+		dsy_gpio_pin ${e.name}_pin = som.GetPin(${e.pin});
 		${e.name}.Init(&${e.name}_pin);`
 		).join("")}
 		${components.filter((e) => e.typename == "daisy::Encoder").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}), seed.GetPin(${e.pin.click}), seed.AudioCallbackRate());`
+		${e.name}.Init(som.GetPin(${e.pin.a}), som.GetPin(${e.pin.b}), som.GetPin(${e.pin.click}), som.AudioCallbackRate());`
 		).join("")}
 		static const int ANALOG_COUNT = ${
 		components.filter((e) => e.typename == "daisy::AnalogControl").length};
 		daisy::AdcChannelConfig cfg[ANALOG_COUNT];
 		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-		cfg[${i}].InitSingle(seed.GetPin(${e.pin}));`).join("")}
-		seed.adc.Init(cfg, ANALOG_COUNT);
+		cfg[${i}].InitSingle(som.GetPin(${e.pin}));`).join("")}
+		som.adc.Init(cfg, ANALOG_COUNT);
 		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-		${e.name}.Init(seed.adc.GetPtr(${i}), seed.AudioCallbackRate(), ${e.flip}, ${e.invert});`).join("")}
+		${e.name}.Init(som.adc.GetPtr(${i}), som.AudioCallbackRate(), ${e.flip}, ${e.invert});`).join("")}
 		${components.filter((e) => e.typename == "daisy::Led").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin}), ${e.invert});
+		${e.name}.Init(som.GetPin(${e.pin}), ${e.invert});
 		${e.name}.Set(0.0f);`).join("")}	
 	  	${components.filter((e) => e.typename == "daisy::RgbLed").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.r}), seed.GetPin(${e.pin.g}), seed.GetPin(${e.pin.b}), ${e.invert});
+		${e.name}.Init(som.GetPin(${e.pin.r}), som.GetPin(${e.pin.g}), som.GetPin(${e.pin.b}), ${e.invert});
 		${e.name}.Set(0.0f, 0.0f, 0.0f);`).join("")}
 		${components.filter((e) => e.typename == "daisy::dsy_gpio").map((e, i) => `
-		${e.name}.pin  = seed.GetPin(${e.pin});
+		${e.name}.pin  = som.GetPin(${e.pin});
 		${e.name}.mode = ${e.mode};
 		${e.name}.pull = ${e.pull};
 		dsy_gpio_init(&${e.name});`).join("")}
@@ -375,8 +375,8 @@ struct Daisy {
 		${e.name}.buff_state = ${e.buff_state};
 		${e.name}.mode       = ${e.mode};
 		${e.name}.chn        = ${e.channel};
-		seed.dac.Init(${e.name});
-		seed.dac.WriteValue(${e.channel}, 0);`).join("")}
+		som.dac.Init(${e.name});
+		som.dac.WriteValue(${e.channel}, 0);`).join("")}
 		${target.display ? `
 		daisy::OledDisplay<${target.display.driver}>::Config display_config;
 		display_config.driver_config.transport_config.Defaults(); ${(target.display.config || []).map(e=>`
@@ -402,12 +402,12 @@ struct Daisy {
 	}
   
 	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate) {
-		seed.SetAudioSampleRate(samplerate);
+		som.SetAudioSampleRate(samplerate);
 		SetHidUpdateRates();
 	}
 
 	void SetAudioBlockSize(size_t size) {
-		seed.SetAudioBlockSize(size);
+		som.SetAudioBlockSize(size);
 		SetHidUpdateRates();
 	}
 
@@ -416,7 +416,7 @@ struct Daisy {
 		${template(e.updaterate, e)}`).join("")}
 	}
   
-	daisy::DaisySeed seed;
+	${target.som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchInit'} som;
 	${components.map((e) => `
 	${e.typename} ${e.name};`).join("")}
 	${target.display ? `daisy::OledDisplay<${target.display.driver}> display;`:`// no display`}
@@ -461,7 +461,6 @@ function run() {
 			case "upload":
 			case "up": action="upload"; break;
 
-			case "pod":
 			case "field":
 			case "petal":
 			case "patch": 
@@ -469,6 +468,7 @@ function run() {
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
+			case "pod": target_path = path.join(__dirname, "seed.pod.json"); break;
 
 			case "watch": watch=true; break;
 
@@ -536,6 +536,9 @@ function run() {
 
 	let OOPSY_TARGET_SEED = 0
 
+	let valid_soms = ['seed', 'patch_sm'];
+	let som = 'seed';
+
 	// configure target:
 	if (!target && !target_path) target = "patch";
 	if (!target_path) {
@@ -543,11 +546,16 @@ function run() {
 	} else {
 		OOPSY_TARGET_SEED = 1
 		target = path.parse(target_path).name.replace(".", "_")
+		som_match = path.parse(target_path).name.match(/([A-Za-z_0-9\-]+)\./)
+		assert(som_match != null, `Daisy SOM undefined. Provide the SOM as in the following: "som.MyBoard.json"`);
+		assert(valid_soms.includes(som_match[1]), `unkown SOM ${som_match[1]}. Valid SOMs: ${valid_soms.join(', ')}`);
+		som = som_match[1];
 	}
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
 	hardware.max_apps = hardware.max_apps || 1
+	hardware.som = som;
 
 	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
@@ -767,7 +775,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	oopsy::daisy.hardware.Init(${hardware.som == 'seed' ? options.boost|false : ``}); 
+  oopsy::daisy.hardware.Init(${options.boost|false}); 
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
@@ -1566,9 +1574,11 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
-		daisy.gen = ${name}::create(${hardware.som == 'seed' 
-		? `daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize()` 
-		: `daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize()`});
+		${
+			hardware.som == 'seed' 
+			? `daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());`
+			: `daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());`
+		}
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		
 		daisy.param_count = ${gen.params.length};
