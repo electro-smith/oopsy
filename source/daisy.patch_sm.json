@@ -109,23 +109,19 @@
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_4);"
     },
     "cv5": {
-      "input_min": -1,
-      "input_max": 1,
+      "range": [-1, 1],
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_5);"
     },
     "cv6": {
-      "input_min": -1,
-      "input_max": 1,
+      "range": [-1, 1],
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_6);"
     },
     "cv7": {
-      "input_min": -1,
-      "input_max": 1,
+      "range": [-1, 1],
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_7);"
     },
     "cv8": {
-      "input_min": -1,
-      "input_max": 1,
+      "range": [-1, 1],
       "code": "hardware.GetAdcValue(daisy::patch_sm::CV_8);"
     },
     "gt1": {

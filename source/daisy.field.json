@@ -1,14 +1,20 @@
 {
-    "max_apps":8,
+	"max_apps": 8,
 	"defines": {
 		"OOPSY_TARGET_FIELD": 1,
 		"OOPSY_TARGET_HAS_OLED": 1,
 		"OOPSY_TARGET_HAS_MIDI_INPUT": 1,
 		"OOPSY_TARGET_HAS_MIDI_OUTPUT": 1
 	},
-    "inserts": [
-		{ "where": "header", "code": "#include \"daisy_field.h\"" },
-		{ "where": "header", "code": "typedef daisy::DaisyField Daisy;" }
+	"inserts": [
+		{
+			"where": "header",
+			"code": "#include \"daisy_field.h\""
+		},
+		{
+			"where": "header",
+			"code": "typedef daisy::DaisyField Daisy;"
+		}
 	],
 	"labels": {
 		"params": {
@@ -43,7 +49,6 @@
 			"cv3": "cv3",
 			"cv4": "cv4",
 			"gate1": "gt1",
-
 			"key1": "kA1",
 			"key2": "kA2",
 			"key3": "kA3",
@@ -70,7 +75,6 @@
 			"ctrl8": "kn8",
 			"switch1": "sw1",
 			"switch2": "sw2",
-
 			"knob": "kn",
 			"key": "kA1",
 			"ctrl": "kn",
@@ -92,35 +96,35 @@
 	"inputs": {
 		"kn1": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_1);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_1);"
 		},
 		"kn2": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_2);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_2);"
 		},
 		"kn3": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_3);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_3);"
 		},
 		"kn4": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_4);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_4);"
 		},
 		"kn5": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_5);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_5);"
 		},
 		"kn6": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_6);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_6);"
 		},
 		"kn7": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_7);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_7);"
 		},
 		"kn8": {
 			"automap": true,
-        	"code": "hardware.GetKnobValue(hardware.KNOB_8);"
+			"code": "hardware.GetKnobValue(hardware.KNOB_8);"
 		},
 		"kA1": {
 			"code": "(hardware.KeyboardState(0)?1.f:0.f);"
@@ -177,23 +181,19 @@
 			"code": "(hardware.GetSwitch(1)->Pressed()?1.f:0.f);"
 		},
 		"cv1": {
-			"input_min": -1,
-			"input_max": 1,
+			"range": [-1, 1],
 			"code": "hardware.GetCvValue(0);"
 		},
 		"cv2": {
-			"input_min": -1,
-			"input_max": 1,
+			"range": [-1, 1],
 			"code": "hardware.GetCvValue(1);"
 		},
 		"cv3": {
-			"input_min": -1,
-			"input_max": 1,
+			"range": [-1, 1],
 			"code": "hardware.GetCvValue(2);"
 		},
 		"cv4": {
-			"input_min": -1,
-			"input_max": 1,
+			"range": [-1, 1],
 			"code": "hardware.GetCvValue(3);"
 		},
 		"gt1": {
@@ -202,21 +202,21 @@
 	},
 	"outputs": {
 		"cvout1": {
-			"where":"main",
+			"where": "main",
 			"code": "hardware.SetCvOut1($<name> * 4095);"
 		},
 		"cvout2": {
-			"where":"main",
+			"where": "main",
 			"code": "hardware.SetCvOut2($<name> * 4095);"
 		},
 		"gateout1": {
-			"where":"audio",
+			"where": "audio",
 			"code": "dsy_gpio_write(&hardware.gate_out, $<name> > 0.f);"
 		}
 	},
 	"datahandlers": {
 		"dsy_leds": {
-			"where":"display",
+			"where": "display",
 			"code": "daisy.setFieldLedsFromData($<data>);"
 		}
 	}
