@@ -149,7 +149,11 @@ namespace oopsy {
 		#ifdef OOPSY_SOM_PATCH_SM
 		Daisy *som = &hardware;
 		#else
-		daisy::DaisySeed *som = &hardware.som;
+			#ifdef OOPSY_OLD_JSON
+			daisy::DaisySeed *som = &hardware.seed;
+			#else
+			daisy::DaisySeed *som = &hardware.som;
+			#endif
 		#endif
 		AppDef * appdefs = nullptr;
 

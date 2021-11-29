@@ -323,6 +323,10 @@ function generate_target_struct(target) {
 		target.defines.OOPSY_OLED_DISPLAY_WIDTH = target.display.dim[0]
 		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
 	}
+
+	if (target.som == 'patch_sm') {
+		target.defines.OOPSY_SOM_PATCH_SM = 1
+	}
   
 	return `
 #include "daisy_${target.som}.h"
@@ -539,10 +543,13 @@ function run() {
 	let valid_soms = ['seed', 'patch_sm'];
 	let som = 'seed';
 
+	let old_json = false;
+
 	// configure target:
 	if (!target && !target_path) target = "patch";
 	if (!target_path) {
 		target_path = path.join(__dirname, `daisy.${target}.json`);
+		old_json = true;
 	} else {
 		OOPSY_TARGET_SEED = 1
 		target = path.parse(target_path).name.replace(".", "_")
@@ -556,7 +563,6 @@ function run() {
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
 	hardware.max_apps = hardware.max_apps || 1
 	hardware.som = som;
-
 	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
 	// this script should be revised to eliminate the old workflow
@@ -611,6 +617,9 @@ function run() {
 				}
 			}
 		}
+
+		if (old_json)
+			hardware.defines.OOPSY_OLD_JSON = 1
 
 		for (let alias in hardware.aliases) {
 			let map = hardware.aliases[alias]
@@ -1554,6 +1563,8 @@ function generate_app(app, hardware, target, config) {
 		});
 	}
 
+	let som_or_seed = hardware.defines.OOPSY_OLD_JSON ? 'seed' : 'som';
+
 	const struct = `
 
 struct App_${name} : public oopsy::App<App_${name}> {
@@ -1576,7 +1587,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void init(oopsy::GenDaisy& daisy) {
 		${
 			hardware.som == 'seed' 
-			? `daisy.gen = ${name}::create(daisy.hardware.som.AudioSampleRate(), daisy.hardware.som.AudioBlockSize());`
+			? `daisy.gen = ${name}::create(daisy.hardware.${som_or_seed}.AudioSampleRate(), daisy.hardware.${som_or_seed}.AudioBlockSize());`
 			: `daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());`
 		}
 		${name}::State& gen = *(${name}::State *)daisy.gen;
