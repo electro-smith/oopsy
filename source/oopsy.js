@@ -775,7 +775,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-  oopsy::daisy.hardware.Init(${options.boost|false}); 
+  oopsy::daisy.hardware.Init(${hardware.som == 'seed' ? options.boost|false : ''}); 
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
@@ -1576,7 +1576,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	void init(oopsy::GenDaisy& daisy) {
 		${
 			hardware.som == 'seed' 
-			? `daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());`
+			? `daisy.gen = ${name}::create(daisy.hardware.som.AudioSampleRate(), daisy.hardware.som.AudioBlockSize());`
 			: `daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());`
 		}
 		${name}::State& gen = *(${name}::State *)daisy.gen;
