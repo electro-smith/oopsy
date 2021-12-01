@@ -1,0 +1,399 @@
+{
+	"Switch": {
+		"map_init": "{name}.Init(som.GetPin({pin}), som.AudioCallbackRate(), {type}, {polarity}, {pull});",
+		"typename": "daisy::Switch",
+		"direction": "in",
+		"pin": "a",
+		"type": "daisy::Switch::TYPE_MOMENTARY",
+		"polarity": "daisy::Switch::POLARITY_INVERTED",
+		"pull": "daisy::Switch::PULL_UP",
+		"process": "{name}.Debounce();",
+		"updaterate": "{name}.SetUpdateRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}_press",
+				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			},
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.RisingEdge()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": true
+			},
+			{
+				"name": "{name}_fall",
+				"get": "({class_name}.{name}.FallingEdge()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": true
+			},
+			{
+				"name": "{name}_seconds",
+				"get": "({class_name}.{name}.TimeHeldMs()*0.001f)",
+				"range": null,
+				"bool": false
+			}
+		]
+	},
+	"Switch3": {
+		"map_init": "{name}.Init(som.GetPin({pin_a}), som.GetPin({pin_b}));",
+		"typename": "daisy::Switch3",
+		"direction": "in",
+		"pin": "a,b",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Read()*0.5f+0.5f)",
+				"range": [
+					0,
+					2
+				],
+				"bool": false
+			}
+		]
+	},
+	"Encoder": {
+		"map_init": "{name}.Init(som.GetPin({pin_a}), som.GetPin({pin_b}), som.GetPin({pin_click}), som.AudioCallbackRate());",
+		"typename": "daisy::Encoder",
+		"direction": "in",
+		"pin": "a,b,click",
+		"process": "{name}.Debounce();",
+		"updaterate": "{name}.SetUpdateRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Increment())",
+				"range": [
+					-1,
+					1
+				],
+				"bool": false
+			},
+			{
+				"name": "{name}_press",
+				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			},
+			{
+				"name": "{name}_rise",
+				"get": "({class_name}.{name}.RisingEdge()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": true
+			},
+			{
+				"name": "{name}_fall",
+				"get": "({class_name}.{name}.FallingEdge()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": true
+			},
+			{
+				"name": "{name}_seconds",
+				"get": "({class_name}.{name}.TimeHeldMs()*0.001f)",
+				"range": null,
+				"bool": false
+			}
+		]
+	},
+	"GateIn": {
+		"map_init": "dsy_gpio_pin {name}_pin = som.GetPin({pin});\n    {name}.Init(&{name}_pin);",
+		"typename": "daisy::GateIn",
+		"direction": "in",
+		"pin": "a",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.State()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			},
+			{
+				"name": "{name}_trig",
+				"get": "({class_name}.{name}.Trig()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": true
+			}
+		]
+	},
+	"AnalogControl": {
+		"init_single": "cfg[{i}].InitSingle(som.GetPin({pin}));",
+		"map_init": "{name}.Init(som.adc.GetPtr({i}), som.AudioCallbackRate(), {flip}, {invert});",
+		"typename": "daisy::AnalogControl",
+		"direction": "in",
+		"pin": "a",
+		"flip": "false",
+		"invert": "false",
+		"slew": "1.0/som.AudioCallbackRate()",
+		"process": "{name}.Process();",
+		"updaterate": "{name}.SetSampleRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Value())",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			}
+		]
+	},
+	"Led": {
+		"map_init": "{name}.Init(som.GetPin({pin}), {invert});\n    {name}.Set(0.0f);",
+		"typename": "daisy::Led",
+		"direction": "out",
+		"pin": "a",
+		"invert": "true",
+		"postprocess": "{name}.Update();",
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "{class_name}.{name}.Set({value});"
+			}
+		]
+	},
+	"RgbLed": {
+		"map_init": "{name}.Init(som.GetPin({pin_r}), som.GetPin({pin_g}), som.GetPin({pin_b}), {invert});\n    {name}.Set(0.0f, 0.0f, 0.0f);",
+		"typename": "daisy::RgbLed",
+		"direction": "out",
+		"pin": "r,g,b",
+		"invert": "true",
+		"postprocess": "{name}.Update();",
+		"mapping": [
+			{
+				"name": "{name}_red",
+				"set": "{class_name}.{name}.SetRed({value});"
+			},
+			{
+				"name": "{name}_green",
+				"set": "{class_name}.{name}.SetGreen({value});"
+			},
+			{
+				"name": "{name}_blue",
+				"set": "{class_name}.{name}.SetBlue({value});"
+			},
+			{
+				"name": "{name}",
+				"set": "{class_name}.{name}.Set(clamp(-{value}, 0.f, 1.f), 0.f, clamp({value}, 0.f, 1.f));"
+			},
+			{
+				"name": "{name}_white",
+				"set": "{class_name}.{name}.Set({value},{value},{value});"
+			}
+		]
+	},
+	"GateOut": {
+		"map_init": "{name}.pin  = som.GetPin({pin});\n    {name}.mode = {mode};\n    {name}.pull = {pull};\n    dsy_gpio_init(&{name});",
+		"typename": "dsy_gpio",
+		"direction": "out",
+		"pin": "a",
+		"mode": "DSY_GPIO_MODE_OUTPUT_PP",
+		"pull": "DSY_GPIO_NOPULL",
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "dsy_gpio_write(&{class_name}.{name}, {value});"
+			}
+		]
+	},
+	"CVOuts": {
+		"map_init": "{name}.bitdepth = {bitdepth};\n    {name}.buff_state = {buff_state};\n    {name}.mode = {mode};\n    {name}.chn = {channel};\n    som.dac.Init({name});\n    som.dac.WriteValue({channel}, 0);",
+		"typename": "daisy::DacHandle::Config",
+		"direction": "out",
+		"pin": "",
+		"bitdepth": "daisy::DacHandle::BitDepth::BITS_12",
+		"buff_state": "daisy::DacHandle::BufferState::ENABLED",
+		"mode": "daisy::DacHandle::Mode::POLLING",
+		"channel": "daisy::DacHandle::Channel::BOTH",
+		"mapping": [
+			{
+				"name": "{name}1",
+				"set": "{class_name}.som.dac.WriteValue(daisy::DacHandle::Channel::ONE, {value} * 4095);",
+				"where": "main"
+			},
+			{
+				"name": "{name}2",
+				"set": "{class_name}.som.dac.WriteValue(daisy::DacHandle::Channel::TWO, {value} * 4095);",
+				"where": "main"
+			}
+		]
+	},
+	"i2c": {
+		"map_init": "{name}.Init({{{peripheral}, {{som.GetPin({pin_scl}), som.GetPin({pin_sda})}}, {speed}, {mode}}});",
+		"typename": "daisy::I2CHandle",
+		"pin": "scl,sda",
+		"peripheral": "daisy::I2CHandle::Config::Peripheral::I2C_1",
+		"speed": "daisy::I2CHandle::Config::Speed::I2C_1MHZ",
+		"mode": "daisy::I2CHandle::Config::Mode::I2C_MASTER",
+		"mapping": []
+	},
+	"PCA9685": {
+		"map_init": "{name}.Init({parent}, {address}, {name}_dma_buffer_a, {name}_dma_buffer_b);",
+		"typename": "daisy::LedDriverPca9685<{driver_count}, true>",
+		"non_class_decl": "daisy::LedDriverPca9685<{driver_count}, true>::DmaBuffer DMA_BUFFER_MEM_SECTION {name}_dma_buffer_a, {name}_dma_buffer_b;",
+		"driver_count": 1,
+		"address": "{0x00}",
+		"parent": "",
+		"pin": "",
+		"loopprocess": "{name}.SwapBuffersAndTransmit();",
+		"mapping": []
+	},
+	"PCA9685Led": {
+		"map_init": "",
+		"pin": "",
+		"typename": "",
+		"parent": "",
+		"direction": "out",
+		"index": 0,
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "{class_name}.{parent}.SetLed({index}, {value});"
+			}
+		]
+	},
+	"PCA9685RgbLed": {
+		"map_init": "",
+		"typename": "",
+		"direction": "out",
+		"parent": "",
+		"pin": "",
+		"index": {
+			"red": 0,
+			"green": 1,
+			"blue": 2
+		},
+		"mapping": [
+			{
+				"name": "{name}_red",
+				"set": "{class_name}.{parent}.SetLed({index_red}, {value});"
+			},
+			{
+				"name": "{name}_green",
+				"set": "{class_name}.{parent}.SetLed({index_green}, {value});"
+			},
+			{
+				"name": "{name}_blue",
+				"set": "{class_name}.{parent}.SetLed({index_blue}, {value});"
+			},
+			{
+				"name": "{name}",
+				"set": "{class_name}.{parent}.SetLed({index_red}, {value});\n    {class_name}.{parent}.SetLed({index_green}, {value});\n    {class_name}.{parent}.SetLed({index_blue}, {value});"
+			},
+			{
+				"name": "{name}_white",
+				"set": "{class_name}.{parent}.SetLed({index_red}, {value});\n    {class_name}.{parent}.SetLed({index_green}, {value});\n    {class_name}.{parent}.SetLed({index_blue}, {value});"
+			}
+		]
+	},
+	"CD4021": {
+		"map_init": "{name}.Init({{ som.GetPin({pin_clk}), som.GetPin({pin_cs}), {{ som.GetPin({pin_data}) }} }});",
+		"typename": "daisy::ShiftRegister4021<{driver_count}>",
+		"non_class_decl": "uint8_t {name}_debounced[8*{driver_count}];",
+		"driver_count": 1,
+		"pin": "clk,cs,data",
+		"postprocess": "{name}.Update();",
+		"mapping": []
+	},
+	"CD4021Switch": {
+		"map_init": "",
+		"typename": "",
+		"direction": "in",
+		"parent": "",
+		"index": 0,
+		"postprocess": "{parent}_debounced[{index}] = {parent}.State({index}) | ({parent}_debounced[{index}] << 1);",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "(json2daisy::{parent}_debounced[{index}] == 0xFE)",
+				"bool": true
+			},
+			{
+				"name": "{name}_press",
+				"get": "(json2daisy::{parent}_debounced[{index}] != 0xFF)",
+				"bool": false
+			},
+			{
+				"name": "{name}_fall",
+				"get": "(json2daisy::{parent}_debounced[{index}] == 0x7F)",
+				"bool": true
+			}
+		]
+	},
+	"CD4051": {
+		"init_single": "size_t {name}_index = {i};\n    cfg[{name}_index].InitMux(som.GetPin({pin_adc}), {mux_count}, som.GetPin({pin_sel0}), som.GetPin({pin_sel1}), som.GetPin({pin_sel2}));",
+		"typename": "",
+		"mux_count": 1,
+		"pin": "adc,sel0,sel1,sel2",
+		"mapping": []
+	},
+	"CD4051AnalogControl": {
+		"map_init": "{name}.Init(som.adc.GetMuxPtr({parent}_index, {index}), som.AudioCallbackRate(), {flip}, {invert});",
+		"parent": "",
+		"index": 0,
+		"typename": "daisy::AnalogControl",
+		"direction": "in",
+		"flip": "false",
+		"invert": "false",
+		"slew": "1.0/som.AudioCallbackRate()",
+		"process": "{name}.Process();",
+		"updaterate": "{name}.SetSampleRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Value())",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			}
+		]
+	},
+	"AnalogControlBipolar": {
+		"init_single": "cfg[{i}].InitSingle(som.GetPin({pin}));",
+		"map_init": "{name}.InitBipolarCv(som.adc.GetPtr({i}), som.AudioCallbackRate());",
+		"typename": "daisy::AnalogControl",
+		"direction": "in",
+		"pin": "a",
+		"slew": "1.0/som.AudioCallbackRate()",
+		"process": "{name}.Process();",
+		"updaterate": "{name}.SetSampleRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Value())",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			}
+		]
+	}
+}
