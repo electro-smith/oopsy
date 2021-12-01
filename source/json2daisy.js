@@ -320,7 +320,7 @@ function generate_header(board_description_object)
 
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
 
-  return `
+  let header = `
 #ifndef __JSON2DAISY_${replacements.name.toUpperCase()}_H__
 #define __JSON2DAISY_${replacements.name.toUpperCase()}_H__
 
@@ -442,5 +442,18 @@ struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
 
 #endif // __JSON2DAISY_${replacements.name.toUpperCase()}_H__
 `;
+
+  let audio_info = target.audio || null;
+  let audio_channels = audio_info != null ? audio_info.channels || 2 : 2;
+
+  let board_info = {
+    header: header,
+    name: target.name,
+    components: components,
+    aliases: target.aliases,
+    channels: audio_channels
+  };
+
+  return board_info;
 
 }
