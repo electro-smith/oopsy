@@ -2,17 +2,17 @@
 
 // TODO -- we'll reimplement the filter / map stuff here if just for the exclusion capabilities
 
-const { assert } = require("console");
+const assert = require("assert");
+const path = require("path");
+const seed_defs = require(path.join(__dirname, "component_defs.json"));
+const patchsm_defs = require(path.join(__dirname, "component_defs_patchsm.json"));
 
 var global_definitions;
 
-const seed_definitions = {
-
-};
-
-const patchsm_definitions = {
-
-};
+// .filter for objects that returns array
+Object.filter = (obj, predicate) => 
+    Object.keys(obj).filter(key => predicate(obj[key]))
+    .map(key => obj[key]);
 
 function generateCodecs(external_codecs)
 {
@@ -94,6 +94,8 @@ function generateCodecs(external_codecs)
 
 function stringFormatMap(template, formatMap)
 {
+  if (typeof template === 'undefined')
+    return '';
   const format_match = /{\s*([^{}\s]*)\s*}/g;
   const open_curly = /{{/g;
   const close_curly = /}}/g;
@@ -109,14 +111,14 @@ function stringFormatMap(template, formatMap)
   return pass3;
 }
 
-function map_load(key_item)
-{
-  key = key_item[0]
-  item = key_item[1]
+exports.format_map = stringFormatMap;
 
+function map_load(key, item)
+{
   item.name = key;
-  component = global_definitions[item.component] || undefined;
-  assert(component !== undefined, `Undefined component kind "${item.component}"`);
+  assert(item.component in global_definitions, `Undefined component kind "${item.component}"`);
+  component = global_definitions[item.component];
+  
   for (property in component)
   {
     if (!(property in item))
@@ -130,17 +132,17 @@ function filter_match(sequence, key, match, key_exclude = null, match_exclude = 
 {
   if (key_exclude !== null && match_exclude !== null)
   {
-    return sequence.filter(item => key in item && key == match && (!(key_exclude in item) || (key_exclude in item && key_exclude != match_exclude)));
+    return Object.filter(sequence, item => key in item && key == match && (!(key_exclude in item) || (key_exclude in item && key_exclude != match_exclude)));
   }
   else
-    return sequence.filter(item => key in item && key == match);
+    return Object.filter(sequence, item => key in item && key == match);
 }
 
-function filter_matches(set, key, matches, key_exclude=null, match_exclude=null)
+function filter_matches(sequence, key, matches, key_exclude=null, match_exclude=null)
 {
   if (key_exclude !== null && match_exclude !== null)
   {
-    return sequence.filter(item => {
+    return Object.filter(sequence, item => {
       let items_key = item[key] || '';
       let items_key_exclude = item[key_exclude] || '';
       return matches.includes(items_key) && items_key_exclude != match_exclude;
@@ -148,25 +150,25 @@ function filter_matches(set, key, matches, key_exclude=null, match_exclude=null)
   }
   else
   {
-    return sequence.filter(item => {
+    return Object.filter(sequence, item => {
       let items_key = item[key] || '';
       return matches.includes(items_key);
     });
   }
 }
 
-function filter_has(set, key, key_exclude=null, match_exclude=null)
+function filter_has(sequence, key, key_exclude=null, match_exclude=null)
 {
   if (key_exclude !== null && match_exclude !== null)
   {
-    return sequence.filter(item => {
+    return Object.filter(sequence, item => {
       let items_key_exclude = item[key_exclude] || '';
       return key in item && items_key_exclude != match_exclude;
     });
   }
   else
   {
-    return sequence.filter(item => key in item);
+    return Object.filter(sequence, item => key in item);
   }
 }
 
@@ -223,7 +225,7 @@ function flatten_index_dicts(comp)
   return flattened;
 }
 
-function generate_header(board_description_object)
+exports.generate_header = function generate_header(board_description_object)
 {
   let target = board_description_object;
 
@@ -239,14 +241,21 @@ function generate_header(board_description_object)
   som = target.som || 'seed';
 
   let temp_defs = {
-    seed: seed_definitions,
-    patch_sm: patchsm_definitions,
+    seed: seed_defs,
+    patch_sm: patchsm_defs,
   };
 
   assert(som in temp_defs, `Unkown som "${som}"`);
 
   definitions = temp_defs[som];
   global_definitions = definitions;
+
+  for (let comp in components)
+  {
+    components[comp] = map_load(comp, components[comp]);
+    components[comp] = flatten_pin_dicts(components[comp]);
+    components[comp] = flatten_index_dicts(components[comp]);
+  }
 
   target.components = components;
   target.name = target.name || 'custom';
@@ -274,26 +283,26 @@ function generate_header(board_description_object)
 
   replacements.display_conditional = 'display' in target ? '#include "dev/oled_ssd130x.h' : '';
   replacements.target_name = target.name; // TODO -- redundant?
-  replacements.init = filter_map_template(components, 'init', 'default', true);
+  replacements.init = filter_map_template(components, 'init', 'is_default', true);
 
-  replacements.cd4021 = filter_map_init(components, 'component', 'CD4021', key_exclude='default', match_exclude=True);
-  replacements.i2c = filter_map_init(components, 'component', 'i2c', key_exclude='default', match_exclude=True);
-  replacements.pca9685 = filter_map_init(components, 'component', 'PCA9685', key_exclude='default', match_exclude=True);
-  replacements.switch = filter_map_init(components, 'component', 'Switch', key_exclude='default', match_exclude=True);
-  replacements.gatein = filter_map_init(components, 'component', 'GateIn', key_exclude='default', match_exclude=True);
-  replacements.encoder = filter_map_init(components, 'component', 'Encoder', key_exclude='default', match_exclude=True);
-  replacements.switch3 = filter_map_init(components, 'component', 'Switch3', key_exclude='default', match_exclude=True);
-  replacements.analogcount = filter_matches(components, 'component', ['AnalogControl', 'AnalogControlBipolar', 'CD4051'], key_exclude='default', match_exclude=True).length;
+  replacements.cd4021 = filter_map_init(components, 'component', 'CD4021', key_exclude='is_default', match_exclude=true);
+  replacements.i2c = filter_map_init(components, 'component', 'i2c', key_exclude='is_default', match_exclude=true);
+  replacements.pca9685 = filter_map_init(components, 'component', 'PCA9685', key_exclude='is_default', match_exclude=true);
+  replacements.switch = filter_map_init(components, 'component', 'Switch', key_exclude='is_default', match_exclude=true);
+  replacements.gatein = filter_map_init(components, 'component', 'GateIn', key_exclude='is_default', match_exclude=true);
+  replacements.encoder = filter_map_init(components, 'component', 'Encoder', key_exclude='is_default', match_exclude=true);
+  replacements.switch3 = filter_map_init(components, 'component', 'Switch3', key_exclude='is_default', match_exclude=true);
+  replacements.analogcount = filter_matches(components, 'component', ['AnalogControl', 'AnalogControlBipolar', 'CD4051'], key_exclude='is_default', match_exclude=true).length;
 
-  replacements.init_single = filter_map_ctrl(components, 'component', ['AnalogControl', 'AnalogControlBipolar', 'CD4051'], 'init_single', key_exclude='default', match_exclude=True);
-  replacements.ctrl_init = filter_map_ctrl(components, 'component', ['AnalogControl', 'AnalogControlBipolar'], 'map_init', key_exclude='default', match_exclude=True);
+  replacements.init_single = filter_map_ctrl(components, 'component', ['AnalogControl', 'AnalogControlBipolar', 'CD4051'], 'init_single', key_exclude='is_default', match_exclude=true);
+  replacements.ctrl_init = filter_map_ctrl(components, 'component', ['AnalogControl', 'AnalogControlBipolar'], 'map_init', key_exclude='is_default', match_exclude=true);
 
-  replacements.ctrl_mux_init = filter_map_init(components, 'component', 'CD4051AnalogControl', key_exclude='default', match_exclude=True);
+  replacements.ctrl_mux_init = filter_map_init(components, 'component', 'CD4051AnalogControl', key_exclude='is_default', match_exclude=true);
 
-  replacements.led = filter_map_init(components, 'component', 'Led', key_exclude='default', match_exclude=True);
-  replacements.rgbled = filter_map_init(components, 'component', 'RgbLed', key_exclude='default', match_exclude=True);
-  replacements.gateout = filter_map_init(components, 'component', 'GateOut', key_exclude='default', match_exclude=True);
-  replacements.dachandle = filter_map_init(components, 'component', 'CVOuts', key_exclude='default', match_exclude=True);
+  replacements.led = filter_map_init(components, 'component', 'Led', key_exclude='is_default', match_exclude=true);
+  replacements.rgbled = filter_map_init(components, 'component', 'RgbLed', key_exclude='is_default', match_exclude=true);
+  replacements.gateout = filter_map_init(components, 'component', 'GateOut', key_exclude='is_default', match_exclude=true);
+  replacements.dachandle = filter_map_init(components, 'component', 'CVOuts', key_exclude='is_default', match_exclude=true);
   
   replacements.display = !('display' in target) ? '' : `
   daisy::OledDisplay<${target.display.driver}>::Config display_config;
@@ -303,19 +312,19 @@ function generate_header(board_description_object)
   display.Update();
   `;
 
-  replacements.process = filter_map_template(components, 'process', key_exclude='default', match_exclude=True);
+  replacements.process = filter_map_template(components, 'process', key_exclude='is_default', match_exclude=true);
   // There's also this after {process}. I don't see any meta in the defaults json at this time. Is this needed?
   // ${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`${template(m, e)}`).join("")).join("")}
-  replacements.loopprocess = filter_map_template(components, 'loopprocess', key_exclude='default', match_exclude=True);
+  replacements.loopprocess = filter_map_template(components, 'loopprocess', key_exclude='is_default', match_exclude=true);
 
-  replacements.postprocess = filter_map_template(components, 'postprocess', key_exclude='default', match_exclude=True);
-  replacements.displayprocess = filter_map_template(components, 'display', key_exclude='default', match_exclude=True);
-  replacements.hidupdaterates = filter_map_template(components, 'updaterate', key_exclude='default', match_exclude=True);
+  replacements.postprocess = filter_map_template(components, 'postprocess', key_exclude='is_default', match_exclude=true);
+  replacements.displayprocess = filter_map_template(components, 'display', key_exclude='is_default', match_exclude=true);
+  replacements.hidupdaterates = filter_map_template(components, 'updaterate', key_exclude='is_default', match_exclude=true);
 
-  component_decls = components.filter(item => item.default || false);
-  component_decls = component_decls.filter(item => 'typename' in item);
+  component_decls = Object.filter(components, item => item.default || false);
+  component_decls = Object.filter(component_decls, item => 'typename' in item);
   replacements.comps = component_decls.map(item => `${stringFormatMap(item.typename, item)} ${item.name}`).join(";\n  ") + ';';
-  non_class_decls = component_decls.filter(item => 'non_class_decl' in item);
+  non_class_decls = Object.filter(component_decls, item => 'non_class_decl' in item);
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
@@ -324,7 +333,7 @@ function generate_header(board_description_object)
 #ifndef __JSON2DAISY_${replacements.name.toUpperCase()}_H__
 #define __JSON2DAISY_${replacements.name.toUpperCase()}_H__
 
-#include "daisy_${replacements.som}"
+#include "daisy_${replacements.som}.h"
 ${replacements.som == 'seed' ? '#include "dev/codec_ak4556.h"' : ''}
 
 #define ANALOG_COUNT ${replacements.analogcount}
@@ -360,7 +369,7 @@ struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
     ${replacements.dachandle != '' ? '    // DAC\n    ' + replacements.dachandle : ''}
     ${replacements.display != '' ? '    // Display\n    ' + replacements.display : ''}
 
-    ${som == 'seed' && replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
+    ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
     ${replacements.som == 'seed' ? '    som.adc.Start();' : ''}
   }
