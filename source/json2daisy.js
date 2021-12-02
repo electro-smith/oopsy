@@ -132,10 +132,10 @@ function filter_match(sequence, key, match, key_exclude = null, match_exclude = 
 {
   if (key_exclude !== null && match_exclude !== null)
   {
-    return Object.filter(sequence, item => key in item && key == match && (!(key_exclude in item) || (key_exclude in item && key_exclude != match_exclude)));
+    return Object.filter(sequence, item => key in item && item[key] == match && ((item[key_exclude] || null) != match_exclude));
   }
   else
-    return Object.filter(sequence, item => key in item && key == match);
+    return Object.filter(sequence, item => key in item && item[key] == match);
 }
 
 function filter_matches(sequence, key, matches, key_exclude=null, match_exclude=null)
@@ -194,7 +194,7 @@ function filter_map_ctrl(set, key, matches, init_key, key_exclude=null, match_ex
 function filter_map_template(set, name, key_exclude=null, match_exclude=null)
 {
   filtered = filter_has(set, name, key_exclude, match_exclude);
-  return filtered.map(item => stringFormatMap(item.name, item)).join("\n    ");
+  return filtered.map(item => stringFormatMap(item[name], item)).join("\n    ");
 }
 
 function flatten_pin_dicts(comp)
@@ -321,10 +321,10 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.displayprocess = filter_map_template(components, 'display', key_exclude='is_default', match_exclude=true);
   replacements.hidupdaterates = filter_map_template(components, 'updaterate', key_exclude='is_default', match_exclude=true);
 
-  component_decls = Object.filter(components, item => item.default || false);
-  component_decls = Object.filter(component_decls, item => 'typename' in item);
+  component_decls = Object.filter(components, item => !(item.is_default || false));
+  component_decls = component_decls.filter(item => 'typename' in item);
   replacements.comps = component_decls.map(item => `${stringFormatMap(item.typename, item)} ${item.name}`).join(";\n  ") + ';';
-  non_class_decls = Object.filter(component_decls, item => 'non_class_decl' in item);
+  non_class_decls = component_decls.filter(item => 'non_class_decl' in item);
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
