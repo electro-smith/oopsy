@@ -163,7 +163,7 @@ function de_alias(name, aliases, components)
 //  Parses the `parameters` passed from oopsy and generates getters and setters
 //  according to the info in `components`. The `aliases` help disambiguate parameters
 //  and the `object_name` sets the identifier for the generated Daisy hardware class.
-function parse_parameters(parameters, components, aliases, object_name)
+exports.parse_parameters = function parse_parameters(parameters, components, aliases, object_name)
 {
   // Verify that the params are valid and remove unused components
   let replacements = {};
