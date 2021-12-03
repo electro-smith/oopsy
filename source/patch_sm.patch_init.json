@@ -74,11 +74,7 @@
 			"display": "",
 			"is_default": true
 		},
-		"cvout1": {
-			"component": "CVOuts",
-			"is_default": true
-		},
-		"cvout2": {
+		"cvout": {
 			"component": "CVOuts",
 			"is_default": true
 		},

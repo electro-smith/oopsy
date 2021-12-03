@@ -147,7 +147,7 @@ namespace oopsy {
 
 		Daisy hardware;
 		#ifdef OOPSY_SOM_PATCH_SM
-		Daisy *som = &hardware;
+		daisy::patch_sm::DaisyPatchSM *som = &hardware.som;
 		#else
 			#ifdef OOPSY_OLD_JSON
 			daisy::DaisySeed *som = &hardware.seed;

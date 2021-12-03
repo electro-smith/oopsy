@@ -258,7 +258,7 @@ exports.generate_header = function generate_header(board_description_object)
   }
 
   target.components = components;
-  target.name = target.name || 'custom';
+  target.name = target.name || ''; // For now we'll allow it to be nothing
   target.aliases = target.aliases || {};
 
   if ("display" in target)
@@ -342,7 +342,8 @@ namespace json2daisy {
 
 ${replacements.non_class_declarations}
 
-struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
+${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {`
+ : `struct Daisy {`}
 
   /** Initializes the board according to the JSON board description
    *  \\param boost boosts the clock speed from 400 to 480 MHz
@@ -399,6 +400,14 @@ struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
     ${replacements.loopprocess}
   }
 
+  /** Handles display-related processing
+   * 
+   */
+  void Display()
+  {
+
+  }
+
   /** Sets the audio sample rate
    *  \\param sample_rate the new sample rate in Hz
    */
@@ -417,6 +426,37 @@ struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
     else
       enum_rate = daisy::SaiHandle::Config::SampleRate::SAI_8KHZ;
     som.SetAudioSampleRate(enum_rate);
+    `}
+    ${replacements.hidupdaterates}
+  }
+
+  /** Sets the audio sample rate
+   *  \\param sample_rate the new sample rate as an enum
+   */
+  void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate) 
+  {
+    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    `size_t hz_rate;
+    switch (sample_rate)
+    {
+      case (daisy::SaiHandle::Config::SampleRate::SAI_96KHZ):
+        hz_rate = 96000;
+        break;
+      default:
+      case (daisy::SaiHandle::Config::SampleRate::SAI_48KHZ):
+        hz_rate = 48000;
+        break;
+      case (daisy::SaiHandle::Config::SampleRate::SAI_32KHZ):
+        hz_rate = 32000;
+        break;
+      case (daisy::SaiHandle::Config::SampleRate::SAI_16KHZ):
+        hz_rate = 16000;
+        break;
+      case (daisy::SaiHandle::Config::SampleRate::SAI_8KHZ):
+        hz_rate = 8000;
+        break;
+    }
+    som.SetAudioSampleRate(hz_rate);
     `}
     ${replacements.hidupdaterates}
   }
@@ -445,6 +485,9 @@ struct Daisy${replacements.name[0].toUpperCase()}${replacements.name.slice(1)} {
   // I/O Components
   ${replacements.comps}
   ${replacements.dispdec}
+
+  // Menu variables
+  int menu_click = 0, menu_hold = 0, menu_rotate = 0;
 };
 
 } // namespace json2daisy
