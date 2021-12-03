@@ -14,7 +14,7 @@ function stringFormatMap(template, formatMap)
     return '}'
   });
   let pass3 = pass2.replace(format_match, (substring, value, index) => {
-    return formatMap[value] || '';
+    return value in formatMap ? formatMap[value] : '';
   });
   return pass3;
 }

@@ -106,7 +106,7 @@ function stringFormatMap(template, formatMap)
     return '}'
   });
   let pass3 = pass2.replace(format_match, (substring, value, index) => {
-    return formatMap[value] || '';
+    return value in formatMap ? formatMap[value] : '';
   });
   return pass3;
 }
@@ -480,7 +480,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** This is the board's "System On Module"
    */
   ${replacements.som_class} som;
-  ${replacements.som == 'seed' ? 'daisy::AdcChannelConfig cfg[ANALOG_COUNT]' : ''}
+  ${replacements.som == 'seed' ? 'daisy::AdcChannelConfig cfg[ANALOG_COUNT];' : ''}
 
   // I/O Components
   ${replacements.comps}
