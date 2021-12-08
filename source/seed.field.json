@@ -2,6 +2,7 @@
   "name": "field",
   "som": "seed",
   "defines": {
+    "OOPSY_TARGET_FIELD": 1,
     "OOPSY_TARGET_HAS_OLED": 1,
 		"OOPSY_TARGET_HAS_MIDI_INPUT": 1,
 		"OOPSY_TARGET_HAS_MIDI_OUTPUT": 1
@@ -109,10 +110,7 @@
       "index": 7,
       "parent": "pot_mux"
     },
-    "cvout1": {
-      "component": "CVOuts"
-    },
-    "cvout2": {
+    "cvout": {
       "component": "CVOuts"
     },
     "gatein": {
@@ -336,6 +334,9 @@
   },
   "aliases": {
     "cvout": "cvout1",
+    "gate": "gatein",
+    "gate1": "gatein",
+    "gateout1": "gateout",
     "switch": "sw1",
     "button": "sw1",
     "switch1": "sw1",
@@ -350,6 +351,52 @@
     "ctrl": "knob1",
     "ctrl1": "knob1",
     "ctrl2": "knob2",
-    "led": "led1"
+    "led": "led1",
+    "keyA1": "pada1",
+    "keyA2": "pada2",
+    "keyA3": "pada3",
+    "keyA4": "pada4",
+    "keyA5": "pada5",
+    "keyA6": "pada6",
+    "keyA7": "pada7",
+    "keyA8": "pada8",
+    "keyB1": "padb1",
+    "keyB2": "padb2",
+    "keyB3": "padb3",
+    "keyB4": "padb4",
+    "keyB5": "padb5",
+    "keyB6": "padb6",
+    "keyB7": "padb7",
+    "keyB8": "padb8",
+    "key1": "pada1",
+    "key2": "pada2",
+    "key3": "pada3",
+    "key4": "pada4",
+    "key5": "pada5",
+    "key6": "pada6",
+    "key7": "pada7",
+    "key8": "pada8",
+    "key9": "padb1",
+    "key10": "padb2",
+    "key11": "padb3",
+    "key12": "padb4",
+    "key13": "padb5",
+    "key14": "padb6",
+    "key15": "padb7",
+    "key16": "padb8",
+    "leds": "dsy_leds"
+  },
+  "datahandlers": {
+		"dsy_leds": {
+			"where": "display",
+			"code": "daisy.setFieldLedsFromData($<data>);"
+		}
+	},
+  "labels": {
+    "datas": {
+			"leds": "dsy_leds"
+		},
+    "params": {},
+    "outs": {}
   }
 }
