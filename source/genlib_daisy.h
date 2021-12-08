@@ -39,6 +39,11 @@ static uint32_t  rx_size = 0;
 static bool      update = false;
 #endif
 
+// A temproary measure to preserve Field compatibility
+#ifdef OOPSY_TARGET_FIELD
+#include "daisy_field.h"
+#endif
+
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (1024)
@@ -482,7 +487,6 @@ namespace oopsy {
 			console_line = console_rows-1;
 			#endif
 
-			som->adc.Start();
 			som->StartAudio(nullAudioCallback);
 			mainloopCallback = nullMainloopCallback;
 			displayCallback = nullMainloopCallback;
@@ -867,9 +871,9 @@ namespace oopsy {
 			if (hardware.menu_click) menu_button_released = hardware.menu_click;
 			#elif defined(OOPSY_TARGET_FIELD)
 			//menu_button_held = hardware.GetSwitch(0)->Pressed();
-			menu_button_incr += hardware.GetSwitch(1)->FallingEdge();
-			menu_button_held_ms = hardware.GetSwitch(0)->TimeHeldMs();
-			if (hardware.GetSwitch(0)->FallingEdge()) menu_button_released = 1;
+			menu_button_incr += hardware.sw2.FallingEdge();
+			menu_button_held_ms = hardware.sw1.TimeHeldMs();
+			if (hardware.sw1.FallingEdge()) menu_button_released = 1;
 			#elif defined(OOPSY_TARGET_VERSIO)
             // menu_button_held = hardware.tap.Pressed();
 			// menu_button_incr += hardware.GetKnobValue(6) * app_count;
@@ -1031,16 +1035,22 @@ namespace oopsy {
 		}
 		#endif //OOPSY_TARGET_USES_MIDI_UART
 
+		// TODO -- need better way to handle this to avoid hardcoding
 		#if (OOPSY_TARGET_FIELD)
 		void setFieldLedsFromData(Data& data) {
 			for(long i = 0; i < daisy::DaisyField::LED_LAST && i < data.dim; i++) {
 				// LED indices run A1..8, B8..1, Knob1..8
 				// switch here to re-order the B8-1 to B1-8
-				long idx=i;
-				if (idx > 7 && idx < 16) idx = 23-i;
+				// long idx=i;
+				// if (idx > 7 && idx < 16) idx = 23-i;
+				long idx = i;
+				if (idx < 8)
+					idx += 8;
+				else if (idx < 16)
+					idx -= 8;
 				hardware.led_driver.SetLed(idx, data.read(i, 0));
 			}
-			hardware.led_driver.SwapBuffersAndTransmit();
+			// hardware.led_driver.SwapBuffersAndTransmit(); // now handled by hardware class
 		};
 		#endif
 
