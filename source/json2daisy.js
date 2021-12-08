@@ -275,13 +275,14 @@ exports.generate_header = function generate_header(board_description_object)
     target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
   }
 
+  let has_display = target.defines.OOPSY_TARGET_HAS_OLED || false;
+
   let replacements = {}
   replacements.name = target.name;
   replacements.som = som;
   replacements.external_codecs = target.external_codecs || [];
   replacements.som_class = som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchSM';
 
-  replacements.display_conditional = 'display' in target ? '#include "dev/oled_ssd130x.h' : '';
   replacements.target_name = target.name; // TODO -- redundant?
   replacements.init = filter_map_template(components, 'init', 'is_default', true);
 
@@ -304,12 +305,12 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.gateout = filter_map_init(components, 'component', 'GateOut', key_exclude='is_default', match_exclude=true);
   replacements.dachandle = filter_map_init(components, 'component', 'CVOuts', key_exclude='is_default', match_exclude=true);
   
-  replacements.display = !('display' in target) ? '' : `
-  daisy::OledDisplay<${target.display.driver}>::Config display_config;
-  display_config.driver_config.transport_config.Defaults();
-  display.Init(display_config);
-  display.Fill(0);
-  display.Update();
+  replacements.display = !(has_display) ? '' : `
+    daisy::OledDisplay<${target.display.driver}>::Config display_config;
+    display_config.driver_config.transport_config.Defaults();
+    display.Init(display_config);
+    display.Fill(0);
+    display.Update();
   `;
 
   replacements.process = filter_map_template(components, 'process', key_exclude='is_default', match_exclude=true);
@@ -322,7 +323,7 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.hidupdaterates = filter_map_template(components, 'updaterate', key_exclude='is_default', match_exclude=true);
 
   component_decls = Object.filter(components, item => !(item.is_default || false));
-  component_decls = component_decls.filter(item => 'typename' in item);
+  component_decls = component_decls.filter(item => 'typename' in item && item.typename != "");
   replacements.comps = component_decls.map(item => `${stringFormatMap(item.typename, item)} ${item.name}`).join(";\n  ") + ';';
   non_class_decls = component_decls.filter(item => 'non_class_decl' in item);
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
@@ -335,6 +336,7 @@ exports.generate_header = function generate_header(board_description_object)
 
 #include "daisy_${replacements.som}.h"
 ${replacements.som == 'seed' ? '#include "dev/codec_ak4556.h"' : ''}
+${has_display ? '#include "dev/oled_ssd130x.h"' : ''}
 
 #define ANALOG_COUNT ${replacements.analogcount}
 
@@ -353,26 +355,26 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.som == 'seed' ? `som.Configure();
     som.Init(boost);` : `som.Init();`}
     ${replacements.init}
-    ${replacements.i2c != '' ? '    // i2c\n    ' + replacements.i2c : ''}
-    ${replacements.pca9685 != '' ? '    // LED Drivers\n    ' + replacements.pca9685 : ''}
-    ${replacements.switch != '' ? '    // Switches\n    ' + replacements.switch : ''}
-    ${replacements.switch3 != '' ? '    // SPDT Switches\n    ' + replacements.switch3 : ''}
-    ${replacements.cd4021 != '' ? '    // Muxes\n    ' + replacements.cd4021 : ''}
-    ${replacements.gatein != '' ? '    // Gate ins\n    ' + replacements.gatein : ''}
-    ${replacements.encoder != '' ? '    // Rotary encoders\n    ' + replacements.encoder : ''}
-    ${replacements.init_single != '' ? '    // Single channel ADC initialization\n    ' + replacements.init_single : ''}
+    ${replacements.i2c != '' ? '// i2c\n    ' + replacements.i2c : ''}
+    ${replacements.pca9685 != '' ? '// LED Drivers\n    ' + replacements.pca9685 : ''}
+    ${replacements.switch != '' ? '// Switches\n    ' + replacements.switch : ''}
+    ${replacements.switch3 != '' ? '// SPDT Switches\n    ' + replacements.switch3 : ''}
+    ${replacements.cd4021 != '' ? '// Muxes\n    ' + replacements.cd4021 : ''}
+    ${replacements.gatein != '' ? '// Gate ins\n    ' + replacements.gatein : ''}
+    ${replacements.encoder != '' ? '// Rotary encoders\n    ' + replacements.encoder : ''}
+    ${replacements.init_single != '' ? '// Single channel ADC initialization\n    ' + replacements.init_single : ''}
     ${replacements.som == 'seed' ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
-    ${replacements.ctrl_init != '' ? '    // AnalogControl objects\n    ' + replacements.ctrl_init : ''}
-    ${replacements.ctrl_mux_init != '' ? '    // Multiplexed AnlogControl objects\n    ' + replacements.ctrl_mux_init : ''}
-    ${replacements.led != '' ? '    // LEDs\n    ' + replacements.led : ''}
-    ${replacements.rgbled != '' ? '    // RBG LEDs \n    ' + replacements.rgbled : ''}
-    ${replacements.gateout != '' ? '    // Gate outs\n    ' + replacements.gateout : ''}
-    ${replacements.dachandle != '' ? '    // DAC\n    ' + replacements.dachandle : ''}
-    ${replacements.display != '' ? '    // Display\n    ' + replacements.display : ''}
+    ${replacements.ctrl_init != '' ? '// AnalogControl objects\n    ' + replacements.ctrl_init : ''}
+    ${replacements.ctrl_mux_init != '' ? '// Multiplexed AnlogControl objects\n    ' + replacements.ctrl_mux_init : ''}
+    ${replacements.led != '' ? '// LEDs\n    ' + replacements.led : ''}
+    ${replacements.rgbled != '' ? '// RBG LEDs \n    ' + replacements.rgbled : ''}
+    ${replacements.gateout != '' ? '// Gate outs\n    ' + replacements.gateout : ''}
+    ${replacements.dachandle != '' ? '// DAC\n    ' + replacements.dachandle : ''}
+    ${replacements.display != '' ? '// Display\n    ' + replacements.display : ''}
 
     ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
-    ${replacements.som == 'seed' ? '    som.adc.Start();' : ''}
+    ${replacements.som == 'seed' ? 'som.adc.Start();' : ''}
   }
 
   /** Handles all the controls processing that needs to occur at the block rate
