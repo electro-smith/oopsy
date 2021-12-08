@@ -285,157 +285,6 @@ const component_defs = {
 	}
 };
 
-// generate the struct
-function generate_target_struct(target) {
-	
-	let board_info = json2daisy.generate_header(target);
-// 	// flesh out target components:
-// 	let components = Object.entries(target.components)
-// 	  .sort((a, b) =>
-// 		a[1].component < b[1].component
-// 		  ? -1
-// 		  : a[1].component > b[1].component
-// 		  ? 1
-// 		  : 0
-// 	  )
-// 	  .map((pair) => {
-// 		let [name, def] = pair;
-// 		def.name = name;
-// 		let component = component_defs[def.component];
-// 		if (component) {
-// 		  // copy component defaults into the def
-// 		  // TODO this should be recursive for object structures...
-// 		  for (let k of Object.keys(component)) {
-// 			if (def[k] == undefined) def[k] = component[k];
-// 		  }
-// 		} else {
-// 		  throw new Error("undefined component kind: " + def.component);
-// 		}
-// 		return def;
-// 	});
-// 	target.components = components;
-// 	target.name = target.name || "custom"
-
-// 	if (target.display) {
-// 		// apply defaults:
-// 		target.display = Object.assign({
-// 			driver: "daisy::SSD130x4WireSpi128x64Driver",
-// 			config: [],
-// 			dim: [128, 64]
-// 		}, target.display)
-// 		target.defines.OOPSY_TARGET_HAS_OLED = 1
-// 		target.defines.OOPSY_OLED_DISPLAY_WIDTH = target.display.dim[0]
-// 		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
-// 	}
-
-// 	if (target.som == 'patch_sm') {
-// 		target.defines.OOPSY_SOM_PATCH_SM = 1
-// 	}
-
-// 	console.log(json2daisy.format_map("Hello, {{{world}}}!", {world: 'guys ^.^'}));
-  
-// 	return `
-// #include "daisy_${target.som}.h"
-// ${target.display ? `#include "dev/oled_ssd130x.h"` : ""}
-// // name: ${target.name}
-// struct Daisy {
-  
-// 	void Init(bool boost = false) {
-// 		${target.som == 'seed' ? 'som.Configure();' : ''}
-// 		som.Init(${target.som == 'seed' ? 'boost' : ''});
-// 		${components.filter((e) => e.init)
-// 		.map((e) => `
-// 		${template(e.init, e)}`
-// 		).join("")}
-// 		${components.filter((e) => e.typename == "daisy::Switch")
-// 		.map((e, i) => `
-// 		${e.name}.Init(som.GetPin(${e.pin}), som.AudioCallbackRate(), ${e.type}, ${e.polarity}, ${e.pull});`
-// 		).join("")}
-// 		${components.filter((e) => e.typename == "daisy::Switch3").map((e, i) => `
-// 		${e.name}.Init(som.GetPin(${e.pin.a}), som.GetPin(${e.pin.b}));`
-// 		).join("")}
-// 		${components.filter((e) => e.typename == "daisy::GateIn").map((e, i) => `
-// 		dsy_gpio_pin ${e.name}_pin = som.GetPin(${e.pin});
-// 		${e.name}.Init(&${e.name}_pin);`
-// 		).join("")}
-// 		${components.filter((e) => e.typename == "daisy::Encoder").map((e, i) => `
-// 		${e.name}.Init(som.GetPin(${e.pin.a}), som.GetPin(${e.pin.b}), som.GetPin(${e.pin.click}), som.AudioCallbackRate());`
-// 		).join("")}
-// 		static const int ANALOG_COUNT = ${
-// 		components.filter((e) => e.typename == "daisy::AnalogControl").length};
-// 		daisy::AdcChannelConfig cfg[ANALOG_COUNT];
-// 		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-// 		cfg[${i}].InitSingle(som.GetPin(${e.pin}));`).join("")}
-// 		som.adc.Init(cfg, ANALOG_COUNT);
-// 		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-// 		${e.name}.Init(som.adc.GetPtr(${i}), som.AudioCallbackRate(), ${e.flip}, ${e.invert});`).join("")}
-// 		${components.filter((e) => e.typename == "daisy::Led").map((e, i) => `
-// 		${e.name}.Init(som.GetPin(${e.pin}), ${e.invert});
-// 		${e.name}.Set(0.0f);`).join("")}	
-// 	  	${components.filter((e) => e.typename == "daisy::RgbLed").map((e, i) => `
-// 		${e.name}.Init(som.GetPin(${e.pin.r}), som.GetPin(${e.pin.g}), som.GetPin(${e.pin.b}), ${e.invert});
-// 		${e.name}.Set(0.0f, 0.0f, 0.0f);`).join("")}
-// 		${components.filter((e) => e.typename == "daisy::dsy_gpio").map((e, i) => `
-// 		${e.name}.pin  = som.GetPin(${e.pin});
-// 		${e.name}.mode = ${e.mode};
-// 		${e.name}.pull = ${e.pull};
-// 		dsy_gpio_init(&${e.name});`).join("")}
-// 		${components.filter((e) => e.typename == "daisy::DacHandle::Config").map((e, i) => `
-// 		${e.name}.bitdepth   = ${e.bitdepth};
-// 		${e.name}.buff_state = ${e.buff_state};
-// 		${e.name}.mode       = ${e.mode};
-// 		${e.name}.chn        = ${e.channel};
-// 		som.dac.Init(${e.name});
-// 		som.dac.WriteValue(${e.channel}, 0);`).join("")}
-// 		${target.display ? `
-// 		daisy::OledDisplay<${target.display.driver}>::Config display_config;
-// 		display_config.driver_config.transport_config.Defaults(); ${(target.display.config || []).map(e=>`
-// 		${e}`).join("")}
-// 		display.Init(display_config);`:`// no display`}
-// 	}
-  
-// 	void ProcessAllControls() {
-// 		${components.filter((e) => e.process).map((e) => `
-// 		${template(e.process, e)}`).join("")}
-// 		${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`
-// 		${template(m, e)}`).join("")).join("")}
-// 	}
-	
-// 	void PostProcess() {
-// 		${components.filter((e) => e.postprocess).map((e) => `
-// 		${template(e.postprocess, e)}`).join("")}
-// 	}
-	
-// 	void Display() {
-// 		${components.filter((e) => e.display).map((e) => `
-// 		${template(e.display, e)}`).join("")}
-// 	}
-  
-// 	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate) {
-// 		som.SetAudioSampleRate(samplerate);
-// 		SetHidUpdateRates();
-// 	}
-
-// 	void SetAudioBlockSize(size_t size) {
-// 		som.SetAudioBlockSize(size);
-// 		SetHidUpdateRates();
-// 	}
-
-// 	void SetHidUpdateRates() {
-// 		${components.filter((e) => e.updaterate).map((e) => `
-// 		${template(e.updaterate, e)}`).join("")}
-// 	}
-  
-// 	${target.som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchInit'} som;
-// 	${components.map((e) => `
-// 	${e.typename} ${e.name};`).join("")}
-// 	${target.display ? `daisy::OledDisplay<${target.display.driver}> display;`:`// no display`}
-// 	int menu_click = 0, menu_hold = 0, menu_rotate = 0;
-
-// };`;
-	return board_info;
-}
-
 let watchers = []
 
 // the script can be invoked directly as a command-line program,
@@ -472,14 +321,14 @@ function run() {
 			case "upload":
 			case "up": action="upload"; break;
 
-			case "field":
-			case "petal":
-			case "patch":
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
 			case "pod": target_path = path.join(__dirname, "seed.pod.json"); break;
 			case "patch_init": target_path = path.join(__dirname, "patch_sm.patch_init.json"); break;
+			case "field": target_path = path.join(__dirname, "seed.field.json"); break;
+			case "petal": target_path = path.join(__dirname, "seed.petal.json"); break;
+			case "patch": target_path = path.join(__dirname, "seed.patch.json"); break;
 
 			case "watch": watch=true; break;
 
@@ -558,7 +407,9 @@ function run() {
 		target_path = path.join(__dirname, `daisy.${target}.json`);
 		old_json = true;
 	} else {
-		OOPSY_TARGET_SEED = 1
+		// TODO -- should a seed target even really exist? Custom boards
+		// (and even prototypes / breadboards) should really be defined with a JSON file
+		// OOPSY_TARGET_SEED = 1
 		target = path.parse(target_path).name.replace(".", "_")
 		som_match = path.parse(target_path).name.match(/([A-Za-z_0-9\-]+)\./)
 		assert(som_match != null, `Daisy SOM undefined. Provide the SOM as in the following: "som.MyBoard.json"`);
@@ -597,7 +448,6 @@ function run() {
 		hardware.aliases = board_info.aliases;
 
 		if (hardware.components) {
-			// hardware.struct = generate_target_struct(hardware);
 			// generate IO
 			for (let comp in hardware.components) {
 				let component = hardware.components[comp];
@@ -1476,7 +1326,7 @@ function generate_app(app, hardware, target, config) {
 		{
 			let input = hardware.inputs[src];
 
-			if ('range' in input)
+			if ('range' in input && typeof input.range !== 'undefined')
 			{
 				let input_min = input.range[0] || 0;
 				let input_max = input.range[1] || 1;
@@ -1520,7 +1370,7 @@ function generate_app(app, hardware, target, config) {
 		}
 		return varname;
 	})
-	// TODO -- need to figure out why gate outs are being omitted
+
 	gen.datas = app.patch.datas.map((param, i)=>{
 		const varname = "gen_data_"+param.name;
 		let src, label;
@@ -1574,8 +1424,8 @@ function generate_app(app, hardware, target, config) {
 		}
 	})
 
-	// console.log(nodes);
-	let board_glue = daisy_glue.parse_parameters(nodes, hardware.components, hardware.aliases, 'hardware');
+	// TODO -- This may or may not be implemented any time soon
+	// let board_glue = daisy_glue.parse_parameters(nodes, hardware.components, hardware.aliases, 'hardware');
 
 	// normal any audio outs from earlier (non cv/gate/midi) audio outs
 	{
@@ -1590,8 +1440,6 @@ function generate_app(app, hardware, target, config) {
 			}
 		});
 	}
-
-	console.log(daisy.device_outs.map(name => nodes[name]).filter(node => node.src));
 
 	let som_or_seed = hardware.defines.OOPSY_OLD_JSON ? 'seed' : 'som';
 
@@ -1728,7 +1576,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
-		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.PostProcess();" : ""}
+		${hardware.som == 'seed' ? "hardware.PostProcess();" : ""}
 	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -1801,7 +1649,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.config.where == "display")
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
-		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.Display();" : ""}
+		${hardware.som == 'seed' ? "hardware.Display();" : ""}
 	}
 
 	${defines.OOPSY_HAS_PARAM_VIEW ? `
