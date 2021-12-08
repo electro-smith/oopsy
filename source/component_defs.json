@@ -11,15 +11,6 @@
 		"updaterate": "{name}.SetUpdateRate(som.AudioCallbackRate());",
 		"mapping": [
 			{
-				"name": "{name}_press",
-				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
-				"range": [
-					0,
-					1
-				],
-				"bool": false
-			},
-			{
 				"name": "{name}",
 				"get": "({class_name}.{name}.RisingEdge()?1.f:0.f)",
 				"range": [
@@ -27,6 +18,15 @@
 					1
 				],
 				"bool": true
+			},
+			{
+				"name": "{name}_press",
+				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
 			},
 			{
 				"name": "{name}_fall",
@@ -109,7 +109,6 @@
 			{
 				"name": "{name}_seconds",
 				"get": "({class_name}.{name}.TimeHeldMs()*0.001f)",
-				"range": null,
 				"bool": false
 			}
 		]
@@ -330,13 +329,13 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"get": "(json2daisy::{parent}_debounced[{index}] == 0xFE)",
-				"bool": true
-			},
-			{
-				"name": "{name}_press",
 				"get": "(json2daisy::{parent}_debounced[{index}] != 0xFF)",
 				"bool": false
+			},
+			{
+				"name": "{name}_rise",
+				"get": "(json2daisy::{parent}_debounced[{index}] == 0xFE)",
+				"bool": true
 			},
 			{
 				"name": "{name}_fall",
