@@ -460,6 +460,7 @@ function run() {
 					for (let mapping of component.mapping) {
 						// let name = template(mapping.name, component);
 						component.class_name = 'hardware';
+						component.name_upper = component.name.toUpperCase();
 						let name = json2daisy.format_map(mapping.name, component);
 						component.value = name.toLowerCase();
 						if (mapping.get) {

@@ -80,8 +80,7 @@ function generateCodecs(external_codecs)
 
   for (let i = 0; i < external_codecs.length; i++)
   {
-    if (i < external_codecs.length - 1)
-      codec_string += ",\n    ";
+    codec_string += ",\n    ";
     codec_string += `sai_handle[${i + 1}]`;
   }
 
