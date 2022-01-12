@@ -54,7 +54,7 @@
 			"pin": 10,
 			"display": ""
 		},
-		"cvout1": {
+		"cvout": {
 			"component": "CVOuts"
 		},
 		"gatein": {
@@ -70,7 +70,7 @@
 		}
 	},
 	"aliases": {
-		"cvout": "cvout1",
+		"cvout1": "cvout",
 		"switch": "sw1",
 		"button": "sw1",
 		"switch1": "sw1",
