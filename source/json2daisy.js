@@ -304,6 +304,20 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.rgbled = filter_map_init(components, 'component', 'RgbLed', key_exclude='is_default', match_exclude=true);
   replacements.gateout = filter_map_init(components, 'component', 'GateOut', key_exclude='is_default', match_exclude=true);
   replacements.dachandle = filter_map_init(components, 'component', 'CVOuts', key_exclude='is_default', match_exclude=true);
+
+  replacements.MotorShield = filter_map_init(components, 'component', 'MotorShield', key_exclude='is_default', match_exclude=true);
+  replacements.StepperMotor = filter_map_init(components, 'component', 'StepperMotor', key_exclude='is_default', match_exclude=true);
+  replacements.DcMotor = filter_map_init(components, 'component', 'DcMotor', key_exclude='is_default', match_exclude=true);
+  replacements.Bme280 = filter_map_init(components, 'component', 'Bme280', key_exclude='is_default', match_exclude=true);
+  replacements.HallSensor = filter_map_init(components, 'component', 'HallSensor', key_exclude='is_default', match_exclude=true);
+  replacements.Tlv493d = filter_map_init(components, 'component', 'Tlv493d', key_exclude='is_default', match_exclude=true);
+  replacements.Mpr121 = filter_map_init(components, 'component', 'Mpr121', key_exclude='is_default', match_exclude=true);
+  replacements.Apds9960 = filter_map_init(components, 'component', 'Apds9960', key_exclude='is_default', match_exclude=true);
+  replacements.Bmp390 = filter_map_init(components, 'component', 'Bmp390', key_exclude='is_default', match_exclude=true);
+  replacements.Vl53l1x = filter_map_init(components, 'component', 'Vl53l1x', key_exclude='is_default', match_exclude=true);
+  replacements.NeoTrellis = filter_map_init(components, 'component', 'NeoTrellis', key_exclude='is_default', match_exclude=true);
+  replacements.NeoTrellisLeds = filter_map_init(components, 'component', 'NeoTrellisLeds', key_exclude='is_default', match_exclude=true);
+  replacements.Bno055 = filter_map_init(components, 'component', 'Bno055', key_exclude='is_default', match_exclude=true);
   
   replacements.display = !(has_display) ? '' : `
     daisy::OledDisplay<${target.display.driver}>::Config display_config;
@@ -371,6 +385,20 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.gateout != '' ? '// Gate outs\n    ' + replacements.gateout : ''}
     ${replacements.dachandle != '' ? '// DAC\n    ' + replacements.dachandle : ''}
     ${replacements.display != '' ? '// Display\n    ' + replacements.display : ''}
+
+    ${replacements.MotorShield != '' ? '// Motor Shield\n    ' + replacements.MotorShield : ''}
+    ${replacements.StepperMotor != '' ? '// Stepper Motor\n    ' + replacements.StepperMotor : ''}
+    ${replacements.DcMotor != '' ? '// DC Motor\n    ' + replacements.DcMotor : ''}
+    ${replacements.Bme != '' ? '// BME sensor\n    ' + replacements.Bme : ''}
+    ${replacements.HallSensor != '' ? '// Hall Effect Sensor\n    ' + replacements.HallSensor : ''}
+    ${replacements.Tlv != '' ? '// TLV Sensor\n    ' + replacements.Tlv : ''}
+    ${replacements.Mpr != '' ? '// MPR Sensor\n    ' + replacements.Mpr : ''}
+    ${replacements.Apds != '' ? '// APDS Sensor\n    ' + replacements.Apds : ''}
+    ${replacements.Bmp != '' ? '// BMP Sensor\n    ' + replacements.Bmp : ''}
+    ${replacements.Vl53l1x != '' ? '// VL53L1X Sensor\n    ' + replacements.Vl : ''}
+    ${replacements.NeoTrellis != '' ? '// Neo Trellis\n    ' + replacements.NeoTrellis : ''}
+    ${replacements.NeoTrellisLeds != '' ? '// NeoTrellis LEDs\n    ' + replacements.NeoTrellisLeds : ''}
+    ${replacements.Bno != '' ? '// BNO Sensor\n    ' + replacements.Bno : ''}
 
     ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
