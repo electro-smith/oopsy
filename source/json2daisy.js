@@ -75,13 +75,11 @@ function generateCodecs(external_codecs)
   cfg.postgain   = 0.5f;
   som.audio_handle.Init(
     cfg, 
-    sai_handle[0]
-  `;
+    sai_handle[0]`;
 
   for (let i = 0; i < external_codecs.length; i++)
   {
-    if (i < external_codecs.length - 1)
-      codec_string += ",\n    ";
+    codec_string += ",\n    ";
     codec_string += `sai_handle[${i + 1}]`;
   }
 
@@ -315,9 +313,15 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.Apds9960 = filter_map_init(components, 'component', 'Apds9960', key_exclude='is_default', match_exclude=true);
   replacements.Bmp390 = filter_map_init(components, 'component', 'Bmp390', key_exclude='is_default', match_exclude=true);
   replacements.Vl53l1x = filter_map_init(components, 'component', 'Vl53l1x', key_exclude='is_default', match_exclude=true);
+  replacements.Vl53l0x = filter_map_init(components, 'component', 'Vl53l0x', key_exclude='is_default', match_exclude=true);
   replacements.NeoTrellis = filter_map_init(components, 'component', 'NeoTrellis', key_exclude='is_default', match_exclude=true);
   replacements.NeoTrellisLeds = filter_map_init(components, 'component', 'NeoTrellisLeds', key_exclude='is_default', match_exclude=true);
   replacements.Bno055 = filter_map_init(components, 'component', 'Bno055', key_exclude='is_default', match_exclude=true);
+  replacements.Icm20948 = filter_map_init(components, 'component', 'Icm20948', key_exclude='is_default', match_exclude=true);
+  replacements.Dps310 = filter_map_init(components, 'component', 'Dps310', key_exclude='is_default', match_exclude=true);
+
+  for (item in replacements)
+    console.log(item, replacements[item]);
   
   replacements.display = !(has_display) ? '' : `
     daisy::OledDisplay<${target.display.driver}>::Config display_config;
@@ -389,16 +393,19 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.MotorShield != '' ? '// Motor Shield\n    ' + replacements.MotorShield : ''}
     ${replacements.StepperMotor != '' ? '// Stepper Motor\n    ' + replacements.StepperMotor : ''}
     ${replacements.DcMotor != '' ? '// DC Motor\n    ' + replacements.DcMotor : ''}
-    ${replacements.Bme != '' ? '// BME sensor\n    ' + replacements.Bme : ''}
+    ${replacements.Bme280 != '' ? '// BME sensor\n    ' + replacements.Bme280 : ''}
     ${replacements.HallSensor != '' ? '// Hall Effect Sensor\n    ' + replacements.HallSensor : ''}
-    ${replacements.Tlv != '' ? '// TLV Sensor\n    ' + replacements.Tlv : ''}
-    ${replacements.Mpr != '' ? '// MPR Sensor\n    ' + replacements.Mpr : ''}
-    ${replacements.Apds != '' ? '// APDS Sensor\n    ' + replacements.Apds : ''}
-    ${replacements.Bmp != '' ? '// BMP Sensor\n    ' + replacements.Bmp : ''}
-    ${replacements.Vl53l1x != '' ? '// VL53L1X Sensor\n    ' + replacements.Vl : ''}
+    ${replacements.Tlv493d != '' ? '// TLV Sensor\n    ' + replacements.Tlv493d : ''}
+    ${replacements.Mpr121 != '' ? '// MPR Sensor\n    ' + replacements.Mpr121 : ''}
+    ${replacements.Apds9960 != '' ? '// APDS Sensor\n    ' + replacements.Apds9960 : ''}
+    ${replacements.Bmp390 != '' ? '// BMP Sensor\n    ' + replacements.Bmp390 : ''}
+    ${replacements.Vl53l1x != '' ? '// VL53L1X Sensor\n    ' + replacements.Vl53l1x : ''}
+    ${replacements.Vl53l0x != '' ? '// VL53L0X Sensor\n    ' + replacements.Vl53l0x : ''}
     ${replacements.NeoTrellis != '' ? '// Neo Trellis\n    ' + replacements.NeoTrellis : ''}
     ${replacements.NeoTrellisLeds != '' ? '// NeoTrellis LEDs\n    ' + replacements.NeoTrellisLeds : ''}
-    ${replacements.Bno != '' ? '// BNO Sensor\n    ' + replacements.Bno : ''}
+    ${replacements.Bno055 != '' ? '// BNO Sensor\n    ' + replacements.Bno055 : ''}
+    ${replacements.Icm20948 != '' ? '// Icm20948 Sensor\n    ' + replacements.Icm20948 : ''}
+    ${replacements.Dps310 != '' ? '// Dps310 Sensor\n    ' + replacements.Dps310 : ''}
 
     ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
