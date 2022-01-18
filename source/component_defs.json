@@ -418,15 +418,11 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"set": "if ({value} > 0)\n    {class_name}.{name}->StepNonblocking({value}, daisy::Adafruit_MotorShield::FORWARD);\n  else if ({value} < 0)\n    {class_name}.{name}->StepNonblocking(-{value}, daisy::Adafruit_MotorShield::BACKWARD);",
-				"bool": true,
-				"where": "hook"
+				"set": "if ({value} > 0)\n    {class_name}.{name}->StepNonblocking({value}, daisy::Adafruit_MotorShield::FORWARD);\n  else if ({value} < 0)\n    {class_name}.{name}->StepNonblocking(-{value}, daisy::Adafruit_MotorShield::BACKWARD);"
 			},
 			{
 				"name": "{name}_release",
-				"set": "{class_name}.{name}->Release();",
-				"bool": true,
-				"where": "hook"
+				"set": "if ({value})\n    {class_name}.{name}->Release();"
 			}
 		]
 	},
@@ -441,7 +437,6 @@
 			{
 				"name": "{name}",
 				"set": "if ({value} > 0)\n      {class_name}.{name}->Run(daisy::Adafruit_MotorShield::FORWARD);\n    else if ({value} < 0)\n      {class_name}.{name}->Run(daisy::Adafruit_MotorShield::BACKWARD);\n    else\n      {class_name}.{name}->FullOff();",
-				"where": "main",
 				"permit_scale": false
 			}
 		]
