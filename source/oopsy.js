@@ -83,6 +83,15 @@ function asCppNumber(n, type="float") {
 	}
 }
 
+function node_scale(node) {
+	if (node.permit_scale == false)
+		return `${node.varname} = (${node.type})(${node.src});
+		`
+	else
+		return `${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});
+		`
+}
+
 let build_tools_path;
 let has_dfu_util;
 function checkBuildEnvironment() {
@@ -469,7 +478,8 @@ function run() {
 								code: json2daisy.format_map(mapping.get, component),
 								automap: component.automap && name == component.name,
 								range: mapping.range,
-								where: mapping.where
+								where: mapping.where,
+								permit_scale: mapping.permit_scale != undefined ? mapping.permit_scale : true
 							}
 							hardware.labels.params[name] = name
 						}
@@ -1326,6 +1336,7 @@ function generate_app(app, hardware, target, config) {
 		if (src in hardware.inputs)
 		{
 			let input = hardware.inputs[src];
+			node.permit_scale = input.permit_scale;
 
 			if ('range' in input && typeof input.range !== 'undefined')
 			{
@@ -1506,8 +1517,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(name=>nodes[name])
 			.filter(node => node.src)
 			.filter(node => node.where == "audio" || node.where == undefined)
-			.map(node=>`
-		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});`).join("")}
+			.map(node_scale).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.map(node=>`
