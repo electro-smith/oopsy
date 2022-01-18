@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 8,
+			"revision" : 11,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 890.0, 138.0, 756.0, 523.0 ],
+		"rect" : [ 650.0, 138.0, 756.0, 523.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -269,13 +269,13 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
 ,
 						"classnamespace" : "dsp.gen",
-						"rect" : [ 84.0, 103.0, 1280.0, 913.0 ],
+						"rect" : [ 78.0, 102.0, 1280.0, 729.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -1524,7 +1524,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 570.5, 296.0, 36.5, 22.0 ],
+									"patching_rect" : [ 591.561904761904771, 296.0, 36.5, 22.0 ],
 									"text" : "min"
 								}
 
@@ -1593,8 +1593,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 702.5, 323.0, 69.0, 22.0 ],
-									"text" : "out 5 gate1"
+									"patching_rect" : [ 702.5, 323.0, 85.0, 22.0 ],
+									"text" : "out 5 gateout1"
 								}
 
 							}
@@ -1616,8 +1616,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 570.5, 323.0, 57.0, 22.0 ],
-									"text" : "out 4 cv2"
+									"patching_rect" : [ 591.561904761904771, 323.0, 74.0, 22.0 ],
+									"text" : "out 4 cvout2"
 								}
 
 							}
@@ -1627,8 +1627,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 509.5, 323.0, 57.0, 22.0 ],
-									"text" : "out 3 cv1"
+									"patching_rect" : [ 509.5, 323.0, 74.0, 22.0 ],
+									"text" : "out 3 cvout1"
 								}
 
 							}
@@ -1675,7 +1675,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 588.0, 144.0, 65.0, 22.0 ],
+									"patching_rect" : [ 609.061904761904771, 142.400900900363922, 65.0, 22.0 ],
 									"text" : "param cv4"
 								}
 
@@ -1687,7 +1687,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 570.5, 118.5, 65.0, 22.0 ],
+									"patching_rect" : [ 591.561904761904771, 116.900900900363922, 65.0, 22.0 ],
 									"text" : "param cv3"
 								}
 
@@ -2308,7 +2308,7 @@
 ,
 					"patching_rect" : [ 24.0, 290.0, 194.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/oopsy/templates/",
 						"exportname" : "oopsy_field"
 					}
 ,
@@ -2524,7 +2524,8 @@
 			"obj-7::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-7::obj-35" : [ "[5]", "Level", 0 ],
 			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-9::obj-4" : [ "live.menu[6]", "live.menu", 0 ],
+			"obj-9::obj-33" : [ "live.text[1]", "FILTER", 0 ],
+			"obj-9::obj-34" : [ "live.text[3]", "FILTER", 0 ],
 			"parameterbanks" : 			{
 
 			}
@@ -2555,6 +2556,13 @@
 			}
 , 			{
 				"name" : "oopsy.suggestions.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.trig.gendsp",
 				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",

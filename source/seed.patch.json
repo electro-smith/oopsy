@@ -27,19 +27,23 @@
 	"components": {
 		"knob1": {
 			"component": "AnalogControl",
-			"pin": 15
+			"pin": 15,
+			"flip": "true"
 		},
 		"knob2": {
 			"component": "AnalogControl",
-			"pin": 16
+			"pin": 16,
+			"flip": "true"
 		},
 		"knob3": {
 			"component": "AnalogControl",
-			"pin": 21
+			"pin": 21,
+			"flip": "true"
 		},
 		"knob4": {
 			"component": "AnalogControl",
-			"pin": 18
+			"pin": 18,
+			"flip": "true"
 		},
 		"encoder": {
 			"component": "Encoder",
@@ -54,10 +58,7 @@
 			"pin": 17,
 			"display": ""
 		},
-		"cvout1": {
-			"component": "CVOuts"
-		},
-		"cvout2": {
+		"cvout": {
 			"component": "CVOuts"
 		},
 		"gatein1": {
