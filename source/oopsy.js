@@ -331,13 +331,13 @@ function run() {
 			case "up": action="upload"; break;
 
 			case "versio": target = arg; break;
-			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
-			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
-			case "pod": target_path = path.join(__dirname, "seed.pod.json"); break;
-			case "patch_init": target_path = path.join(__dirname, "patch_sm.patch_init.json"); break;
-			case "field": target_path = path.join(__dirname, "seed.field.json"); break;
-			case "petal": target_path = path.join(__dirname, "seed.petal.json"); break;
-			case "patch": target_path = path.join(__dirname, "seed.patch.json"); break;
+			case "bluemchen": target_path = path.join(__dirname, "bluemchen.json"); break;
+			case "nehcmeulb": target_path = path.join(__dirname, "nehcmeulb.json"); break;
+			case "pod": target_path = path.join(__dirname, "pod.json"); break;
+			case "patch_init": target_path = path.join(__dirname, "patch_init.json"); break;
+			case "field": target_path = path.join(__dirname, "field.json"); break;
+			case "petal": target_path = path.join(__dirname, "petal.json"); break;
+			case "patch": target_path = path.join(__dirname, "patch.json"); break;
 
 			case "watch": watch=true; break;
 
@@ -420,16 +420,20 @@ function run() {
 		// (and even prototypes / breadboards) should really be defined with a JSON file
 		// OOPSY_TARGET_SEED = 1
 		target = path.parse(target_path).name.replace(".", "_")
-		som_match = path.parse(target_path).name.match(/([A-Za-z_0-9\-]+)\./)
-		assert(som_match != null, `Daisy SOM undefined. Provide the SOM as in the following: "som.MyBoard.json"`);
-		assert(valid_soms.includes(som_match[1]), `unkown SOM ${som_match[1]}. Valid SOMs: ${valid_soms.join(', ')}`);
-		som = som_match[1];
+		// som_match = path.parse(target_path).name.match(/([A-Za-z_0-9\-]+)\./)
+		// assert(som_match != null, `Daisy SOM undefined. Provide the SOM as in the following: "som.MyBoard.json"`);
+		// assert(valid_soms.includes(som_match[1]), `unkown SOM ${som_match[1]}. Valid SOMs: ${valid_soms.join(', ')}`);
+		// som = som_match[1];
 	}
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
 	hardware.max_apps = hardware.max_apps || 1
-	hardware.som = som;
+	// hardware.som = som;
+
+	// Ensure som is valid
+	assert(valid_soms.includes(hardware.som), `unkown SOM ${hardware.som}. Valid SOMs: ${valid_soms.join(', ')}`);
+
 	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
 	// this script should be revised to eliminate the old workflow
