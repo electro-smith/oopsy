@@ -1,5 +1,6 @@
 {
 	"name": "patch_init",
+	"som": "patch_sm",
 	"defines": {},
 	"components": {
 		"cv_1": {

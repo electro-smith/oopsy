@@ -1,5 +1,6 @@
 {
 	"name":"nehcmeulb",
+	"som": "seed",
 	"max_apps": 8,
 	"defines": {
 		"OOPSY_TARGET_HAS_MIDI_OUTPUT": 1
