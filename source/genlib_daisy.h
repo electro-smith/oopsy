@@ -54,6 +54,9 @@ static bool      update = false;
 static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 
+// Added dedicated global SDFile to replace old global from libDaisy
+FIL SDFile;
+
 namespace oopsy {
 
 	uint32_t sram_used = 0, sram_usable = 0;
@@ -287,6 +290,8 @@ namespace oopsy {
 		#define OOPSY_WAV_WORKSPACE_BYTES (256)
 
 		daisy::SdmmcHandler handler;
+		daisy::FatFSInterface fsi;
+
 		uint8_t workspace[OOPSY_WAV_WORKSPACE_BYTES];
 		
 		void sdcard_init() {
@@ -296,8 +301,8 @@ namespace oopsy {
 			// sdconfig.speed           = daisy::SdmmcHandler::Speed::FAST;
 			sdconfig.width           = daisy::SdmmcHandler::BusWidth::BITS_1;
 			handler.Init(sdconfig);
-			dsy_fatfs_init();
-			f_mount(&SDFatFS, SDPath, 1);
+			fsi.Init(daisy::FatFSInterface::Config::MEDIA_SD);
+			f_mount(&fsi.GetSDFileSystem(), fsi.GetSDPath(), 1);
 		}
 
 		// TODO: resizing without wasting memory
