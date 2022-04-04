@@ -48,38 +48,15 @@
 				"g": 24,
 				"b": 23
 			}
-		},
-		"led3": {
-			"component": "Led",
-			"pin": 10,
-			"display": ""
-		},
-		"cvout": {
-			"component": "CVOuts"
-		},
-		"gatein": {
-			"component": "GateIn",
-			"pin": 12
-		},
-		"sw3": {
-			"component": "Switch3",
-			"pin": {
-				"a": 1,
-				"b": 2
-			}
 		}
 	},
 	"aliases": {
-		"cvout1": "cvout",
 		"switch": "sw1",
 		"button": "sw1",
 		"switch1": "sw1",
 		"button1": "sw1",
 		"switch2": "sw2",
 		"button2": "sw2",
-		"switch3": "sw3",
-		"gate": "gatein",
-		"gate1": "gatein",
 		"encswitch": "encoder_rise",
 		"enp": "encoder_press",
 		"press": "encoder_press",
