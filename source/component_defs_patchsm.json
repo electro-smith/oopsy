@@ -11,6 +11,15 @@
 		"updaterate": "{name}.SetUpdateRate(som.AudioCallbackRate());",
 		"mapping": [
 			{
+				"name": "{name}",
+				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
+				"range": [
+					0,
+					1
+				],
+				"bool": false
+			},
+			{
 				"name": "{name}_press",
 				"get": "({class_name}.{name}.Pressed()?1.f:0.f)",
 				"range": [
@@ -20,27 +29,8 @@
 				"bool": false
 			},
 			{
-				"name": "{name}",
-				"get": "({class_name}.{name}.RisingEdge()?1.f:0.f)",
-				"range": [
-					0,
-					1
-				],
-				"bool": true
-			},
-			{
-				"name": "{name}_fall",
-				"get": "({class_name}.{name}.FallingEdge()?1.f:0.f)",
-				"range": [
-					0,
-					1
-				],
-				"bool": true
-			},
-			{
 				"name": "{name}_seconds",
 				"get": "({class_name}.{name}.TimeHeldMs()*0.001f)",
-				"range": null,
 				"bool": false
 			}
 		]
