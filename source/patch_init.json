@@ -113,6 +113,7 @@
 		"cvout": "cvout1",
 		"cv_out_1": "cvout1",
 		"cv_out_2": "cvout2",
+		"led": "cvout2",
 		"knob": "cv_1",
 		"knob1": "cv_1",
 		"knob2": "cv_2",
