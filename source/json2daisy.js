@@ -21,18 +21,28 @@ function generateCodecs(external_codecs)
   daisy::SaiHandle::Config sai_config[${1 + external_codecs.length}];
 
   // Internal Codec
+  if(som.CheckBoardVersion() == daisy::DaisySeed::BoardVersion::DAISY_SEED_1_1)
+  {
+      sai_config[0].pin_config.sa = {DSY_GPIOE, 6};
+      sai_config[0].pin_config.sb = {DSY_GPIOE, 3};
+      sai_config[0].a_dir         = daisy::SaiHandle::Config::Direction::RECEIVE;
+      sai_config[0].b_dir         = daisy::SaiHandle::Config::Direction::TRANSMIT;
+  }
+  else
+  {
+      sai_config[0].pin_config.sa = {DSY_GPIOE, 6};
+      sai_config[0].pin_config.sb = {DSY_GPIOE, 3};
+      sai_config[0].a_dir         = daisy::SaiHandle::Config::Direction::TRANSMIT;
+      sai_config[0].b_dir         = daisy::SaiHandle::Config::Direction::RECEIVE;
+  }
   sai_config[0].periph          = daisy::SaiHandle::Config::Peripheral::SAI_1;
   sai_config[0].sr              = daisy::SaiHandle::Config::SampleRate::SAI_48KHZ;
   sai_config[0].bit_depth       = daisy::SaiHandle::Config::BitDepth::SAI_24BIT;
   sai_config[0].a_sync          = daisy::SaiHandle::Config::Sync::MASTER;
   sai_config[0].b_sync          = daisy::SaiHandle::Config::Sync::SLAVE;
-  sai_config[0].a_dir           = daisy::SaiHandle::Config::Direction::TRANSMIT;
-  sai_config[0].b_dir           = daisy::SaiHandle::Config::Direction::RECEIVE;
   sai_config[0].pin_config.fs   = {DSY_GPIOE, 4};
   sai_config[0].pin_config.mclk = {DSY_GPIOE, 2};
   sai_config[0].pin_config.sck  = {DSY_GPIOE, 5};
-  sai_config[0].pin_config.sa   = {DSY_GPIOE, 6};
-  sai_config[0].pin_config.sb   = {DSY_GPIOE, 3};
   `
 
   for (let i = 0; i < external_codecs.length; i++)
