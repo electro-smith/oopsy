@@ -11,7 +11,7 @@
     },
     "led_driver": {
       "component": "PCA9685",
-      "address": "{0x00, 0x02}",
+      "address": "{0x00, 0x01}",
       "parent": "i2c",
       "driver_count": 2
     }
