@@ -178,6 +178,10 @@
     }
   },
   "aliases": {
+    "led1": "led_fs_1",
+    "led2": "led_fs_2",
+    "led3": "led_fs_3",
+    "led4": "led_fs_4",
     "switch": "sw1",
     "switch1": "sw1",
     "switch2": "sw2",
