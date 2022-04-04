@@ -1342,6 +1342,7 @@ function generate_app(app, hardware, target, config) {
 			let input = hardware.inputs[src];
 			node.permit_scale = input.permit_scale;
 
+			// TODO -- we should allow no scaling to occur on certain inputs
 			if ('range' in input && typeof input.range !== 'undefined')
 			{
 				let input_min = input.range[0] || 0;
