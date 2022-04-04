@@ -223,11 +223,11 @@ function flatten_index_dicts(comp)
 {
   flattened = {};
   Object.assign(flattened, comp); // maybe not actually necessary to copy
-  if ('index' in comp && typeof comp.pin === 'object')
+  if ('index' in comp && typeof comp.index === 'object')
   {
-    for (property in comp.pin)
+    for (property in comp.index)
     {
-      flattened[`index_${property}`] = comp.pin[property];
+      flattened[`index_${property}`] = comp.index[property];
     }
   }
   return flattened;
@@ -329,9 +329,6 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.Bno055 = filter_map_init(components, 'component', 'Bno055', key_exclude='is_default', match_exclude=true);
   replacements.Icm20948 = filter_map_init(components, 'component', 'Icm20948', key_exclude='is_default', match_exclude=true);
   replacements.Dps310 = filter_map_init(components, 'component', 'Dps310', key_exclude='is_default', match_exclude=true);
-
-  for (item in replacements)
-    console.log(item, replacements[item]);
   
   replacements.display = !(has_display) ? '' : `
     daisy::OledDisplay<${target.display.driver}>::Config display_config;
