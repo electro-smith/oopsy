@@ -517,7 +517,10 @@ function run() {
 
 	// consolidate hardware definition:
 	hardware.samplerate = samplerate
-	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
+	if (hardware.audio)
+		hardware.defines.OOPSY_IO_COUNT = hardware.audio.channels || 2;
+	else if (!hardware.defines.OOPSY_IO_COUNT)
+		hardware.defines.OOPSY_IO_COUNT = 2;
 	if (!hardware.max_apps) hardware.max_apps = 1;
 
 	hardware.defines.OOPSY_SAMPLERATE = samplerate * 1000
