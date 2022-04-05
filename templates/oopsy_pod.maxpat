@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 759.0, 192.0, 625.0, 480.0 ],
+		"rect" : [ 226.0, 180.0, 625.0, 480.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -102,7 +102,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 767.0, 325.0, 150.0, 64.0 ],
+									"patching_rect" : [ 767.0, 325.0, 151.0, 64.0 ],
 									"text" : "Rotating the encoder will change the wave shape of the Saw / Triangle oscillator"
 								}
 
@@ -458,7 +458,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 245.5, 529.0, 192.0, 47.0 ],
+									"patching_rect" : [ 245.5, 529.0, 192.0, 50.0 ],
 									"text" : "LED outputs range -1 to 1; where output will be blue when positive and red when negative"
 								}
 
@@ -492,7 +492,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 929.5, 136.0, 108.0, 60.0 ],
+									"patching_rect" : [ 929.5, 136.0, 108.0, 64.0 ],
 									"text" : "Pod encoder will be +1, -1 or 0;\nencoder press will be 0 or 1"
 								}
 
@@ -504,7 +504,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 970.5, 96.0, 75.0, 22.0 ],
+									"patching_rect" : [ 970.5, 96.0, 75.0, 23.0 ],
 									"text" : "param press"
 								}
 
@@ -516,7 +516,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 767.0, 96.0, 186.0, 22.0 ],
+									"patching_rect" : [ 767.0, 96.0, 186.0, 23.0 ],
 									"text" : "param encoder @min -1 @max 1"
 								}
 
@@ -540,7 +540,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 225.5, 96.0, 67.0, 22.0 ],
+									"patching_rect" : [ 225.5, 96.0, 67.0, 23.0 ],
 									"text" : "param sw1"
 								}
 
@@ -552,7 +552,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 1163.5, 529.0, 107.0, 22.0 ],
+									"patching_rect" : [ 1138.5, 280.0, 107.0, 23.0 ],
 									"text" : "oopsy.suggestions"
 								}
 
@@ -563,7 +563,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 9.5, 350.0, 69.0, 20.0 ],
+									"patching_rect" : [ 9.5, 350.0, 69.0, 21.0 ],
 									"text" : "OUTPUTS"
 								}
 
@@ -574,7 +574,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 9.5, 96.0, 69.0, 20.0 ],
+									"patching_rect" : [ 9.5, 96.0, 69.0, 21.0 ],
 									"text" : "INPUTS"
 								}
 
@@ -585,7 +585,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 1008.0, 529.0, 139.0, 20.0 ],
+									"patching_rect" : [ 991.0, 280.0, 139.0, 21.0 ],
 									"text" : "MIDI:"
 								}
 
@@ -593,12 +593,11 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-19",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 1008.0, 564.0, 53.0, 22.0 ],
+									"patching_rect" : [ 991.0, 312.0, 59.0, 23.0 ],
 									"text" : "in 3 midi"
 								}
 
@@ -610,7 +609,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 1033.0, 594.0, 160.0, 93.0 ],
+									"patching_rect" : [ 1061.0, 317.0, 160.0, 93.0 ],
 									"text" : "\"midi\" input/output is converted to/from normalized byte streams. See the MIDI examples more info on how to read and write these. "
 								}
 
@@ -634,7 +633,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 576.0, 96.0, 79.0, 22.0 ],
+									"patching_rect" : [ 576.0, 96.0, 79.0, 23.0 ],
 									"text" : "param knob2"
 								}
 
@@ -657,7 +656,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 483.5, 61.0, 57.0, 20.0 ],
+									"patching_rect" : [ 483.5, 61.0, 57.0, 21.0 ],
 									"text" : "Knobs"
 								}
 
@@ -668,7 +667,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 117.5, 61.0, 69.0, 20.0 ],
+									"patching_rect" : [ 117.5, 61.0, 69.0, 21.0 ],
 									"text" : "Audio IOs"
 								}
 
@@ -680,7 +679,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 158.5, 96.0, 28.0, 22.0 ],
+									"patching_rect" : [ 158.5, 96.0, 28.0, 23.0 ],
 									"text" : "in 2"
 								}
 
@@ -688,11 +687,10 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-5",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 158.5, 501.0, 35.0, 22.0 ],
+									"patching_rect" : [ 158.5, 501.0, 36.0, 23.0 ],
 									"text" : "out 2"
 								}
 
@@ -704,7 +702,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 117.5, 96.0, 28.0, 22.0 ],
+									"patching_rect" : [ 117.5, 96.0, 28.0, 23.0 ],
 									"text" : "in 1"
 								}
 
@@ -712,11 +710,10 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-4",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 117.5, 501.0, 35.0, 22.0 ],
+									"patching_rect" : [ 117.5, 501.0, 36.0, 23.0 ],
 									"text" : "out 1"
 								}
 
