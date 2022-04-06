@@ -6,6 +6,7 @@ const assert = require("assert");
 const path = require("path");
 const seed_defs = require(path.join(__dirname, "component_defs.json"));
 const patchsm_defs = require(path.join(__dirname, "component_defs_patchsm.json"));
+const petalsm_defs = require(path.join(__dirname, "component_defs_petalsm.json"));
 
 var global_definitions;
 
@@ -251,6 +252,7 @@ exports.generate_header = function generate_header(board_description_object)
   let temp_defs = {
     seed: seed_defs,
     patch_sm: patchsm_defs,
+    petal_125b_sm: petalsm_defs,
   };
 
   assert(som in temp_defs, `Unkown som "${som}"`);
@@ -289,7 +291,14 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.name = target.name;
   replacements.som = som;
   replacements.external_codecs = target.external_codecs || [];
-  replacements.som_class = som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchSM';
+
+  const classes = {
+    seed: 'daisy::DaisySeed',
+    patch_sm: 'daisy::patch_sm::DaisyPatchSM',
+    petal_125b_sm: 'daisy::Petal125BSM'
+  };
+
+  replacements.som_class = classes[som];
 
   replacements.target_name = target.name; // TODO -- redundant?
   replacements.init = filter_map_template(components, 'init', 'is_default', true);
