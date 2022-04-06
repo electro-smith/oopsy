@@ -1,0 +1,45 @@
+{
+  "name": "petal_125b_sm",
+  "som": "petal_125b_sm",
+  "audio": {
+    "channels": 2
+  },
+  "components": {
+    "knob_1": {
+      "component": "AnalogControl",
+      "index": 0
+    },
+    "knob_2": {
+      "component": "AnalogControl",
+      "index": 1
+    },
+    "knob_3": {
+      "component": "AnalogControl",
+      "index": 2
+    },
+    "knob_4": {
+      "component": "AnalogControl",
+      "index": 3
+    },
+    "knob_5": {
+      "component": "AnalogControl",
+      "index": 4
+    },
+    "knob_6": {
+      "component": "AnalogControl",
+      "index": 5
+    },
+    "toggle_1": {
+      "component": "Switch3",
+      "index": 0
+    },
+    "toggle_2": {
+      "component": "Switch3",
+      "index": 1
+    },
+    "toggle_3": {
+      "component": "Switch3",
+      "index": 2
+    }
+  }
+}
