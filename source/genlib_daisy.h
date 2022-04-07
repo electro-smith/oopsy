@@ -1046,13 +1046,9 @@ namespace oopsy {
 			for(long i = 0; i < daisy::DaisyField::LED_LAST && i < data.dim; i++) {
 				// LED indices run A1..8, B8..1, Knob1..8
 				// switch here to re-order the B8-1 to B1-8
-				// long idx=i;
-				// if (idx > 7 && idx < 16) idx = 23-i;
-				long idx = i;
-				if (idx < 8)
-					idx += 8;
-				else if (idx < 16)
-					idx -= 8;
+				long idx=i;
+				if (idx > 7 && idx < 16)
+					idx = 23 - i;
 				hardware.led_driver.SetLed(idx, data.read(i, 0));
 			}
 			// hardware.led_driver.SwapBuffersAndTransmit(); // now handled by hardware class
