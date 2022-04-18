@@ -40,6 +40,14 @@
     "toggle_3": {
       "component": "Switch3",
       "index": 2
+    },
+    "footswitch_1": {
+      "component": "Switch",
+      "index": 1
+    },
+    "footswitch_2": {
+      "component": "Switch",
+      "index": 2
     }
   }
 }
