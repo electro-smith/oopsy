@@ -383,7 +383,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 488.0, 269.0, 918.0, 472.0 ],
+						"rect" : [ 421.0, 260.0, 918.0, 472.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -411,7 +411,6 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
-						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-31",
@@ -419,7 +418,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 3,
 									"outlettype" : [ "", "", "bang" ],
-									"patching_rect" : [ 523.0, 253.0, 40.0, 22.0 ],
+									"patching_rect" : [ 511.0, 251.0, 40.0, 22.0 ],
 									"text" : "t l l b"
 								}
 
@@ -428,11 +427,11 @@
 								"box" : 								{
 									"id" : "obj-29",
 									"maxclass" : "newobj",
-									"numinlets" : 9,
-									"numoutlets" : 9,
-									"outlettype" : [ "", "", "", "", "", "", "", "", "" ],
-									"patching_rect" : [ 17.0, 97.0, 386.0, 22.0 ],
-									"text" : "routepass patch patch_init field petal pod versio bluemchen nehcmeulb"
+									"numinlets" : 10,
+									"numoutlets" : 10,
+									"outlettype" : [ "", "", "", "", "", "", "", "", "", "" ],
+									"patching_rect" : [ 17.0, 97.0, 471.0, 22.0 ],
+									"text" : "routepass patch patch_init field petal petal_125b_sm pod versio bluemchen nehcmeulb"
 								}
 
 							}
@@ -442,7 +441,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 465.0, 59.0, 62.0, 20.0 ],
+									"patching_rect" : [ 548.0, 55.0, 62.0, 20.0 ],
 									"text" : "browse"
 								}
 
@@ -456,7 +455,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 431.0, 58.0, 30.0, 30.0 ]
+									"patching_rect" : [ 514.0, 54.0, 30.0, 30.0 ]
 								}
 
 							}
@@ -467,7 +466,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "malconformed_path" ],
-									"patching_rect" : [ 641.0, 251.0, 121.0, 22.0 ],
+									"patching_rect" : [ 629.0, 251.0, 121.0, 22.0 ],
 									"text" : "t malconformed_path"
 								}
 
@@ -479,7 +478,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "bang", "" ],
-									"patching_rect" : [ 641.0, 224.0, 34.0, 22.0 ],
+									"patching_rect" : [ 629.0, 224.0, 34.0, 22.0 ],
 									"text" : "sel 0"
 								}
 
@@ -491,7 +490,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 431.0, 214.0, 81.0, 22.0 ],
+									"patching_rect" : [ 419.0, 214.0, 81.0, 22.0 ],
 									"text" : "prepend error"
 								}
 
@@ -502,7 +501,7 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 431.0, 238.0, 32.0, 22.0 ],
+									"patching_rect" : [ 419.0, 238.0, 32.0, 22.0 ],
 									"text" : "print"
 								}
 
@@ -514,7 +513,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "", "" ],
-									"patching_rect" : [ 431.0, 166.0, 111.0, 22.0 ],
+									"patching_rect" : [ 419.0, 166.0, 111.0, 22.0 ],
 									"text" : "routepass notfound"
 								}
 
@@ -526,7 +525,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 431.0, 136.0, 77.0, 22.0 ],
+									"patching_rect" : [ 419.0, 136.0, 77.0, 22.0 ],
 									"text" : "absolutepath",
 									"varname" : "example[4]"
 								}
@@ -539,7 +538,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 2,
 									"outlettype" : [ "", "int" ],
-									"patching_rect" : [ 523.0, 194.0, 137.0, 22.0 ],
+									"patching_rect" : [ 511.0, 193.0, 137.0, 22.0 ],
 									"text" : "conformpath native boot"
 								}
 
@@ -551,7 +550,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 533.5, 287.0, 96.0, 22.0 ],
+									"patching_rect" : [ 521.5, 287.0, 96.0, 22.0 ],
 									"text" : "prepend append"
 								}
 
@@ -563,7 +562,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 2,
 									"outlettype" : [ "", "bang" ],
-									"patching_rect" : [ 431.0, 97.0, 103.0, 22.0 ],
+									"patching_rect" : [ 514.0, 97.0, 103.0, 22.0 ],
 									"text" : "opendialog JSON"
 								}
 
@@ -576,8 +575,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 544.0, 329.0, 369.0, 49.0 ],
-									"text" : "clear, append patch, append patch_init, append field, append petal, append pod, append versio, append bluemchen, append nehcmeulb"
+									"patching_rect" : [ 532.0, 323.0, 369.0, 49.0 ],
+									"text" : "clear, append patch, append patch_init, append field, append petal, append petal_125b_sm, append pod, append versio, append bluemchen, append nehcmeulb"
 								}
 
 							}
@@ -643,7 +642,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-74", 0 ],
-									"midpoints" : [ 553.5, 380.0, 26.5, 380.0 ],
+									"midpoints" : [ 541.5, 380.0, 26.5, 380.0 ],
 									"source" : [ "obj-2", 0 ]
 								}
 
@@ -756,7 +755,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-37", 0 ],
-									"midpoints" : [ 532.5, 280.5, 26.5, 280.5 ],
+									"midpoints" : [ 520.5, 280.5, 26.5, 280.5 ],
 									"source" : [ "obj-31", 0 ]
 								}
 
@@ -779,7 +778,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-74", 0 ],
-									"midpoints" : [ 543.0, 327.5, 26.5, 327.5 ],
+									"midpoints" : [ 531.0, 327.5, 26.5, 327.5 ],
 									"source" : [ "obj-53", 0 ]
 								}
 
@@ -1340,8 +1339,6 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
-						"node_bin_path" : "",
-						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -1988,14 +1985,14 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
 				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
 				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
