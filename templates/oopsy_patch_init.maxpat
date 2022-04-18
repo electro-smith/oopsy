@@ -576,30 +576,6 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
-									"id" : "obj-21",
-									"maxclass" : "newobj",
-									"numinlets" : 1,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 565.0, 358.0, 23.0, 22.0 ],
-									"text" : "* 1"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-20",
-									"maxclass" : "newobj",
-									"numinlets" : 1,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 506.0, 255.0, 26.0, 22.0 ],
-									"text" : "< 0"
-								}
-
-							}
-, 							{
-								"box" : 								{
 									"id" : "obj-47",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
@@ -772,7 +748,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 565.0, 211.0, 143.0, 114.0 ],
+									"patching_rect" : [ 565.0, 211.0, 146.0, 114.0 ],
 									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related).\nSince these inputs are all bipolar, we need to set the @min attribute to -1 (@max can be left at the default value of 1)"
 								}
 
@@ -1125,7 +1101,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-20", 0 ],
+									"destination" : [ "obj-6", 2 ],
 									"source" : [ "obj-10", 0 ]
 								}
 
@@ -1148,13 +1124,6 @@
 								"patchline" : 								{
 									"destination" : [ "obj-24", 0 ],
 									"source" : [ "obj-2", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-29", 0 ],
-									"source" : [ "obj-20", 0 ]
 								}
 
 							}
@@ -1255,6 +1224,13 @@
 								"patchline" : 								{
 									"destination" : [ "obj-6", 0 ],
 									"source" : [ "obj-47", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-29", 0 ],
+									"source" : [ "obj-6", 0 ]
 								}
 
 							}
