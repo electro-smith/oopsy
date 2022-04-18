@@ -154,6 +154,29 @@
 			}
 		]
 	},
+	"AnalogControlBipolar": {
+		"init_single": "cfg[{i}].InitSingle(daisy::patch_sm::DaisyPatchSM::{pin});",
+		"map_init": "{name}.Init(som.adc.GetPtr({i}), som.AudioCallbackRate(), {flip}, {invert});",
+		"typename": "daisy::AnalogControl",
+		"direction": "in",
+		"pin": "a",
+		"flip": "false",
+		"invert": "false",
+		"slew": "1.0/som.AudioCallbackRate()",
+		"process": "{name}.Process();",
+		"updaterate": "{name}.SetSampleRate(som.AudioCallbackRate());",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.som.GetAdcValue((int)daisy::patch_sm::{name_upper}))",
+				"range": [
+					-1,
+					1
+				],
+				"bool": false
+			}
+		]
+	},
 	"Led": {
 		"map_init": "{name}.Init(daisy::patch_sm::DaisyPatchSM::{pin}), {invert});\n\t\t{name}.Set(0.0f);",
 		"typename": "daisy::Led",
