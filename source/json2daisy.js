@@ -434,7 +434,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   void ProcessAllControls() 
   {
     ${replacements.process}
-    ${replacements.som == 'patch_sm' ? 'som.ProcessAllControls();' : ''}
+    ${replacements.som == 'patch_sm' || replacements.som == 'petal_125b_sm' ? 'som.ProcessAllControls();' : ''}
   }
 
   /** Handles all the maintenance processing. This should be run last within the audio callback.
@@ -443,6 +443,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   void PostProcess()
   {
     ${replacements.postprocess}
+    ${replacements.som == 'petal_125b_sm' ? 'som.UpdateLeds();' : ''}
   }
 
   /** Handles processing that shouldn't occur in the audio block, such as blocking transfers
@@ -488,7 +489,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
    */
   void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate) 
   {
-    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    ${som == 'seed' || som == 'petal_125b_sm' ? 'som.SetAudioSampleRate(sample_rate);' : 
     `size_t hz_rate;
     switch (sample_rate)
     {
