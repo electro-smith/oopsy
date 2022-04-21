@@ -353,7 +353,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "patch_init", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "nehcmeulb" ],
+					"items" : [ "patch", ",", "patch_init", ",", "field", ",", "petal", ",", "petal_125b_sm", ",", "pod", ",", "versio", ",", "bluemchen", ",", "nehcmeulb" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -1339,6 +1339,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
