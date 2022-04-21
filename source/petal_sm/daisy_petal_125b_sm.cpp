@@ -182,6 +182,10 @@ namespace daisy
     {
         audio.SetSampleRate(samplerate);
         callback_rate_ = AudioSampleRate() / AudioBlockSize();
+        for (size_t i = 0; i < LED_LAST; i++)
+            led[i].SetSampleRate(callback_rate_);
+        for (size_t i = 0; i < KNOB_LAST; i++)
+            knob[i].SetSampleRate(callback_rate_);
     }
 
     float Petal125BSM::AudioSampleRate()
@@ -193,6 +197,10 @@ namespace daisy
     {
         audio.SetBlockSize(blocksize);
         callback_rate_ = AudioSampleRate() / AudioBlockSize();
+        for (size_t i = 0; i < LED_LAST; i++)
+            led[i].SetSampleRate(callback_rate_);
+        for (size_t i = 0; i < KNOB_LAST; i++)
+            knob[i].SetSampleRate(callback_rate_);
     }
 
     size_t Petal125BSM::AudioBlockSize()
