@@ -58,12 +58,21 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"get": "({class_name}.som.knob[{index}].Value()?1.f:0.f)",
+				"get": "({class_name}.som.knob[{index}].Value())",
 				"range": [
 					0,
 					1
 				],
 				"bool": false
+			}
+		]
+	},
+	"Expression": {
+		"direction": "in",
+		"mapping": [
+			{
+				"name": "{name}",
+				"get": "({class_name}.som.GetExpressionValue())"
 			}
 		]
 	},
@@ -105,6 +114,17 @@
 			{
 				"name": "{name}_white",
 				"set": "{class_name}.som.led[{index_r}].Set({value});  \n{class_name}.som.led[{index_g}].Set({value});  \n{class_name}.som.led[{index_b}].Set({value});"
+			}
+		]
+	},
+	"Relay": {
+		"map_init": "",
+		"typename": "",
+		"direction": "out",
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "{class_name}.som.SetBypassState({value});"
 			}
 		]
 	}
