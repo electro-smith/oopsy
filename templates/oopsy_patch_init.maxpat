@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 226.0, 177.0, 1003.0, 630.0 ],
+		"rect" : [ 58.0, 85.0, 1003.0, 630.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,26 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"args" : [ "patch_init" ],
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 752.0, 63.0, 128.0, 128.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"attr" : "cv5",
 					"id" : "obj-39",
@@ -340,12 +360,11 @@
 					"fontname" : "Arial Italic",
 					"fontsize" : 18.0,
 					"id" : "obj-24",
-					"linecount" : 2,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.0, 22.0, 221.0, 47.0 ],
-					"text" : "Template for DaisyPatch Submodule"
+					"patching_rect" : [ 24.0, 22.0, 221.0, 27.0 ],
+					"text" : "Template for patch.Init()"
 				}
 
 			}
@@ -510,26 +529,6 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "field", "@target", "patch_sm" ],
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-9",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "oopsy.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 760.5, 63.0, 128.0, 128.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"fontsize" : 24.0,
 					"id" : "obj-3",
 					"maxclass" : "newobj",
@@ -577,6 +576,149 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-47",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 398.5, 243.5, 26.0, 22.0 ],
+									"text" : "+ 1"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-6",
+									"maxclass" : "newobj",
+									"numinlets" : 3,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 398.5, 276.0, 61.0, 22.0 ],
+									"text" : "selector 2"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-48",
+									"linecount" : 5,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 870.0, 18.0, 150.0, 74.0 ],
+									"text" : "Toggling the switch with this patcher will switch between interface inputs and voltage inputs for gate2 and cvout2"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-46",
+									"maxclass" : "newobj",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 803.5, 312.0, 29.5, 22.0 ],
+									"text" : "+"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-42",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 879.211711704730988, 228.5, 26.0, 22.0 ],
+									"text" : "!- 1"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-43",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 814.0, 200.0, 49.0, 22.0 ],
+									"text" : "r toggle"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-44",
+									"maxclass" : "newobj",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 868.711711704730988, 265.0, 29.5, 22.0 ],
+									"text" : "*"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-45",
+									"maxclass" : "newobj",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 803.5, 269.0, 29.5, 22.0 ],
+									"text" : "*"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-41",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 870.0, 96.0, 103.0, 22.0 ],
+									"text" : "param sw2_press"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-40",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 870.0, 133.0, 51.0, 22.0 ],
+									"text" : "s toggle"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-36",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 975.0, 96.0, 103.0, 22.0 ],
+									"text" : "param sw1_press"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-30",
+									"maxclass" : "newobj",
+									"numinlets" : 0,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 398.5, 211.0, 49.0, 22.0 ],
+									"text" : "r toggle"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-24",
 									"maxclass" : "newobj",
 									"numinlets" : 2,
@@ -594,7 +736,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 419.211711704730988, 312.0, 96.0, 33.0 ],
+									"patching_rect" : [ 459.211711704730988, 312.0, 96.0, 33.0 ],
 									"text" : "\"out 4 led\" would also work"
 								}
 
@@ -602,12 +744,12 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-8",
-									"linecount" : 6,
+									"linecount" : 8,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 589.0, 211.0, 83.0, 87.0 ],
-									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related)"
+									"patching_rect" : [ 565.0, 211.0, 146.0, 114.0 ],
+									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related).\nSince these inputs are all bipolar, we need to set the @min attribute to -1 (@max can be left at the default value of 1)"
 								}
 
 							}
@@ -618,8 +760,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 589.0, 178.0, 65.0, 22.0 ],
-									"text" : "param cv8"
+									"patching_rect" : [ 594.0, 180.0, 113.0, 22.0 ],
+									"text" : "param cv8 @min -1"
 								}
 
 							}
@@ -630,8 +772,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 568.0, 151.0, 65.0, 22.0 ],
-									"text" : "param cv7"
+									"patching_rect" : [ 565.0, 151.0, 113.0, 22.0 ],
+									"text" : "param cv7 @min -1"
 								}
 
 							}
@@ -642,8 +784,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 544.0, 123.0, 65.0, 22.0 ],
-									"text" : "param cv6"
+									"patching_rect" : [ 532.0, 123.0, 113.0, 22.0 ],
+									"text" : "param cv6 @min -1"
 								}
 
 							}
@@ -654,8 +796,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 520.0, 96.0, 65.0, 22.0 ],
-									"text" : "param cv5"
+									"patching_rect" : [ 506.0, 96.0, 113.0, 22.0 ],
+									"text" : "param cv5 @min -1"
 								}
 
 							}
@@ -677,8 +819,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 786.5, 351.5, 69.0, 22.0 ],
-									"text" : "out 6 gate2"
+									"patching_rect" : [ 803.5, 351.5, 99.0, 22.0 ],
+									"text" : "out 6 gate_out_2"
 								}
 
 							}
@@ -689,7 +831,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 891.5, 96.0, 107.0, 22.0 ],
+									"patching_rect" : [ 1081.5, 96.0, 107.0, 22.0 ],
 									"text" : "oopsy.suggestions"
 								}
 
@@ -734,8 +876,8 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 703.5, 351.5, 69.0, 22.0 ],
-									"text" : "out 5 gate1"
+									"patching_rect" : [ 703.5, 351.5, 99.0, 22.0 ],
+									"text" : "out 5 gate_out_1"
 								}
 
 							}
@@ -848,13 +990,12 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-14",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 320.5, 119.900900900363922, 67.0, 49.0 ],
-									"text" : "param cv3 @min 0.5 @max 1"
+									"patching_rect" : [ 320.5, 119.900900900363922, 65.0, 22.0 ],
+									"text" : "param cv3"
 								}
 
 							}
@@ -960,6 +1101,13 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-6", 2 ],
+									"source" : [ "obj-10", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-24", 1 ],
 									"source" : [ "obj-14", 0 ]
 								}
@@ -967,7 +1115,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-29", 0 ],
+									"destination" : [ "obj-6", 1 ],
 									"source" : [ "obj-15", 0 ]
 								}
 
@@ -988,7 +1136,7 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-7", 0 ],
+									"destination" : [ "obj-45", 0 ],
 									"source" : [ "obj-25", 0 ]
 								}
 
@@ -1007,17 +1155,96 @@
 								}
 
 							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-47", 0 ],
+									"source" : [ "obj-30", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-44", 0 ],
+									"source" : [ "obj-36", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-40", 0 ],
+									"source" : [ "obj-41", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-44", 1 ],
+									"source" : [ "obj-42", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-42", 0 ],
+									"order" : 0,
+									"source" : [ "obj-43", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-45", 1 ],
+									"order" : 1,
+									"source" : [ "obj-43", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-46", 1 ],
+									"source" : [ "obj-44", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-46", 0 ],
+									"source" : [ "obj-45", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-7", 0 ],
+									"source" : [ "obj-46", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-6", 0 ],
+									"source" : [ "obj-47", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-29", 0 ],
+									"source" : [ "obj-6", 0 ]
+								}
+
+							}
  ]
 					}
 ,
 					"patching_rect" : [ 47.0, 363.0, 195.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/oopsy/templates/",
-						"exportname" : "oopsy_patch_sm"
+						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/Oopsy/templates/",
+						"exportname" : "oopsy_patch_init"
 					}
 ,
 					"text" : "gen~",
-					"varname" : "oopsy_patch_sm"
+					"varname" : "oopsy_patch_init"
 				}
 
 			}
@@ -1190,43 +1417,8 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-1", 0 ],
-					"source" : [ "obj-3", 2 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-11", 1 ],
-					"source" : [ "obj-3", 1 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-11", 0 ],
 					"source" : [ "obj-3", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-14", 0 ],
-					"source" : [ "obj-3", 3 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-15", 0 ],
-					"source" : [ "obj-3", 5 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-20", 0 ],
-					"source" : [ "obj-3", 4 ]
 				}
 
 			}
@@ -1288,16 +1480,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-3", 1 ],
-					"order" : 0,
-					"source" : [ "obj-7", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-3", 0 ],
-					"order" : 1,
 					"source" : [ "obj-7", 0 ]
 				}
 
@@ -1334,58 +1517,37 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.suggestions.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.gate.trig.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.gate.min.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.ctrl.smooth3.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.ctrl.smooth2.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
@@ -1421,6 +1583,27 @@
 , 			{
 				"name" : "interfacecolor.js",
 				"bootpath" : "C74:/interfaces",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}

@@ -1,8 +1,13 @@
 {
-	"name":"pod",
+	"name": "pod",
+	"som": "seed",
 	"defines": {
 		"OOPSY_TARGET_HAS_MIDI_INPUT": 1
 	},
+	"display": {},
+	"audio": {
+    "channels": 2
+  },
 	"components": {
 		"sw1": {
 			"component": "Switch",
@@ -22,15 +27,27 @@
 		},
 		"encoder": {
 			"component": "Encoder",
-			"pin": {"a":26, "b":25, "click":13 }
+			"pin": {
+				"a": 26,
+				"b": 25,
+				"click": 13
+			}
 		},
 		"led1": {
 			"component": "RgbLed",
-			"pin": {"r":20, "g":19, "b":18 }
+			"pin": {
+				"r": 20,
+				"g": 19,
+				"b": 18
+			}
 		},
 		"led2": {
 			"component": "RgbLed",
-			"pin": {"r":17, "g":24, "b":23 }
+			"pin": {
+				"r": 17,
+				"g": 24,
+				"b": 23
+			}
 		}
 	},
 	"aliases": {
@@ -40,8 +57,8 @@
 		"button1": "sw1",
 		"switch2": "sw2",
 		"button2": "sw2",
+		"encswitch": "encoder_rise",
 		"enp": "encoder_press",
-		"switch3": "encoder_press",
 		"press": "encoder_press",
 		"knob": "knob1",
 		"ctrl": "knob1",

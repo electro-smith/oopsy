@@ -39,6 +39,9 @@ const fs = require("fs"),
 	assert = require("assert");
 const {exec, execSync, spawn} = require("child_process");
 
+const json2daisy = require(path.join(__dirname, "json2daisy.js"));
+const daisy_glue = require(path.join(__dirname, "daisy_glue.js"));
+
 // returns the path `str` with posix path formatting:
 function posixify_path(str) {
 	return str.split(path.sep).join(path.posix.sep);
@@ -78,6 +81,15 @@ function asCppNumber(n, type="float") {
 			return s + ".f";
 		}
 	}
+}
+
+function node_scale(node) {
+	if (node.permit_scale == false)
+		return `${node.varname} = (${node.type})(${node.src});
+		`
+	else
+		return `${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});
+		`
 }
 
 let build_tools_path;
@@ -153,7 +165,7 @@ const component_defs = {
 		polarity: "daisy::Switch::POLARITY_INVERTED",
 		pull: "daisy::Switch::PULL_UP",
 		process: "${name}.Debounce();",
-		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetUpdateRate(som.AudioCallbackRate());",
 		mapping: [
 			{ name: "${name}", get: "(hardware.${name}.Pressed()?1.f:0.f)", range: [0, 1] },
 			{
@@ -184,11 +196,11 @@ const component_defs = {
 		typename: "daisy::Encoder",
 		pin: "a,b,click",
 		process: "${name}.Debounce();",
-		updaterate: "${name}.SetUpdateRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetUpdateRate(som.AudioCallbackRate());",
 		mapping: [
 			{
 				name: "${name}",
-				get: "(hardware.${name}.Increment()*0.5f+0.5f)",
+				get: "hardware.${name}.Increment()",
 				range: [-1, 1]
 			},
 			{
@@ -226,9 +238,9 @@ const component_defs = {
 		pin: "a",
 		flip: false,
 		invert: false,
-		slew: "1.0/seed.AudioCallbackRate()",
+		slew: "1.0/som.AudioCallbackRate()",
 		process: "${name}.Process();",
-		updaterate: "${name}.SetSampleRate(seed.AudioCallbackRate());",
+		updaterate: "${name}.SetSampleRate(som.AudioCallbackRate());",
 		mapping: [{ name: "${name}", get: "(hardware.${name}.Value())", range: [0, 1] }]
 	},
 	Led: {
@@ -270,160 +282,17 @@ const component_defs = {
 		mapping: [
 			{
 				name: "${name}1",
-				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);",
+				set: "hardware.som.dac.WriteValue(daisy::DacHandle::Channel::ONE, $<name> * 4095);",
 				where: "main"
 			},
 			{
 				name: "${name}2",
-				set: "hardware.seed.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);",
+				set: "hardware.som.dac.WriteValue(daisy::DacHandle::Channel::TWO, $<name> * 4095);",
 				where: "main"
 			}
 		]
 	}
 };
-
-// generate the struct
-function generate_target_struct(target) {
-	
-	// flesh out target components:
-	let components = Object.entries(target.components)
-	  .sort((a, b) =>
-		a[1].component < b[1].component
-		  ? -1
-		  : a[1].component > b[1].component
-		  ? 1
-		  : 0
-	  )
-	  .map((pair) => {
-		let [name, def] = pair;
-		def.name = name;
-		let component = component_defs[def.component];
-		if (component) {
-		  // copy component defaults into the def
-		  // TODO this should be recursive for object structures...
-		  for (let k of Object.keys(component)) {
-			if (def[k] == undefined) def[k] = component[k];
-		  }
-		} else {
-		  throw new Error("undefined component kind: " + def.component);
-		}
-		return def;
-	});
-	target.components = components;
-	target.name = target.name || "custom"
-
-	if (target.display) {
-		// apply defaults:
-		target.display = Object.assign({
-			driver: "daisy::SSD130x4WireSpi128x64Driver",
-			config: [],
-			dim: [128, 64]
-		}, target.display)
-		target.defines.OOPSY_TARGET_HAS_OLED = 1
-		target.defines.OOPSY_OLED_DISPLAY_WIDTH = target.display.dim[0]
-		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
-	}
-  
-	return `
-#include "daisy_seed.h"
-${target.display ? `#include "dev/oled_ssd130x.h"` : ""}
-// name: ${target.name}
-struct Daisy {
-  
-	void Init(bool boost = false) {
-		seed.Configure();
-		seed.Init(boost);
-		${components.filter((e) => e.init)
-		.map((e) => `
-		${template(e.init, e)}`
-		).join("")}
-		${components.filter((e) => e.typename == "daisy::Switch")
-		.map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin}), seed.AudioCallbackRate(), ${e.type}, ${e.polarity}, ${e.pull});`
-		).join("")}
-		${components.filter((e) => e.typename == "daisy::Switch3").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}));`
-		).join("")}
-		${components.filter((e) => e.typename == "daisy::GateIn").map((e, i) => `
-		dsy_gpio_pin ${e.name}_pin = seed.GetPin(${e.pin});
-		${e.name}.Init(&${e.name}_pin);`
-		).join("")}
-		${components.filter((e) => e.typename == "daisy::Encoder").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.a}), seed.GetPin(${e.pin.b}), seed.GetPin(${e.pin.click}), seed.AudioCallbackRate());`
-		).join("")}
-		static const int ANALOG_COUNT = ${
-		components.filter((e) => e.typename == "daisy::AnalogControl").length};
-		daisy::AdcChannelConfig cfg[ANALOG_COUNT];
-		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-		cfg[${i}].InitSingle(seed.GetPin(${e.pin}));`).join("")}
-		seed.adc.Init(cfg, ANALOG_COUNT);
-		${components.filter((e) => e.typename == "daisy::AnalogControl").map((e, i) => `
-		${e.name}.Init(seed.adc.GetPtr(${i}), seed.AudioCallbackRate(), ${e.flip}, ${e.invert});`).join("")}
-		${components.filter((e) => e.typename == "daisy::Led").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin}), ${e.invert});
-		${e.name}.Set(0.0f);`).join("")}	
-	  	${components.filter((e) => e.typename == "daisy::RgbLed").map((e, i) => `
-		${e.name}.Init(seed.GetPin(${e.pin.r}), seed.GetPin(${e.pin.g}), seed.GetPin(${e.pin.b}), ${e.invert});
-		${e.name}.Set(0.0f, 0.0f, 0.0f);`).join("")}
-		${components.filter((e) => e.typename == "daisy::dsy_gpio").map((e, i) => `
-		${e.name}.pin  = seed.GetPin(${e.pin});
-		${e.name}.mode = ${e.mode};
-		${e.name}.pull = ${e.pull};
-		dsy_gpio_init(&${e.name});`).join("")}
-		${components.filter((e) => e.typename == "daisy::DacHandle::Config").map((e, i) => `
-		${e.name}.bitdepth   = ${e.bitdepth};
-		${e.name}.buff_state = ${e.buff_state};
-		${e.name}.mode       = ${e.mode};
-		${e.name}.chn        = ${e.channel};
-		seed.dac.Init(${e.name});
-		seed.dac.WriteValue(${e.channel}, 0);`).join("")}
-		${target.display ? `
-		daisy::OledDisplay<${target.display.driver}>::Config display_config;
-		display_config.driver_config.transport_config.Defaults(); ${(target.display.config || []).map(e=>`
-		${e}`).join("")}
-		display.Init(display_config);`:`// no display`}
-	}
-  
-	void ProcessAllControls() {
-		${components.filter((e) => e.process).map((e) => `
-		${template(e.process, e)}`).join("")}
-		${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`
-		${template(m, e)}`).join("")).join("")}
-	}
-	
-	void PostProcess() {
-		${components.filter((e) => e.postprocess).map((e) => `
-		${template(e.postprocess, e)}`).join("")}
-	}
-	
-	void Display() {
-		${components.filter((e) => e.display).map((e) => `
-		${template(e.display, e)}`).join("")}
-	}
-  
-	void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate samplerate) {
-		seed.SetAudioSampleRate(samplerate);
-		SetHidUpdateRates();
-	}
-
-	void SetAudioBlockSize(size_t size) {
-		seed.SetAudioBlockSize(size);
-		SetHidUpdateRates();
-	}
-
-	void SetHidUpdateRates() {
-		${components.filter((e) => e.updaterate).map((e) => `
-		${template(e.updaterate, e)}`).join("")}
-	}
-  
-	daisy::DaisySeed seed;
-	${components.map((e) => `
-	${e.typename} ${e.name};`).join("")}
-	${target.display ? `daisy::OledDisplay<${target.display.driver}> display;`:`// no display`}
-	int menu_click = 0, menu_hold = 0, menu_rotate = 0;
-
-};`;
-}
 
 let watchers = []
 
@@ -461,14 +330,14 @@ function run() {
 			case "upload":
 			case "up": action="upload"; break;
 
-			case "pod":
-			case "field":
-			case "petal":
-			case "patch": 
-			case "patch_sm":
 			case "versio": target = arg; break;
-			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
-			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
+			case "bluemchen": target_path = path.join(__dirname, "bluemchen.json"); break;
+			case "nehcmeulb": target_path = path.join(__dirname, "nehcmeulb.json"); break;
+			case "pod": target_path = path.join(__dirname, "pod.json"); break;
+			case "patch_init": target_path = path.join(__dirname, "patch_init.json"); break;
+			case "field": target_path = path.join(__dirname, "field.json"); break;
+			case "petal": target_path = path.join(__dirname, "petal.json"); break;
+			case "patch": target_path = path.join(__dirname, "patch.json"); break;
 
 			case "watch": watch=true; break;
 
@@ -536,23 +405,40 @@ function run() {
 
 	let OOPSY_TARGET_SEED = 0
 
+	let valid_soms = ['seed', 'patch_sm'];
+	let som = 'seed';
+
+	let old_json = false;
+
 	// configure target:
 	if (!target && !target_path) target = "patch";
 	if (!target_path) {
 		target_path = path.join(__dirname, `daisy.${target}.json`);
+		old_json = true;
 	} else {
-		OOPSY_TARGET_SEED = 1
+		// TODO -- should a seed target even really exist? Custom boards
+		// (and even prototypes / breadboards) should really be defined with a JSON file
+		// OOPSY_TARGET_SEED = 1
 		target = path.parse(target_path).name.replace(".", "_")
+		// som_match = path.parse(target_path).name.match(/([A-Za-z_0-9\-]+)\./)
+		// assert(som_match != null, `Daisy SOM undefined. Provide the SOM as in the following: "som.MyBoard.json"`);
+		// assert(valid_soms.includes(som_match[1]), `unkown SOM ${som_match[1]}. Valid SOMs: ${valid_soms.join(', ')}`);
+		// som = som_match[1];
 	}
 	console.log(`Target ${target} configured in path ${target_path}`)
 	assert(fs.existsSync(target_path), `couldn't find target configuration file ${target_path}`);
 	const hardware = JSON.parse(fs.readFileSync(target_path, "utf8"));
 	hardware.max_apps = hardware.max_apps || 1
+	// hardware.som = som;
+
+	// Ensure som is valid
+	assert(valid_soms.includes(hardware.som), `unkown SOM ${hardware.som}. Valid SOMs: ${valid_soms.join(', ')}`);
 
 	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
 	// this script should be revised to eliminate the old workflow
 	{
+		hardware.som = hardware.som || "seed";
 		hardware.inputs = hardware.inputs || {}
 		hardware.outputs = hardware.outputs || {}
 		hardware.datahandlers = hardware.datahandlers || {}
@@ -565,11 +451,19 @@ function run() {
 		hardware.defines = hardware.defines || {}
 		hardware.struct = "";
 
-		if (hardware.components) {
-			hardware.struct = generate_target_struct(hardware);
-			// generate IO
-			for (let component of hardware.components) {
+		let tempname = hardware.name;
+		hardware.name = '';
+		let board_info = json2daisy.generate_header(hardware);
+		hardware.name = tempname;
 
+		hardware.struct = board_info.header;
+		hardware.components = board_info.components;
+		hardware.aliases = board_info.aliases;
+
+		if (hardware.components) {
+			// generate IO
+			for (let comp in hardware.components) {
+				let component = hardware.components[comp];
 				// meta-elements are handled separately
 				if (component.meta) {
 					
@@ -577,21 +471,26 @@ function run() {
 					// else it is available for gen mapping:
 
 					for (let mapping of component.mapping) {
-						let name = template(mapping.name, component);
+						// let name = template(mapping.name, component);
+						component.class_name = 'hardware';
+						component.name_upper = component.name.toUpperCase();
+						let name = json2daisy.format_map(mapping.name, component);
+						component.value = name.toLowerCase();
 						if (mapping.get) {
 							// an input
 							hardware.inputs[name] = {
-								code: template(mapping.get, component),
+								code: json2daisy.format_map(mapping.get, component),
 								automap: component.automap && name == component.name,
 								range: mapping.range,
-								where: mapping.where
+								where: mapping.where,
+								permit_scale: mapping.permit_scale != undefined ? mapping.permit_scale : true
 							}
 							hardware.labels.params[name] = name
 						}
 						if (mapping.set) {
 							// an output
 							hardware.outputs[name] = {
-								code: template(mapping.set, component),
+								code: json2daisy.format_map(mapping.set, component),
 								automap: component.automap && name == component.name,
 								range: mapping.range,
 								where: mapping.where || "audio"
@@ -602,6 +501,9 @@ function run() {
 				}
 			}
 		}
+
+		if (old_json)
+			hardware.defines.OOPSY_OLD_JSON = 1
 
 		for (let alias in hardware.aliases) {
 			let map = hardware.aliases[alias]
@@ -615,7 +517,10 @@ function run() {
 
 	// consolidate hardware definition:
 	hardware.samplerate = samplerate
-	if (hardware.defines.OOPSY_IO_COUNT == undefined) hardware.defines.OOPSY_IO_COUNT = 2
+	if (hardware.audio)
+		hardware.defines.OOPSY_IO_COUNT = hardware.audio.channels || 2;
+	else if (!hardware.defines.OOPSY_IO_COUNT)
+		hardware.defines.OOPSY_IO_COUNT = 2;
 	if (!hardware.max_apps) hardware.max_apps = 1;
 
 	hardware.defines.OOPSY_SAMPLERATE = samplerate * 1000
@@ -680,6 +585,9 @@ function run() {
 	}
 	if (options.fastmath) {
 		hardware.defines.GENLIB_USE_FASTMATH = 1;
+	}
+	if (hardware.som == 'patch_sm') {
+		hardware.defines.OOPSY_SOM_PATCH_SM = 1;
 	}
 
 	const makefile_path = path.join(build_path, `Makefile`)
@@ -746,6 +654,8 @@ ${Object.keys(hardware.defines).map(k=>`
 #define ${k} (${hardware.defines[k]})`).join("")}
 ${hardware.struct}
 
+using json2daisy::Daisy;
+
 ${hardware.inserts.filter(o => o.where == "header").map(o => o.code).join("\n")}
 #include "../genlib_daisy.h"
 #include "../genlib_daisy.cpp"
@@ -763,11 +673,7 @@ oopsy::AppDef appdefs[] = {
 };
 
 int main(void) {
-	#ifdef OOPSY_TARGET_PATCH_SM
-	oopsy::daisy.hardware.Init(); 
-	#else
-  oopsy::daisy.hardware.Init(${options.boost|false}); 
-	#endif
+  oopsy::daisy.hardware.Init(${hardware.som == 'seed' ? options.boost|false : ''}); 
 	oopsy::daisy.hardware.SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate::SAI_${hardware.samplerate}KHZ);
 	oopsy::daisy.hardware.SetAudioBlockSize(${hardware.defines.OOPSY_BLOCK_SIZE});
 	${hardware.inserts.filter(o => o.where == "init").map(o => o.code).join("\n\t")}
@@ -1011,6 +917,7 @@ function analyze_cpp(cpp, hardware, cpp_path) {
 
 function generate_daisy(hardware, nodes) {
 	let daisy = {
+		som: hardware.som,
 		// DEVICE INPUTS:
 		device_inputs: Object.keys(hardware.inputs).map(v => {
 			let name = v
@@ -1432,6 +1339,30 @@ function generate_app(app, hardware, target, config) {
 		node.src = src;
 		node.label = label;
 
+		// Apply input scaling
+		if (src in hardware.inputs)
+		{
+			let input = hardware.inputs[src];
+			node.permit_scale = input.permit_scale;
+
+			// TODO -- we should allow no scaling to occur on certain inputs
+			if ('range' in input && typeof input.range !== 'undefined')
+			{
+				let input_min = input.range[0] || 0;
+				let input_max = input.range[1] || 1;
+
+				// We ignore this step if the fields are default
+				if (input_min != 0 || input_max != 1)
+				{
+					let new_range = node.range / (input_max - input_min);
+					node.range = new_range;
+
+					let new_min = node.min - input_min * new_range;
+					node.min = new_min;
+				}
+			}
+		}
+
 		let ideal_steps = 100 // about 4 good twists of the encoder
 		if (node.type == "bool" || node.type == "int") {
 			node.stepsize = 1
@@ -1506,12 +1437,15 @@ function generate_app(app, hardware, target, config) {
 			// find next param without a src:
 			while (param && !!nodes[param].src) param = gen.params[++upi];
 			if (param) {
-				//console.log(name, "map to", param)
+				// console.log(name, "map to", param)
 				nodes[param].src = name;
 				node.to.push(param);
 			}
 		}
 	})
+
+	// TODO -- This may or may not be implemented any time soon
+	// let board_glue = daisy_glue.parse_parameters(nodes, hardware.components, hardware.aliases, 'hardware');
 
 	// normal any audio outs from earlier (non cv/gate/midi) audio outs
 	{
@@ -1526,6 +1460,8 @@ function generate_app(app, hardware, target, config) {
 			}
 		});
 	}
+
+	let som_or_seed = hardware.defines.OOPSY_OLD_JSON ? 'seed' : 'som';
 
 	const struct = `
 
@@ -1547,11 +1483,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 	float ${name}[OOPSY_BLOCK_SIZE];`).join("")}
 	
 	void init(oopsy::GenDaisy& daisy) {
-		#ifdef OOPSY_TARGET_PATCH_SM
-		daisy.gen = ${name}::create(daisy.hardware.AudioSampleRate(), daisy.hardware.AudioBlockSize());
-		#else
-		daisy.gen = ${name}::create(daisy.hardware.seed.AudioSampleRate(), daisy.hardware.seed.AudioBlockSize());
-		#endif
+		daisy.gen = ${name}::create(daisy.hardware.${som_or_seed}.AudioSampleRate(), daisy.hardware.${som_or_seed}.AudioBlockSize());
 		${name}::State& gen = *(${name}::State *)daisy.gen;
 		
 		daisy.param_count = ${gen.params.length};
@@ -1593,8 +1525,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(name=>nodes[name])
 			.filter(node => node.src)
 			.filter(node => node.where == "audio" || node.where == undefined)
-			.map(node=>`
-		${node.varname} = (${node.type})(${node.src}*${asCppNumber(node.range)} + ${asCppNumber(node.min + (node.type == "int" || node.type == "bool" ? 0.5 : 0))});`).join("")}
+			.map(node_scale).join("")}
 		${gen.params
 			.map(name=>nodes[name])
 			.map(node=>`
@@ -1664,7 +1595,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
-		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.PostProcess();" : ""}
+		${hardware.som == 'seed' ? "hardware.PostProcess();" : ""}
 	}	
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -1720,6 +1651,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			}` : ""}
 			daisy.midi_in_active = 1;
 		}` : "// no midi input handling"}
+		hardware.LoopProcess();
 	}
 
 	void displayCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {
@@ -1736,7 +1668,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.filter(node => node.config.where == "display")
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
-		${hardware.defines.OOPSY_TARGET_SEED ? "hardware.Display();" : ""}
+		${hardware.som == 'seed' ? "hardware.Display();" : ""}
 	}
 
 	${defines.OOPSY_HAS_PARAM_VIEW ? `
