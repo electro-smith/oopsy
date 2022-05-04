@@ -40,6 +40,26 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"args" : [ "pod" ],
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-3",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 438.0, 101.0, 171.0, 171.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-1",
 					"maxclass" : "newobj",
 					"numinlets" : 3,
@@ -1172,26 +1192,6 @@
 				}
 
 			}
-, 			{
-				"box" : 				{
-					"args" : [ "@target", "pod" ],
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-9",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "oopsy.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 457.5, 101.0, 128.0, 128.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
  ],
 		"lines" : [ 			{
 				"patchline" : 				{
@@ -1273,11 +1273,11 @@
  ],
 		"parameters" : 		{
 			"obj-11" : [ "live.gain~", "live.gain~", 0 ],
+			"obj-3::obj-32" : [ "live.text[2]", "FILTER", 0 ],
+			"obj-3::obj-33" : [ "live.text[1]", "FILTER", 0 ],
+			"obj-3::obj-34" : [ "live.text[3]", "FILTER", 0 ],
 			"obj-7::obj-21::obj-6" : [ "live.tab[3]", "live.tab[1]", 0 ],
 			"obj-7::obj-35" : [ "[5]", "Level", 0 ],
-			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-9::obj-33" : [ "live.text[1]", "FILTER", 0 ],
-			"obj-9::obj-34" : [ "live.text[3]", "FILTER", 0 ],
 			"parameterbanks" : 			{
 
 			}
@@ -1286,27 +1286,6 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
 				"name" : "demosound.maxpat",
 				"bootpath" : "C74:/help/msp",
 				"type" : "JSON",
@@ -1375,6 +1354,27 @@
 				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
 				"implicit" : 1
 			}
  ],

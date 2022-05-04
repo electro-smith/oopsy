@@ -4,7 +4,7 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 8,
+			"revision" : 11,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
@@ -39,6 +39,26 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"args" : [ "petal" ],
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-9",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 241.333333333333371, 239.5, 171.0, 171.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-17",
 					"maxclass" : "comment",
@@ -248,26 +268,6 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "@target", "petal" ],
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-9",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "oopsy.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 267.5, 327.0, 128.0, 128.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"color" : [ 0.254901960784314, 0.533333333333333, 0.258823529411765, 1.0 ],
 					"fontsize" : 24.0,
 					"id" : "obj-16",
@@ -280,7 +280,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -776,7 +776,7 @@
 ,
 					"patching_rect" : [ 17.333333333333343, 222.0, 71.5, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/Oopsy/templates/",
 						"exportname" : "oopsy_petal"
 					}
 ,
@@ -894,58 +894,37 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.suggestions.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.gate.trig.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.gate.min.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.ctrl.smooth3.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.ctrl.smooth2.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
 				"patcherrelativepath" : "../code",
 				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
@@ -981,6 +960,27 @@
 , 			{
 				"name" : "interfacecolor.js",
 				"bootpath" : "C74:/interfaces",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
