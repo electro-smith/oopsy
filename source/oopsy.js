@@ -547,6 +547,7 @@ function run() {
 
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
+	console.log(`build_path ${path.join(build_path, 'build')}`)
 	console.log(`Building to ${build_path}`)
 	// ensure build path exists:
 	fs.mkdirSync(build_path, {recursive: true});
