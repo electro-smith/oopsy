@@ -178,7 +178,7 @@
 		]
 	},
 	"Led": {
-		"map_init": "{name}.Init(daisy::patch_sm::DaisyPatchSM::{pin}), {invert});\n\t\t{name}.Set(0.0f);",
+		"map_init": "{name}.Init(daisy::patch_sm::DaisyPatchSM::{pin}, {invert});\n\t\t{name}.Set(0.0f);",
 		"typename": "daisy::Led",
 		"direction": "out",
 		"pin": "a",
