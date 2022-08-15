@@ -356,7 +356,8 @@ exports.generate_header = function generate_header(board_description_object, tar
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
   headers = Object.filter(components, item => 'header' in item);
-  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header : path.normalize(path.join(path.basename(target_path), item)));
+  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header : 
+    path.normalize(path.join(path.dirname(target_path), item.header)));
   replacements.headers = abs_headers.map(item => `#include "${item}"`).join("\n");
 
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
@@ -395,7 +396,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.gatein != '' ? '// Gate ins\n    ' + replacements.gatein : ''}
     ${replacements.encoder != '' ? '// Rotary encoders\n    ' + replacements.encoder : ''}
     ${replacements.init_single != '' ? '// Single channel ADC initialization\n    ' + replacements.init_single : ''}
-    ${replacements.som == 'seed' && analogcount ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
+    ${replacements.som == 'seed' && replacements.analogcount ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
     ${replacements.ctrl_init != '' ? '// AnalogControl objects\n    ' + replacements.ctrl_init : ''}
     ${replacements.ctrl_mux_init != '' ? '// Multiplexed AnlogControl objects\n    ' + replacements.ctrl_mux_init : ''}
     ${replacements.led != '' ? '// LEDs\n    ' + replacements.led : ''}

@@ -1434,7 +1434,8 @@
 		"typename": "",
 		"process": "",
 		"loopprocess": "",
-		"header_path": ""
+		"header_path": "",
+		"mapping": []
 	},
 	"CodeInput": {
 		"direction": "out",
@@ -1444,7 +1445,7 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"set": "{parent}.{setter}(value);",
+				"set": "{class_name}.{parent}.{setter}({value});",
 				"permit_scale": false
 			}
 		]
@@ -1457,7 +1458,7 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"set": "{parent}.{getter}();",
+				"set": "{class_name}.{parent}.{getter}();",
 				"permit_scale": false
 			}
 		]

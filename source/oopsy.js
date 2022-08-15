@@ -475,7 +475,7 @@ function run() {
 						component.class_name = 'hardware';
 						component.name_upper = component.name.toUpperCase();
 						let name = json2daisy.format_map(mapping.name, component);
-						component.value = name.toLowerCase();
+						component.value = name;
 						if (mapping.get) {
 							// an input
 							hardware.inputs[name] = {
