@@ -395,7 +395,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.gatein != '' ? '// Gate ins\n    ' + replacements.gatein : ''}
     ${replacements.encoder != '' ? '// Rotary encoders\n    ' + replacements.encoder : ''}
     ${replacements.init_single != '' ? '// Single channel ADC initialization\n    ' + replacements.init_single : ''}
-    ${replacements.som == 'seed' ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
+    ${replacements.som == 'seed' && analogcount ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
     ${replacements.ctrl_init != '' ? '// AnalogControl objects\n    ' + replacements.ctrl_init : ''}
     ${replacements.ctrl_mux_init != '' ? '// Multiplexed AnlogControl objects\n    ' + replacements.ctrl_mux_init : ''}
     ${replacements.led != '' ? '// LEDs\n    ' + replacements.led : ''}
