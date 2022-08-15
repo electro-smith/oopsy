@@ -1428,5 +1428,38 @@
 				"permit_scale": false
 			}
 		]
+	},
+	"CodeClass": {
+		"map_init": "{name}.Init(&som);",
+		"typename": "",
+		"process": "",
+		"loopprocess": "",
+		"header_path": ""
+	},
+	"CodeInput": {
+		"direction": "out",
+		"typename": "",
+		"parent": "",
+		"setter": "",
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "{parent}.{setter}(value);",
+				"permit_scale": false
+			}
+		]
+	},
+	"CodeOutput": {
+		"direction": "in",
+		"typename": "",
+		"parent": "",
+		"getter": "",
+		"mapping": [
+			{
+				"name": "{name}",
+				"set": "{parent}.{getter}();",
+				"permit_scale": false
+			}
+		]
 	}
 }

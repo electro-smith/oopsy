@@ -10,7 +10,7 @@ const patchsm_defs = require(path.join(__dirname, "component_defs_patchsm.json")
 var global_definitions;
 
 // .filter for objects that returns array
-Object.filter = (obj, predicate) => 
+Object.filter = (obj, predicate) =>
     Object.keys(obj).filter(key => predicate(obj[key]))
     .map(key => obj[key]);
 
@@ -84,7 +84,7 @@ function generateCodecs(external_codecs)
   cfg.samplerate = daisy::SaiHandle::Config::SampleRate::SAI_48KHZ;
   cfg.postgain   = 0.5f;
   som.audio_handle.Init(
-    cfg, 
+    cfg,
     sai_handle[0]`;
 
   for (let i = 0; i < external_codecs.length; i++)
@@ -126,7 +126,7 @@ function map_load(key, item)
   item.name = key;
   assert(item.component in global_definitions, `Undefined component kind "${item.component}"`);
   component = global_definitions[item.component];
-  
+
   for (property in component)
   {
     if (!(property in item))
@@ -233,7 +233,7 @@ function flatten_index_dicts(comp)
   return flattened;
 }
 
-exports.generate_header = function generate_header(board_description_object)
+exports.generate_header = function generate_header(board_description_object, target_path)
 {
   let target = board_description_object;
 
@@ -329,7 +329,9 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.Bno055 = filter_map_init(components, 'component', 'Bno055', key_exclude='is_default', match_exclude=true);
   replacements.Icm20948 = filter_map_init(components, 'component', 'Icm20948', key_exclude='is_default', match_exclude=true);
   replacements.Dps310 = filter_map_init(components, 'component', 'Dps310', key_exclude='is_default', match_exclude=true);
-  
+
+  replacements.CodeClass = filter_map_init(components, 'component', 'CodeClass', key_exclude='is_default', match_exclude=true);
+
   replacements.display = !(has_display) ? '' : `
     daisy::OledDisplay<${target.display.driver}>::Config display_config;
     display_config.driver_config.transport_config.Defaults();
@@ -353,6 +355,10 @@ exports.generate_header = function generate_header(board_description_object)
   non_class_decls = component_decls.filter(item => 'non_class_decl' in item);
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
+  headers = Object.filter(components, item => 'header' in item);
+  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header : path.normalize(path.join(path.basename(target_path), item)));
+  replacements.headers = abs_headers.map(item => `#include "${item}"`).join("\n");
+
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
 
   let header = `
@@ -362,6 +368,7 @@ exports.generate_header = function generate_header(board_description_object)
 #include "daisy_${replacements.som}.h"
 ${replacements.som == 'seed' ? '#include "dev/codec_ak4556.h"' : ''}
 ${has_display ? '#include "dev/oled_ssd130x.h"' : ''}
+${replacements.headers}
 
 #define ANALOG_COUNT ${replacements.analogcount}
 
@@ -375,7 +382,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Initializes the board according to the JSON board description
    *  \\param boost boosts the clock speed from 400 to 480 MHz
    */
-  void Init(bool boost=true) 
+  void Init(bool boost=true)
   {
     ${replacements.som == 'seed' ? `som.Configure();
     som.Init(boost);` : `som.Init();`}
@@ -414,22 +421,24 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.Icm20948 != '' ? '// Icm20948 Sensor\n    ' + replacements.Icm20948 : ''}
     ${replacements.Dps310 != '' ? '// Dps310 Sensor\n    ' + replacements.Dps310 : ''}
 
+    ${replacements.CodeClass != '' ? '// Custom classes\n    ' + replacements.CodeClass : ''}
+
     ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
     ${replacements.som == 'seed' ? 'som.adc.Start();' : ''}
   }
 
   /** Handles all the controls processing that needs to occur at the block rate
-   * 
+   *
    */
-  void ProcessAllControls() 
+  void ProcessAllControls()
   {
     ${replacements.process}
     ${replacements.som == 'patch_sm' ? 'som.ProcessAllControls();' : ''}
   }
 
   /** Handles all the maintenance processing. This should be run last within the audio callback.
-   * 
+   *
    */
   void PostProcess()
   {
@@ -437,7 +446,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   }
 
   /** Handles processing that shouldn't occur in the audio block, such as blocking transfers
-   * 
+   *
    */
   void LoopProcess()
   {
@@ -445,7 +454,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   }
 
   /** Handles display-related processing
-   * 
+   *
    */
   void Display()
   {
@@ -455,9 +464,9 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio sample rate
    *  \\param sample_rate the new sample rate in Hz
    */
-  void SetAudioSampleRate(size_t sample_rate) 
+  void SetAudioSampleRate(size_t sample_rate)
   {
-    ${som == 'patch_sm' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    ${som == 'patch_sm' ? 'som.SetAudioSampleRate(sample_rate);' :
     `daisy::SaiHandle::Config::SampleRate enum_rate;
     if (sample_rate >= 96000)
       enum_rate = daisy::SaiHandle::Config::SampleRate::SAI_96KHZ;
@@ -477,9 +486,9 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio sample rate
    *  \\param sample_rate the new sample rate as an enum
    */
-  void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate) 
+  void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate)
   {
-    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' :
     `size_t hz_rate;
     switch (sample_rate)
     {
@@ -508,13 +517,13 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio block size
    *  \\param block_size the new block size in words
    */
-  inline void SetAudioBlockSize(size_t block_size) 
+  inline void SetAudioBlockSize(size_t block_size)
   {
     som.SetAudioBlockSize(block_size);
   }
 
   /** Starts up the audio callback process with the given callback
-   * 
+   *
    */
   inline void StartAudio(daisy::AudioHandle::AudioCallback cb)
   {
