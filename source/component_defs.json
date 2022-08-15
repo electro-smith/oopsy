@@ -1458,7 +1458,7 @@
 		"mapping": [
 			{
 				"name": "{name}",
-				"set": "{class_name}.{parent}.{getter}();",
+				"get": "{class_name}.{parent}.{getter}()",
 				"permit_scale": false
 			}
 		]

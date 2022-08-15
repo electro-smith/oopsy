@@ -340,6 +340,21 @@ exports.generate_header = function generate_header(board_description_object, tar
     display.Update();
   `;
 
+  // mangle CodeClass process calls into the correct syntax
+  let process_fields = ['process', 'loopprocess', 'postprocess', 'display'];
+  for (let component in components)
+  {
+    let comp_obj = components[component];
+    if (comp_obj.component == 'CodeClass')
+    {
+      for (let field of process_fields)
+      {
+        if (field in comp_obj && comp_obj[field])
+        comp_obj[field] = `{name}.${comp_obj[field]}();`;
+      }
+    }
+  }
+
   replacements.process = filter_map_template(components, 'process', key_exclude='is_default', match_exclude=true);
   // There's also this after {process}. I don't see any meta in the defaults json at this time. Is this needed?
   // ${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`${template(m, e)}`).join("")).join("")}
