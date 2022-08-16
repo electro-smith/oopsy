@@ -459,6 +459,7 @@ function run() {
 		hardware.struct = board_info.header;
 		hardware.components = board_info.components;
 		hardware.aliases = board_info.aliases;
+		hardware.includes = board_info.includes;
 
 		if (hardware.components) {
 			// generate IO
@@ -593,11 +594,15 @@ function run() {
 	const makefile_path = path.join(build_path, `Makefile`)
 	const bin_path = path.join(build_path, "build", build_name+".bin");
 	const maincpp_path = path.join(build_path, `${build_name}_${target}.cpp`);
+	const includes = hardware.includes.map(
+		item => `-I"${posixify_path(path.relative(build_path, item))}"`);
+
 	fs.writeFileSync(makefile_path, `
 # Project Name
 TARGET = ${build_name}
 # Sources -- note, won't work with paths with spaces
 CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))}
+${includes.length > 0 ? `C_INCLUDES = ${includes.join('\\\n')}` : ``}
 # Library Locations
 LIBDAISY_DIR = ${(posixify_path(path.relative(build_path, path.join(__dirname, "libdaisy"))).replace(" ", "\\ "))}
 ${hardware.defines.OOPSY_TARGET_USES_SDMMC ? `USE_FATFS = 1`:``}

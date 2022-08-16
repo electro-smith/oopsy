@@ -373,8 +373,9 @@ exports.generate_header = function generate_header(board_description_object, tar
   headers = Object.filter(components, item => 'header' in item);
   abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header : 
     path.normalize(path.join(path.dirname(target_path), item.header)));
-  replacements.headers = abs_headers.map(item => `#include "${item}"`).join("\n");
-
+  include_paths = abs_headers.map(item => path.dirname(item));
+  replacements.headers = abs_headers.map(item => `#include "${path.basename(item)}"`).join("\n");
+  
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
 
   let header = `
@@ -572,7 +573,8 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     name: target.name,
     components: components,
     aliases: target.aliases,
-    channels: audio_channels
+    channels: audio_channels,
+    includes: include_paths,
   };
 
   return board_info;
