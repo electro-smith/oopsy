@@ -355,6 +355,22 @@ exports.generate_header = function generate_header(board_description_object, tar
     }
   }
 
+  // Provide default getters and setters for CodeInput and CodeOutput components
+  for (let component in components)
+  {
+    let comp_obj = components[component];
+    if (comp_obj.component == 'CodeInput')
+    {
+      if (!comp_obj.setter)
+        comp_obj.setter = component;
+    }
+    else if (comp_obj.component == 'CodeOutput')
+    {
+      if (!comp_obj.getter)
+        comp_obj.getter = component;
+    }
+  }
+
   replacements.process = filter_map_template(components, 'process', key_exclude='is_default', match_exclude=true);
   // There's also this after {process}. I don't see any meta in the defaults json at this time. Is this needed?
   // ${components.filter((e) => e.meta).map((e) => e.meta.map(m=>`${template(m, e)}`).join("")).join("")}
@@ -375,7 +391,7 @@ exports.generate_header = function generate_header(board_description_object, tar
     path.normalize(path.join(path.dirname(target_path), item.header)));
   include_paths = abs_headers.map(item => path.dirname(item));
   replacements.headers = abs_headers.map(item => `#include "${path.basename(item)}"`).join("\n");
-  
+
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
 
   let header = `
