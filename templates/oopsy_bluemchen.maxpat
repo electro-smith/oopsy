@@ -4,7 +4,7 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 1,
-			"revision" : 8,
+			"revision" : 11,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
@@ -39,6 +39,26 @@
 		"subpatcher_template" : "oopsy_bluemchen",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"args" : [ "bluemchen" ],
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-1",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "oopsy.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"offset" : [ 0.0, 0.0 ],
+					"patching_rect" : [ 215.0, 230.0, 171.0, 171.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-2",
 					"maxclass" : "comment",
@@ -100,26 +120,6 @@
 			}
 , 			{
 				"box" : 				{
-					"args" : [ "@target", "bluemchen" ],
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-9",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "oopsy.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 240.0, 230.0, 128.0, 128.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"fontsize" : 24.0,
 					"id" : "obj-3",
 					"maxclass" : "newobj",
@@ -131,7 +131,7 @@
 						"appversion" : 						{
 							"major" : 8,
 							"minor" : 1,
-							"revision" : 8,
+							"revision" : 11,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -454,7 +454,7 @@
 ,
 					"patching_rect" : [ 40.0, 230.0, 144.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "Macintosh HD:/Users/grrrwaaa/Documents/Max 8/Packages/oopsy/templates/",
+						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/Oopsy/templates/",
 						"exportname" : "oopsy_bluemchen"
 					}
 ,
@@ -571,10 +571,25 @@
  ],
 		"parameters" : 		{
 			"obj-11" : [ "live.gain~", "live.gain~", 0 ],
-			"obj-9::obj-32" : [ "live.text[2]", "FILTER", 0 ],
-			"obj-9::obj-33" : [ "live.text[1]", "FILTER", 0 ],
-			"obj-9::obj-34" : [ "live.text[3]", "FILTER", 0 ],
+			"obj-1::obj-32" : [ "live.text[6]", "FILTER", 0 ],
+			"obj-1::obj-33" : [ "live.text[4]", "FILTER", 0 ],
+			"obj-1::obj-34" : [ "live.text[5]", "FILTER", 0 ],
 			"parameterbanks" : 			{
+
+			}
+,
+			"parameter_overrides" : 			{
+				"obj-1::obj-32" : 				{
+					"parameter_longname" : "live.text[6]"
+				}
+,
+				"obj-1::obj-33" : 				{
+					"parameter_longname" : "live.text[4]"
+				}
+,
+				"obj-1::obj-34" : 				{
+					"parameter_longname" : "live.text[5]"
+				}
 
 			}
 ,
@@ -583,21 +598,21 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
 				"patcherrelativepath" : "../patchers",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
 				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
 				"patcherrelativepath" : "../javascript",
 				"type" : "TEXT",
 				"implicit" : 1

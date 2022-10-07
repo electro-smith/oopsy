@@ -104,10 +104,11 @@
 		]
 	},
 	"GateIn": {
-		"map_init": "dsy_gpio_pin {name}_pin = som.GetPin({pin});\n    {name}.Init(&{name}_pin);",
+		"map_init": "dsy_gpio_pin {name}_pin = som.GetPin({pin});\n    {name}.Init(&{name}_pin, {invert});",
 		"typename": "daisy::GateIn",
 		"direction": "in",
 		"pin": "a",
+		"invert": "true",
 		"mapping": [
 			{
 				"name": "{name}",
@@ -378,7 +379,7 @@
 				"name": "{name}",
 				"get": "({class_name}.{name}.Value())",
 				"range": [
-					0,
+					-1,
 					1
 				],
 				"bool": false

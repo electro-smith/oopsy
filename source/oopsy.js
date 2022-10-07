@@ -406,6 +406,7 @@ function run() {
 	let OOPSY_TARGET_SEED = 0
 
 	let valid_soms = ['seed', 'patch_sm'];
+	let valid_app_type = ['BOOT_NONE', 'BOOT_SRAM', 'BOOT_QPSI'];
 	let som = 'seed';
 
 	let old_json = false;
@@ -433,6 +434,10 @@ function run() {
 
 	// Ensure som is valid
 	assert(valid_soms.includes(hardware.som), `unkown SOM ${hardware.som}. Valid SOMs: ${valid_soms.join(', ')}`);
+
+	// ensure app type is valid
+	hardware.app_type = hardware.app_type || "BOOT_NONE";
+	assert(valid_app_type.includes(hardware.app_type), `unkown app type ${hardware.app_type}. Valid types: ${valid_app_type.join(', ')}`);
 
 	// The following is compatibility code, so that the new JSON structure will generate the old JSON structure
 	// At the point that the old one can be retired (because e.g. Patch, Petal etc can be defined in the new format)
@@ -548,6 +553,7 @@ function run() {
 
 	// configure build path:
 	const build_path = path.join(__dirname, `build_${build_name}_${target}`)
+	console.log(`build_path ${path.join(build_path, 'build')}`)
 	console.log(`Building to ${build_path}`)
 	// ensure build path exists:
 	fs.mkdirSync(build_path, {recursive: true});
@@ -600,6 +606,8 @@ function run() {
 	fs.writeFileSync(makefile_path, `
 # Project Name
 TARGET = ${build_name}
+# App type
+APP_TYPE = ${hardware.app_type}
 # Sources -- note, won't work with paths with spaces
 CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))}
 ${includes.length > 0 ? `C_INCLUDES = ${includes.join('\\\n')}` : ``}

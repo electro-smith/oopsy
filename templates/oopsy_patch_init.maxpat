@@ -53,7 +53,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"offset" : [ 0.0, 0.0 ],
-					"patching_rect" : [ 752.0, 63.0, 128.0, 128.0 ],
+					"patching_rect" : [ 527.833333333333258, 243.5, 171.0, 171.0 ],
 					"viewvisibility" : 1
 				}
 
