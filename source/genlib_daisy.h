@@ -51,7 +51,11 @@ static bool      update = false;
 #define OOPSY_SUPER_LONG_PRESS_MS (20000)
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
-static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
+#ifndef BOOT_APP
+static const uint32_t OOPSY_SRAM_SIZE = 511 * 1024;
+#else
+static const uint32_t OOPSY_SRAM_SIZE = 255 * 1024;
+#endif
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 
 // Added dedicated global SDFile to replace old global from libDaisy
