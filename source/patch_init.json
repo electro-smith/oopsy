@@ -24,22 +24,22 @@
 			"is_default": true
 		},
 		"cv_5": {
-			"component": "AnalogControl",
+			"component": "AnalogControlBipolar",
 			"pin": "C6",
 			"is_default": true
 		},
 		"cv_6": {
-			"component": "AnalogControl",
+			"component": "AnalogControlBipolar",
 			"pin": "C7",
 			"is_default": true
 		},
 		"cv_7": {
-			"component": "AnalogControl",
+			"component": "AnalogControlBipolar",
 			"pin": "C8",
 			"is_default": true
 		},
 		"cv_8": {
-			"component": "AnalogControl",
+			"component": "AnalogControlBipolar",
 			"pin": "C9",
 			"is_default": true
 		},

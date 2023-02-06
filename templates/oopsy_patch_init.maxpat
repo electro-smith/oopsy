@@ -744,12 +744,12 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-8",
-									"linecount" : 6,
+									"linecount" : 8,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 589.0, 211.0, 83.0, 87.0 ],
-									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related)"
+									"patching_rect" : [ 565.0, 211.0, 146.0, 114.0 ],
+									"text" : "cv5, cv5_foo, etc. all work for these 4 (but not knob5 or related).\nSince these inputs are all bipolar, we need to set the @min attribute to -1 (@max can be left at the default value of 1)"
 								}
 
 							}
@@ -760,8 +760,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 589.0, 178.0, 65.0, 22.0 ],
-									"text" : "param cv8"
+									"patching_rect" : [ 594.0, 180.0, 113.0, 22.0 ],
+									"text" : "param cv8 @min -1"
 								}
 
 							}
@@ -772,8 +772,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 568.0, 151.0, 65.0, 22.0 ],
-									"text" : "param cv7"
+									"patching_rect" : [ 565.0, 151.0, 113.0, 22.0 ],
+									"text" : "param cv7 @min -1"
 								}
 
 							}
@@ -784,8 +784,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 544.0, 123.0, 65.0, 22.0 ],
-									"text" : "param cv6"
+									"patching_rect" : [ 532.0, 123.0, 113.0, 22.0 ],
+									"text" : "param cv6 @min -1"
 								}
 
 							}
@@ -796,8 +796,8 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 520.0, 96.0, 65.0, 22.0 ],
-									"text" : "param cv5"
+									"patching_rect" : [ 506.0, 96.0, 113.0, 22.0 ],
+									"text" : "param cv5 @min -1"
 								}
 
 							}

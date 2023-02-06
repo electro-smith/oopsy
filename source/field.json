@@ -124,161 +124,161 @@
     "pada1": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 0
+      "index": 15
     },
     "pada2": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 1
+      "index": 14
     },
     "pada3": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 2
+      "index": 13
     },
     "pada4": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 3
+      "index": 12
     },
     "pada5": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 4
+      "index": 11
     },
     "pada6": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 5
+      "index": 10
     },
     "pada7": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 6
+      "index": 9
     },
     "pada8": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 7
+      "index": 8
     },
     "padb1": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 15
+      "index": 7
     },
     "padb2": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 14
+      "index": 6
     },
     "padb3": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 13
+      "index": 5
     },
     "padb4": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 12
+      "index": 4
     },
     "padb5": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 11
+      "index": 3
     },
     "padb6": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 10
+      "index": 2
     },
     "padb7": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 9
+      "index": 1
     },
     "padb8": {
       "component": "CD4021Switch",
       "parent": "pad_shift",
-      "index": 8
+      "index": 0
     },
     "led_key_b1": {
-      "component": "PCA9685Led",
-      "index": 0,
-      "parent": "led_driver"
-    },
-    "led_key_b2": {
-      "component": "PCA9685Led",
-      "index": 1,
-      "parent": "led_driver"
-    },
-    "led_key_b3": {
-      "component": "PCA9685Led",
-      "index": 2,
-      "parent": "led_driver"
-    },
-    "led_key_b4": {
-      "component": "PCA9685Led",
-      "index": 3,
-      "parent": "led_driver"
-    },
-    "led_key_b5": {
-      "component": "PCA9685Led",
-      "index": 4,
-      "parent": "led_driver"
-    },
-    "led_key_b6": {
-      "component": "PCA9685Led",
-      "index": 5,
-      "parent": "led_driver"
-    },
-    "led_key_b7": {
-      "component": "PCA9685Led",
-      "index": 6,
-      "parent": "led_driver"
-    },
-    "led_key_b8": {
-      "component": "PCA9685Led",
-      "index": 7,
-      "parent": "led_driver"
-    },
-    "led_key_a1": {
       "component": "PCA9685Led",
       "index": 15,
       "parent": "led_driver"
     },
-    "led_key_a2": {
+    "led_key_b2": {
       "component": "PCA9685Led",
       "index": 14,
       "parent": "led_driver"
     },
-    "led_key_a3": {
+    "led_key_b3": {
       "component": "PCA9685Led",
       "index": 13,
       "parent": "led_driver"
     },
-    "led_key_a4": {
+    "led_key_b4": {
       "component": "PCA9685Led",
       "index": 12,
       "parent": "led_driver"
     },
-    "led_key_a5": {
+    "led_key_b5": {
       "component": "PCA9685Led",
       "index": 11,
       "parent": "led_driver"
     },
-    "led_key_a6": {
+    "led_key_b6": {
       "component": "PCA9685Led",
       "index": 10,
       "parent": "led_driver"
     },
-    "led_key_a7": {
+    "led_key_b7": {
       "component": "PCA9685Led",
       "index": 9,
       "parent": "led_driver"
     },
-    "led_key_a8": {
+    "led_key_b8": {
       "component": "PCA9685Led",
       "index": 8,
+      "parent": "led_driver"
+    },
+    "led_key_a1": {
+      "component": "PCA9685Led",
+      "index": 0,
+      "parent": "led_driver"
+    },
+    "led_key_a2": {
+      "component": "PCA9685Led",
+      "index": 1,
+      "parent": "led_driver"
+    },
+    "led_key_a3": {
+      "component": "PCA9685Led",
+      "index": 2,
+      "parent": "led_driver"
+    },
+    "led_key_a4": {
+      "component": "PCA9685Led",
+      "index": 3,
+      "parent": "led_driver"
+    },
+    "led_key_a5": {
+      "component": "PCA9685Led",
+      "index": 4,
+      "parent": "led_driver"
+    },
+    "led_key_a6": {
+      "component": "PCA9685Led",
+      "index": 5,
+      "parent": "led_driver"
+    },
+    "led_key_a7": {
+      "component": "PCA9685Led",
+      "index": 6,
+      "parent": "led_driver"
+    },
+    "led_key_a8": {
+      "component": "PCA9685Led",
+      "index": 7,
       "parent": "led_driver"
     },
     "led_knob_1": {
