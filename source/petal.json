@@ -1,6 +1,11 @@
 {
   "name": "petal",
   "som": "seed",
+  "defines": {
+    "OOPSY_TARGET_PETAL": 1,
+    "OOPSY_HAS_ENCODER": 1
+  },
+  "max_apps": 8,
   "parents": {
     "i2c": {
       "component": "i2c",

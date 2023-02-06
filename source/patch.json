@@ -2,8 +2,14 @@
 	"name": "patch",
 	"som": "seed",
 	"defines": {
-		"OOPSY_TARGET_HAS_MIDI_INPUT": 1
+		"OOPSY_TARGET_PATCH": 1,
+		"OOPSY_TARGET_HAS_MIDI_INPUT": 1,
+		"OOPSY_TARGET_HAS_MIDI_OUTPUT": 1,
+		"OOPSY_IO_COUNT": 4,
+		"OOPSY_HAS_ENCODER": 1,
+		"OOPSY_TARGET_HAS_OLED": 1
 	},
+	"max_apps": 8,
 	"display": {},
 	"audio": {
     "channels": 4
