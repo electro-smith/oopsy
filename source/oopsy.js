@@ -337,6 +337,7 @@ function run() {
 			case "patch_init": target_path = path.join(__dirname, "patch_init.json"); break;
 			case "field": target_path = path.join(__dirname, "field.json"); break;
 			case "petal": target_path = path.join(__dirname, "petal.json"); break;
+			case "petal_125b_sm": target_path = path.join(__dirname, "petal_125b_sm.json"); break;
 			case "patch": target_path = path.join(__dirname, "patch.json"); break;
 
 			case "watch": watch=true; break;
@@ -405,7 +406,7 @@ function run() {
 
 	let OOPSY_TARGET_SEED = 0
 
-	let valid_soms = ['seed', 'patch_sm'];
+	let valid_soms = ['seed', 'patch_sm', 'petal_125b_sm'];
 	let valid_app_type = ['BOOT_NONE', 'BOOT_SRAM', 'BOOT_QPSI'];
 	let som = 'seed';
 
@@ -596,6 +597,9 @@ function run() {
 	if (hardware.som == 'patch_sm') {
 		hardware.defines.OOPSY_SOM_PATCH_SM = 1;
 	}
+	else if (hardware.som == 'petal_125b_sm') {
+		hardware.defines.OOPSY_SOM_PETAL_SM = 1;
+	}
 
 	const makefile_path = path.join(build_path, `Makefile`)
 	const bin_path = path.join(build_path, "build", build_name+".bin");
@@ -609,7 +613,8 @@ TARGET = ${build_name}
 # App type
 APP_TYPE = ${hardware.app_type}
 # Sources -- note, won't work with paths with spaces
-CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))}
+CPP_SOURCES = ${posixify_path(path.relative(build_path, maincpp_path).replace(" ", "\\ "))} \\
+${posixify_path(path.relative(build_path, path.join(__dirname, "petal_sm", "daisy_petal_125b_sm.cpp")))}
 ${includes.length > 0 ? `C_INCLUDES = ${includes.join('\\\n')}` : ``}
 # Library Locations
 LIBDAISY_DIR = ${(posixify_path(path.relative(build_path, path.join(__dirname, "libdaisy"))).replace(" ", "\\ "))}
@@ -620,7 +625,8 @@ OPT = -O3
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 include $(SYSTEM_FILES_DIR)/Makefile
 # Include the gen_dsp files
-CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}"
+CFLAGS+=-I"${posixify_path(path.relative(build_path, path.join(__dirname, "gen_dsp")))}" \\
+-I${posixify_path(path.relative(build_path, path.join(__dirname, "petal_sm")))}
 # Silence irritating warnings:
 CFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
 CPPFLAGS+=-O3 -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable
@@ -1609,7 +1615,7 @@ struct App_${name} : public oopsy::App<App_${name}> {
 		memcpy(${node.name}, ${node.src}, sizeof(float)*size);` : `
 		memset(${node.name}, 0, sizeof(float)*size);`).join("")}
 		${app.inserts.concat(hardware.inserts).filter(o => o.where == "post_audio").map(o => o.code).join("\n\t")}
-		${hardware.som == 'seed' ? "hardware.PostProcess();" : ""}
+		${hardware.som == 'seed' || hardware.som == 'petal_125b_sm' ? "hardware.PostProcess();" : ""}
 	}
 
 	void mainloopCallback(oopsy::GenDaisy& daisy, uint32_t t, uint32_t dt) {

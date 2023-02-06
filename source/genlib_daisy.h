@@ -158,13 +158,17 @@ namespace oopsy {
 	struct GenDaisy {
 
 		Daisy hardware;
-		#ifdef OOPSY_SOM_PATCH_SM
-		daisy::patch_sm::DaisyPatchSM *som = &hardware.som;
+		#ifdef OOPSY_SOM_PETAL_SM
+		daisy::Petal125BSM *som = &hardware.som;
 		#else
-			#ifdef OOPSY_OLD_JSON
-			daisy::DaisySeed *som = &hardware.seed;
+			#ifdef OOPSY_SOM_PATCH_SM
+			daisy::patch_sm::DaisyPatchSM *som = &hardware.som;
 			#else
-			daisy::DaisySeed *som = &hardware.som;
+				#ifdef OOPSY_OLD_JSON
+				daisy::DaisySeed *som = &hardware.seed;
+				#else
+				daisy::DaisySeed *som = &hardware.som;
+				#endif
 			#endif
 		#endif
 		AppDef * appdefs = nullptr;
@@ -536,7 +540,9 @@ namespace oopsy {
 				t = t1;
 
 				// pulse seed LED for status according to CPU usage:
+				#ifndef OOPSY_SOM_PETAL_SM
 				som->SetLed((t % 1000)/10 <= uint32_t(audioCpuUsage));
+				#endif
 
 				if (app_load_scheduled) {
 					app_load_scheduled = 0;

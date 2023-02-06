@@ -4,6 +4,8 @@ max definesubstitution oopsy.field bpatcher @name oopsy.maxpat @args field @patc
 max objectfile oopsy.field oopsy.field;
 max definesubstitution oopsy.petal bpatcher @name oopsy.maxpat @args petal @patching_rect 256 256 171 171;
 max objectfile oopsy.petal oopsy.petal;
+max definesubstitution oopsy.petal bpatcher @name oopsy.maxpat @args petal_125b_sm @patching_rect 256 256 171 171;
+max objectfile oopsy.petal_125b_sm oopsy.petal_125b_sm;
 max definesubstitution oopsy.pod bpatcher @name oopsy.maxpat @args pod @patching_rect 256 256 171 171;
 max objectfile oopsy.pod oopsy.pod;
 max definesubstitution oopsy.patch_init bpatcher @name oopsy.maxpat @args patch_init @patching_rect 256 256 171 171;

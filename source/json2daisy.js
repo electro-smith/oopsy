@@ -6,6 +6,7 @@ const assert = require("assert");
 const path = require("path");
 const seed_defs = require(path.join(__dirname, "component_defs.json"));
 const patchsm_defs = require(path.join(__dirname, "component_defs_patchsm.json"));
+const petalsm_defs = require(path.join(__dirname, "component_defs_petalsm.json"));
 
 var global_definitions;
 
@@ -251,6 +252,7 @@ exports.generate_header = function generate_header(board_description_object, tar
   let temp_defs = {
     seed: seed_defs,
     patch_sm: patchsm_defs,
+    petal_125b_sm: petalsm_defs,
   };
 
   assert(som in temp_defs, `Unkown som "${som}"`);
@@ -289,7 +291,14 @@ exports.generate_header = function generate_header(board_description_object, tar
   replacements.name = target.name;
   replacements.som = som;
   replacements.external_codecs = target.external_codecs || [];
-  replacements.som_class = som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchSM';
+
+  const classes = {
+    seed: 'daisy::DaisySeed',
+    patch_sm: 'daisy::patch_sm::DaisyPatchSM',
+    petal_125b_sm: 'daisy::Petal125BSM'
+  };
+
+  replacements.som_class = classes[som];
 
   replacements.target_name = target.name; // TODO -- redundant?
   replacements.init = filter_map_template(components, 'init', 'is_default', true);
@@ -387,7 +396,7 @@ exports.generate_header = function generate_header(board_description_object, tar
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
   headers = Object.filter(components, item => 'header' in item);
-  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header : 
+  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header :
     path.normalize(path.join(path.dirname(target_path), item.header)));
   include_paths = abs_headers.map(item => path.dirname(item));
   replacements.headers = abs_headers.map(item => `#include "${path.basename(item)}"`).join("\n");
@@ -467,7 +476,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   void ProcessAllControls()
   {
     ${replacements.process}
-    ${replacements.som == 'patch_sm' ? 'som.ProcessAllControls();' : ''}
+    ${replacements.som == 'patch_sm' || replacements.som == 'petal_125b_sm' ? 'som.ProcessAllControls();' : ''}
   }
 
   /** Handles all the maintenance processing. This should be run last within the audio callback.
@@ -476,6 +485,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   void PostProcess()
   {
     ${replacements.postprocess}
+    ${replacements.som == 'petal_125b_sm' ? 'som.UpdateLeds();' : ''}
   }
 
   /** Handles processing that shouldn't occur in the audio block, such as blocking transfers
@@ -521,7 +531,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
    */
   void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate)
   {
-    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' :
+    ${som == 'seed' || som == 'petal_125b_sm' ? 'som.SetAudioSampleRate(sample_rate);' :
     `size_t hz_rate;
     switch (sample_rate)
     {
