@@ -20,6 +20,10 @@ jobs:
         uses: carlosperate/arm-none-eabi-gcc-action@v1
         with:
           release: '10-2020-q4'
+      - name: update submodules
+        working-directory: oopsy
+        run: |
+          git submodule update --init
       - name: Build libDaisy
         run: |
           make -C oopsy/source/libdaisy -j$(nproc)
