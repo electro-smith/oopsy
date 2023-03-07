@@ -54,9 +54,6 @@ static bool      update = false;
 static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024;
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 
-// Pointer to the beginning of the SRAM heap
-extern void *__heap_start__;
-
 // Added dedicated global SDFile to replace old global from libDaisy
 FIL SDFile;
 
