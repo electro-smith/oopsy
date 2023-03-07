@@ -51,12 +51,11 @@ static bool      update = false;
 #define OOPSY_SUPER_LONG_PRESS_MS (20000)
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
-#ifndef BOOT_APP
-static const uint32_t OOPSY_SRAM_SIZE = 511 * 1024;
-#else
-static const uint32_t OOPSY_SRAM_SIZE = 255 * 1024;
-#endif
+static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024;
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
+
+// Pointer to the beginning of the SRAM heap
+extern void *__heap_start__;
 
 // Added dedicated global SDFile to replace old global from libDaisy
 FIL SDFile;
@@ -70,7 +69,10 @@ namespace oopsy {
 
 	void init() {
 		if (!sram_pool) sram_pool = (char *)malloc(OOPSY_SRAM_SIZE);
-		sram_usable = OOPSY_SRAM_SIZE;
+		// There's no guarantee the allocation will actually be
+		// of size "OOPSY_SRAM_SIZE," so this just clamps the
+		// usable space to what it really is.
+		sram_usable = (0x24080000 - 1024) - ((size_t) sram_pool);
 		sram_used = 0;
 		sdram_usable = OOPSY_SDRAM_SIZE;
 		sdram_used = 0;
