@@ -44,6 +44,10 @@ static bool      update = false;
 #include "daisy_field.h"
 #endif
 
+#ifdef OOPSY_TARGET_PETAL
+#include "petal_led_hardcode.h"
+#endif
+
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (1024)
@@ -584,7 +588,7 @@ namespace oopsy {
 					hardware.display.Fill(false);
 					#endif
 					#ifdef OOPSY_TARGET_PETAL 
-					hardware.ClearLeds();
+					hardware.led_driver.SetAllTo((uint8_t) 0);
 					#endif
 
 					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
@@ -599,7 +603,8 @@ namespace oopsy {
 					#endif
 					for(int i = 0; i < 8; i++) {
 						float white = (i == app_selecting || menu_button_released);
-						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
+
+						SetRingLed(&hardware.led_driver, (daisy::DaisyPetal::RingLed)i, 
 							(i == app_selected || white) * 1.f,
 							white * 1.f,
 							(i < app_count) * 0.3f + white * 1.f
@@ -856,7 +861,7 @@ namespace oopsy {
 					#endif //OOPSY_TARGET_HAS_OLED
 
 					#if (OOPSY_TARGET_PETAL)
-					hardware.UpdateLeds();
+					hardware.led_driver.SwapBuffersAndTransmit();
 					#endif //(OOPSY_TARGET_PETAL)
 				} // uitimer.ready
 				
