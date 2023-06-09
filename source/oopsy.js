@@ -330,7 +330,7 @@ function run() {
 			case "upload":
 			case "up": action="upload"; break;
 
-			case "versio": target = arg; break;
+			case "versio": target_path = path.join(__dirname, "versio.json"); break;
 			case "bluemchen": target_path = path.join(__dirname, "bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "nehcmeulb.json"); break;
 			case "pod": target_path = path.join(__dirname, "pod.json"); break;

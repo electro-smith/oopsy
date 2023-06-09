@@ -612,22 +612,22 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_PETAL
 
-					#ifdef OOPSY_TARGET_VERSIO
-					// has no mode selection
-					is_mode_selecting = 0;
-					#if defined(OOPSY_MULTI_APP)
-					// multi-app is always in menu mode:
-					mode = MODE_MENU;
-					#endif
-					for(int i = 0; i < 4; i++) {
-						float white = (i == app_selecting || menu_button_released);
-						hardware.SetLed(i, 
-							(i == app_selected || white) * 1.f,
-							white * 1.f,
-							(i < app_count) * 0.3f + white * 1.f
-						);
-					}
-					#endif //OOPSY_TARGET_VERSIO
+					// #ifdef OOPSY_TARGET_VERSIO
+					// // has no mode selection
+					// is_mode_selecting = 0;
+					// #if defined(OOPSY_MULTI_APP)
+					// // multi-app is always in menu mode:
+					// mode = MODE_MENU;
+					// #endif
+					// for(int i = 0; i < 4; i++) {
+					// 	float white = (i == app_selecting || menu_button_released);
+					// 	hardware.SetLed(i, 
+					// 		(i == app_selected || white) * 1.f,
+					// 		white * 1.f,
+					// 		(i < app_count) * 0.3f + white * 1.f
+					// 	);
+					// }
+					// #endif //OOPSY_TARGET_VERSIO
 
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {

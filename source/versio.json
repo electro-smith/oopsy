@@ -41,7 +41,8 @@
 		},
 		"gate1": {
 			"component": "GateIn",
-			"pin": 24
+			"pin": 24,
+			"invert": false
 		},
 		"sw1": {
 			"component": "Switch3",

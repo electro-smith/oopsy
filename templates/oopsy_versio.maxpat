@@ -3,14 +3,14 @@
 		"fileversion" : 1,
 		"appversion" : 		{
 			"major" : 8,
-			"minor" : 1,
-			"revision" : 11,
+			"minor" : 5,
+			"revision" : 4,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 288.0, 79.0, 835.0, 709.0 ],
+		"rect" : [ 61.0, 79.0, 535.0, 709.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -48,6 +48,7 @@
 					"enablevscroll" : 0,
 					"id" : "obj-5",
 					"lockeddragscroll" : 0,
+					"lockedsize" : 0,
 					"maxclass" : "bpatcher",
 					"name" : "oopsy.maxpat",
 					"numinlets" : 1,
@@ -72,6 +73,14 @@
 					"parameter_mappable" : 0,
 					"patching_rect" : [ 588.833333333333258, 111.5, 16.0, 16.0 ],
 					"saved_attribute_attributes" : 					{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_enum" : [ "off", "on" ],
 							"parameter_initial" : [ 0.0 ],
@@ -100,6 +109,14 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 569.5, 111.5, 16.0, 16.0 ],
 					"saved_attribute_attributes" : 					{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_enum" : [ "off", "on" ],
 							"parameter_initial" : [ 0.0 ],
@@ -129,6 +146,14 @@
 					"parameter_mappable" : 0,
 					"patching_rect" : [ 543.333333333333258, 111.5, 16.0, 16.0 ],
 					"saved_attribute_attributes" : 					{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_enum" : [ "off", "on" ],
 							"parameter_initial" : [ 0.0 ],
@@ -157,6 +182,14 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 524.0, 111.5, 16.0, 16.0 ],
 					"saved_attribute_attributes" : 					{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_enum" : [ "off", "on" ],
 							"parameter_initial" : [ 0.0 ],
@@ -180,6 +213,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 462.355421686746922, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -193,6 +227,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 440.379518072289102, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -206,6 +241,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 418.403614457831281, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -219,6 +255,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 396.427710843373461, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -232,6 +269,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 374.451807228915641, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -245,6 +283,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 352.47590361445782, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -258,6 +297,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 449.5, 437.855421686746922, 99.0, 22.0 ],
 					"text_width" : 63.0
 				}
@@ -272,6 +312,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 449.5, 462.355421686746922, 99.0, 22.0 ],
 					"text_width" : 63.0
 				}
@@ -285,6 +326,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 562.0, 330.5, 113.0, 22.0 ],
 					"text_width" : 60.0
 				}
@@ -298,6 +340,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 449.5, 413.855421686746922, 99.0, 22.0 ],
 					"text_width" : 63.0
 				}
@@ -329,8 +372,8 @@
 						"fileversion" : 1,
 						"appversion" : 						{
 							"major" : 8,
-							"minor" : 1,
-							"revision" : 11,
+							"minor" : 5,
+							"revision" : 4,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -737,6 +780,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 605.0, 252.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob7",
 							"parameter_mmax" : 1.0,
@@ -766,6 +813,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 605.0, 174.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob6",
 							"parameter_mmax" : 1.0,
@@ -795,6 +846,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 605.0, 96.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob5",
 							"parameter_mmax" : 1.0,
@@ -824,6 +879,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 537.0, 210.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob4",
 							"parameter_mmax" : 1.0,
@@ -853,6 +912,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 537.0, 134.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob3",
 							"parameter_mmax" : 1.0,
@@ -882,6 +945,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 472.0, 174.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob2",
 							"parameter_mmax" : 1.0,
@@ -911,6 +978,10 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 472.0, 96.0, 50.0, 43.0 ],
 					"saved_attribute_attributes" : 					{
+						"panelcolor" : 						{
+							"expression" : ""
+						}
+,
 						"valueof" : 						{
 							"parameter_longname" : "knob1",
 							"parameter_mmax" : 1.0,
@@ -987,6 +1058,7 @@
 					"enablevscroll" : 0,
 					"id" : "obj-7",
 					"lockeddragscroll" : 0,
+					"lockedsize" : 0,
 					"maxclass" : "bpatcher",
 					"name" : "demosound.maxpat",
 					"numinlets" : 0,
@@ -1010,8 +1082,8 @@
 						"fileversion" : 1,
 						"appversion" : 						{
 							"major" : 8,
-							"minor" : 1,
-							"revision" : 11,
+							"minor" : 5,
+							"revision" : 4,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -1452,7 +1524,7 @@
 ,
 					"patching_rect" : [ 18.0, 483.0, 144.0, 35.0 ],
 					"saved_object_attributes" : 					{
-						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/Oopsy/templates/",
+						"exportfolder" : "macOS:/Users/corvus/Documents/Max 8/Packages/oopsy/templates/",
 						"exportname" : "oopsy_versio"
 					}
 ,
@@ -1486,8 +1558,8 @@
 						"fileversion" : 1,
 						"appversion" : 						{
 							"major" : 8,
-							"minor" : 1,
-							"revision" : 11,
+							"minor" : 5,
+							"revision" : 4,
 							"architecture" : "x64",
 							"modernui" : 1
 						}
@@ -2645,55 +2717,82 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "oopsy_noise_engineering_versio.png",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/media",
-				"patcherrelativepath" : "../media",
-				"type" : "PNG",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.suggestions.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
-				"patcherrelativepath" : "../code",
-				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.gate.trig.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
-				"patcherrelativepath" : "../code",
-				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.gate.min.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
-				"patcherrelativepath" : "../code",
-				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.ctrl.smooth3.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
-				"patcherrelativepath" : "../code",
-				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.ctrl.smooth2.gendsp",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/code",
-				"patcherrelativepath" : "../code",
-				"type" : "gDSP",
-				"implicit" : 1
-			}
-, 			{
 				"name" : "demosound.maxpat",
 				"bootpath" : "C74:/help/msp",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
-				"name" : "sine.svg",
+				"name" : "interfacecolor.js",
+				"bootpath" : "C74:/interfaces",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.ctrl.smooth2.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.ctrl.smooth3.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.min.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.gate.trig.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.maxpat",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.node4max.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.snoop.js",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/javascript",
+				"patcherrelativepath" : "../javascript",
+				"type" : "TEXT",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy.suggestions.gendsp",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/code",
+				"patcherrelativepath" : "../code",
+				"type" : "gDSP",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "oopsy_noise_engineering_versio.png",
+				"bootpath" : "~/Documents/Max 8/Packages/oopsy/media",
+				"patcherrelativepath" : "../media",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "random.svg",
 				"bootpath" : "C74:/media/max/picts/m4l-picts",
 				"type" : "svg",
 				"implicit" : 1
@@ -2705,42 +2804,15 @@
 				"implicit" : 1
 			}
 , 			{
+				"name" : "sine.svg",
+				"bootpath" : "C74:/media/max/picts/m4l-picts",
+				"type" : "svg",
+				"implicit" : 1
+			}
+, 			{
 				"name" : "square.svg",
 				"bootpath" : "C74:/media/max/picts/m4l-picts",
 				"type" : "svg",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "random.svg",
-				"bootpath" : "C74:/media/max/picts/m4l-picts",
-				"type" : "svg",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "interfacecolor.js",
-				"bootpath" : "C74:/interfaces",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/patchers",
-				"patcherrelativepath" : "../patchers",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.snoop.js",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "oopsy.node4max.js",
-				"bootpath" : "~/Documents/Max 8/Packages/Oopsy/javascript",
-				"patcherrelativepath" : "../javascript",
-				"type" : "TEXT",
 				"implicit" : 1
 			}
  ],
