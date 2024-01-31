@@ -1,131 +1,154 @@
 {
   "Switch": {
-		"map_init": "",
-		"typename": "",
-		"direction": "in",
-		"index": 1,
-		"updaterate": "",
-		"mapping": [
-			{
-				"name": "{name}",
-				"get": "({class_name}.som.footswitch{index}.Pressed()?1.f:0.f)",
-				"range": [
-					0,
-					1
-				],
-				"bool": false
-			},
-			{
-				"name": "{name}_press",
-				"get": "({class_name}.som.footswitch{index}.Pressed()?1.f:0.f)",
-				"range": [
-					0,
-					1
-				],
-				"bool": false
-			},
-			{
-				"name": "{name}_seconds",
-				"get": "({class_name}.som.footswitch{index}.TimeHeldMs()*0.001f)",
-				"bool": false
-			}
-		]
-	},
+    "map_init": "",
+    "typename": "",
+    "direction": "in",
+    "index": 1,
+    "updaterate": "",
+    "mapping": [
+      {
+        "name": "{name}",
+        "get": "({class_name}.som.footswitch{index}.Pressed()?1.f:0.f)",
+        "range": [0, 1],
+        "bool": false
+      },
+      {
+        "name": "{name}_press",
+        "get": "({class_name}.som.footswitch{index}.Pressed()?1.f:0.f)",
+        "range": [0, 1],
+        "bool": false
+      },
+      {
+        "name": "{name}_seconds",
+        "get": "({class_name}.som.footswitch{index}.TimeHeldMs()*0.001f)",
+        "bool": false
+      }
+    ]
+  },
   "Switch3": {
-		"map_init": "",
-		"typename": "",
-		"direction": "in",
-		"index": 0,
-		"mapping": [
-			{
-				"name": "{name}",
-				"get": "({class_name}.som.toggle[{index}].Read()*0.5f+0.5f)",
-				"range": [
-					0,
-					2
-				],
-				"bool": false
-			}
-		]
-	},
+    "map_init": "",
+    "typename": "",
+    "direction": "in",
+    "index": 0,
+    "mapping": [
+      {
+        "name": "{name}",
+        "get": "({class_name}.som.toggle[{index}].Read()*0.5f+0.5f)",
+        "range": [0, 2],
+        "bool": false
+      }
+    ]
+  },
   "AnalogControl": {
-		"init_single": "",
-		"map_init": "",
-		"typename": "",
-		"direction": "in",
-		"index": 0,
-		"updaterate": "",
-		"mapping": [
-			{
-				"name": "{name}",
-				"get": "({class_name}.som.knob[{index}].Value())",
-				"range": [
-					0,
-					1
-				],
-				"bool": false
-			}
-		]
-	},
-	"Expression": {
-		"direction": "in",
-		"mapping": [
-			{
-				"name": "{name}",
-				"get": "({class_name}.som.GetExpressionValue())"
-			}
-		]
-	},
-	"Led": {
-		"map_init": "",
-		"typename": "",
-		"direction": "out",
-		"index": 2,
-		"postprocess": "",
-		"mapping": [
-			{
-				"name": "{name}",
-				"set": "{class_name}.som.led[{index}].Set({value});"
-			}
-		]
-	},
+    "init_single": "",
+    "map_init": "",
+    "typename": "",
+    "direction": "in",
+    "index": 0,
+    "updaterate": "",
+    "mapping": [
+      {
+        "name": "{name}",
+        "get": "({class_name}.som.knob[{index}].Value())",
+        "range": [0, 1],
+        "bool": false
+      }
+    ]
+  },
+  "Expression": {
+    "direction": "in",
+    "mapping": [
+      {
+        "name": "{name}",
+        "get": "({class_name}.som.GetExpressionValue())"
+      }
+    ]
+  },
+  "Led": {
+    "map_init": "",
+    "typename": "",
+    "direction": "out",
+    "index": 2,
+    "postprocess": "",
+    "mapping": [
+      {
+        "name": "{name}",
+        "set": "{class_name}.som.led[{index}].Set({value});"
+      }
+    ]
+  },
   "RgbLed": {
-		"map_init": "",
-		"typename": "",
-		"direction": "out",
-		"index": "r,g,b",
-		"mapping": [
-			{
-				"name": "{name}_red",
-				"set": "{class_name}.som.led[{index_r}].Set({value});"
-			},
-			{
-				"name": "{name}_green",
-				"set": "{class_name}.som.led[{index_g}].Set({value});"
-			},
-			{
-				"name": "{name}_blue",
+    "map_init": "",
+    "typename": "",
+    "direction": "out",
+    "index": "r,g,b",
+    "mapping": [
+      {
+        "name": "{name}_red",
+        "set": "{class_name}.som.led[{index_r}].Set({value});"
+      },
+      {
+        "name": "{name}_green",
+        "set": "{class_name}.som.led[{index_g}].Set({value});"
+      },
+      {
+        "name": "{name}_blue",
         "set": "{class_name}.som.led[{index_b}].Set({value});"
-			},
-			{
-				"name": "{name}",
+      },
+      {
+        "name": "{name}",
         "set": "{class_name}.som.led[{index_r}].Set(clamp(-{value}, 0.f, 1.f));  \n{class_name}.som.led[{index_g}].Set(0);  \n{class_name}.som.led[{index_b}].Set(clamp({value}, 0.f, 1.f));"
-			},
-			{
-				"name": "{name}_white",
-				"set": "{class_name}.som.led[{index_r}].Set({value});  \n{class_name}.som.led[{index_g}].Set({value});  \n{class_name}.som.led[{index_b}].Set({value});"
-			}
-		]
-	},
-	"Relay": {
-		"map_init": "",
-		"typename": "",
-		"direction": "out",
-		"mapping": [
-			{
-				"name": "{name}",
-				"set": "{class_name}.som.SetBypassState({value});"
-			}
-		]
-	}
+      },
+      {
+        "name": "{name}_white",
+        "set": "{class_name}.som.led[{index_r}].Set({value});  \n{class_name}.som.led[{index_g}].Set({value});  \n{class_name}.som.led[{index_b}].Set({value});"
+      }
+    ]
+  },
+  "Relay": {
+    "map_init": "",
+    "typename": "",
+    "direction": "out",
+    "mapping": [
+      {
+        "name": "{name}",
+        "set": "{class_name}.som.SetBypassState({value});"
+      }
+    ]
+  },
+  "CodeClass": {
+    "map_init": "{name}.Init(&som);",
+    "typename": "",
+    "process": "",
+    "loopprocess": "",
+    "header_path": "",
+    "mapping": []
+  },
+  "CodeInput": {
+    "direction": "out",
+    "typename": "",
+    "parent": "",
+    "setter": "",
+    "mapping": [
+      {
+        "name": "{name}",
+        "set": "{class_name}.{parent}.{setter}({value});",
+        "permit_scale": false
+      }
+    ]
+  },
+  "CodeOutput": {
+    "direction": "in",
+    "typename": "",
+    "parent": "",
+    "getter": "",
+    "mapping": [
+      {
+        "name": "{name}",
+        "get": "{class_name}.{parent}.{getter}()",
+        "permit_scale": false
+      }
+    ]
+  }
 }
+
