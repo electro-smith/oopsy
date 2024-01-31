@@ -17,7 +17,10 @@ process.stdout.write = (function() {
 		if (match = str.match(/^oopsy (.*)/i)) {
 			//maxAPI.outlet(match[1]) // Node was timing out here, so we set up an interval reader instead
 			msgs.push(match[1])
-		} 
+		}
+		if (match = str.match(/^build_path (.*)/i)) {
+			msgs.push(['build_path', match[1]])
+		}
 	}
 })();
 

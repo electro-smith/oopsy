@@ -1,0 +1,148 @@
+{
+	"name": "patch_init",
+	"som": "patch_sm",
+	"defines": {},
+	"components": {
+		"cv_1": {
+			"component": "AnalogControl",
+			"pin": "C5",
+			"is_default": true
+		},
+		"cv_2": {
+			"component": "AnalogControl",
+			"pin": "C4",
+			"is_default": true
+		},
+		"cv_3": {
+			"component": "AnalogControl",
+			"pin": "C3",
+			"is_default": true
+		},
+		"cv_4": {
+			"component": "AnalogControl",
+			"pin": "C2",
+			"is_default": true
+		},
+		"cv_5": {
+			"component": "AnalogControlBipolar",
+			"pin": "C6",
+			"is_default": true
+		},
+		"cv_6": {
+			"component": "AnalogControlBipolar",
+			"pin": "C7",
+			"is_default": true
+		},
+		"cv_7": {
+			"component": "AnalogControlBipolar",
+			"pin": "C8",
+			"is_default": true
+		},
+		"cv_8": {
+			"component": "AnalogControlBipolar",
+			"pin": "C9",
+			"is_default": true
+		},
+		"adc_9": {
+			"component": "AnalogControl",
+			"pin": "A2",
+			"is_default": true
+		},
+		"adc_10": {
+			"component": "AnalogControl",
+			"pin": "A3",
+			"is_default": true
+		},
+		"adc_11": {
+			"component": "AnalogControl",
+			"pin": "D9",
+			"is_default": true
+		},
+		"adc_12": {
+			"component": "AnalogControl",
+			"pin": "D8",
+			"is_default": true
+		},
+		"gate_out_1": {
+			"component": "GateOut",
+			"pin": "B5",
+			"display": "",
+			"is_default": true
+		},
+		"gate_out_2": {
+			"component": "GateOut",
+			"pin": "B6",
+			"display": "",
+			"is_default": true
+		},
+		"cvout": {
+			"component": "CVOuts",
+			"is_default": true
+		},
+		"gate_in_1": {
+			"component": "GateIn",
+			"pin": "B10",
+			"is_default": true
+		},
+		"gate_in_2": {
+			"component": "GateIn",
+			"pin": "B9",
+			"is_default": true
+		},
+		"sw1": {
+			"component": "Switch",
+			"pin": "B7"
+		},
+		"sw2": {
+			"component": "Switch",
+			"pin": "B8"
+		}
+	},
+	"aliases": {
+		"switch": "sw1",
+		"switch1": "sw1",
+		"switch2": "sw2",
+		"button": "sw1",
+		"toggle": "sw2",
+		"gate": "gate_in_1",
+		"gate1": "gate_in_1",
+		"gate2": "gate_in_2",
+		"gateout": "gate_out_1",
+		"gateout1": "gate_out_1",
+		"gateout2": "gate_out_2",
+		"cvout": "cvout1",
+		"cv_out_1": "cvout1",
+		"cv_out_2": "cvout2",
+		"led": "cvout2",
+		"knob": "cv_1",
+		"knob1": "cv_1",
+		"knob2": "cv_2",
+		"knob3": "cv_3",
+		"knob4": "cv_4",
+		"knob5": "cv_5",
+		"knob6": "cv_6",
+		"knob7": "cv_7",
+		"knob8": "cv_8",
+		"ctrl": "cv_1",
+		"ctrl1": "cv_1",
+		"ctrl2": "cv_2",
+		"ctrl3": "cv_3",
+		"ctrl4": "cv_4",
+		"ctrl5": "cv_5",
+		"ctrl6": "cv_6",
+		"ctrl7": "cv_7",
+		"ctrl8": "cv_8",
+		"cv1": "cv_1",
+		"cv2": "cv_2",
+		"cv3": "cv_3",
+		"cv4": "cv_4",
+		"cv5": "cv_5",
+		"cv6": "cv_6",
+		"cv7": "cv_7",
+		"cv8": "cv_8",
+		"adc9": "adc_9",
+		"adc10": "adc_10",
+		"adc11": "adc_11",
+		"adc12": "adc_12"
+	}
+}
