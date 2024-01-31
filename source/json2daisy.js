@@ -6,11 +6,12 @@ const assert = require("assert");
 const path = require("path");
 const seed_defs = require(path.join(__dirname, "component_defs.json"));
 const patchsm_defs = require(path.join(__dirname, "component_defs_patchsm.json"));
+const petalsm_defs = require(path.join(__dirname, "component_defs_petalsm.json"));
 
 var global_definitions;
 
 // .filter for objects that returns array
-Object.filter = (obj, predicate) => 
+Object.filter = (obj, predicate) =>
     Object.keys(obj).filter(key => predicate(obj[key]))
     .map(key => obj[key]);
 
@@ -84,7 +85,7 @@ function generateCodecs(external_codecs)
   cfg.samplerate = daisy::SaiHandle::Config::SampleRate::SAI_48KHZ;
   cfg.postgain   = 0.5f;
   som.audio_handle.Init(
-    cfg, 
+    cfg,
     sai_handle[0]`;
 
   for (let i = 0; i < external_codecs.length; i++)
@@ -126,7 +127,7 @@ function map_load(key, item)
   item.name = key;
   assert(item.component in global_definitions, `Undefined component kind "${item.component}"`);
   component = global_definitions[item.component];
-  
+
   for (property in component)
   {
     if (!(property in item))
@@ -233,7 +234,7 @@ function flatten_index_dicts(comp)
   return flattened;
 }
 
-exports.generate_header = function generate_header(board_description_object)
+exports.generate_header = function generate_header(board_description_object, target_path)
 {
   let target = board_description_object;
 
@@ -251,6 +252,7 @@ exports.generate_header = function generate_header(board_description_object)
   let temp_defs = {
     seed: seed_defs,
     patch_sm: patchsm_defs,
+    petal_125b_sm: petalsm_defs,
   };
 
   assert(som in temp_defs, `Unkown som "${som}"`);
@@ -289,7 +291,14 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.name = target.name;
   replacements.som = som;
   replacements.external_codecs = target.external_codecs || [];
-  replacements.som_class = som == 'seed' ? 'daisy::DaisySeed' : 'daisy::patch_sm::DaisyPatchSM';
+
+  const classes = {
+    seed: 'daisy::DaisySeed',
+    patch_sm: 'daisy::patch_sm::DaisyPatchSM',
+    petal_125b_sm: 'daisy::Petal125BSM'
+  };
+
+  replacements.som_class = classes[som];
 
   replacements.target_name = target.name; // TODO -- redundant?
   replacements.init = filter_map_template(components, 'init', 'is_default', true);
@@ -329,7 +338,9 @@ exports.generate_header = function generate_header(board_description_object)
   replacements.Bno055 = filter_map_init(components, 'component', 'Bno055', key_exclude='is_default', match_exclude=true);
   replacements.Icm20948 = filter_map_init(components, 'component', 'Icm20948', key_exclude='is_default', match_exclude=true);
   replacements.Dps310 = filter_map_init(components, 'component', 'Dps310', key_exclude='is_default', match_exclude=true);
-  
+
+  replacements.CodeClass = filter_map_init(components, 'component', 'CodeClass', key_exclude='is_default', match_exclude=true);
+
   replacements.display = !(has_display) ? '' : `
     daisy::OledDisplay<${target.display.driver}>::Config display_config;
     display_config.driver_config.transport_config.Defaults();
@@ -337,6 +348,37 @@ exports.generate_header = function generate_header(board_description_object)
     display.Fill(0);
     display.Update();
   `;
+
+  // mangle CodeClass process calls into the correct syntax
+  let process_fields = ['process', 'loopprocess', 'postprocess', 'display'];
+  for (let component in components)
+  {
+    let comp_obj = components[component];
+    if (comp_obj.component == 'CodeClass')
+    {
+      for (let field of process_fields)
+      {
+        if (field in comp_obj && comp_obj[field])
+        comp_obj[field] = `{name}.${comp_obj[field]}();`;
+      }
+    }
+  }
+
+  // Provide default getters and setters for CodeInput and CodeOutput components
+  for (let component in components)
+  {
+    let comp_obj = components[component];
+    if (comp_obj.component == 'CodeInput')
+    {
+      if (!comp_obj.setter)
+        comp_obj.setter = component;
+    }
+    else if (comp_obj.component == 'CodeOutput')
+    {
+      if (!comp_obj.getter)
+        comp_obj.getter = component;
+    }
+  }
 
   replacements.process = filter_map_template(components, 'process', key_exclude='is_default', match_exclude=true);
   // There's also this after {process}. I don't see any meta in the defaults json at this time. Is this needed?
@@ -353,6 +395,12 @@ exports.generate_header = function generate_header(board_description_object)
   non_class_decls = component_decls.filter(item => 'non_class_decl' in item);
   replacements.non_class_declarations = non_class_decls.map(item => stringFormatMap(item.non_class_decl, item)).join("\n");
 
+  headers = Object.filter(components, item => 'header' in item);
+  abs_headers = headers.map(item => path.isAbsolute(item.header) ? item.header :
+    path.normalize(path.join(path.dirname(target_path), item.header)));
+  include_paths = abs_headers.map(item => path.dirname(item));
+  replacements.headers = abs_headers.map(item => `#include "${path.basename(item)}"`).join("\n");
+
   replacements.dispdec = 'display' in target ? `daisy::OledDisplay<${target.display.driver}> display;` : "";
 
   let header = `
@@ -362,6 +410,7 @@ exports.generate_header = function generate_header(board_description_object)
 #include "daisy_${replacements.som}.h"
 ${replacements.som == 'seed' ? '#include "dev/codec_ak4556.h"' : ''}
 ${has_display ? '#include "dev/oled_ssd130x.h"' : ''}
+${replacements.headers}
 
 #define ANALOG_COUNT ${replacements.analogcount}
 
@@ -375,7 +424,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Initializes the board according to the JSON board description
    *  \\param boost boosts the clock speed from 400 to 480 MHz
    */
-  void Init(bool boost=true) 
+  void Init(bool boost=true)
   {
     ${replacements.som == 'seed' ? `som.Configure();
     som.Init(boost);` : `som.Init();`}
@@ -388,7 +437,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.gatein != '' ? '// Gate ins\n    ' + replacements.gatein : ''}
     ${replacements.encoder != '' ? '// Rotary encoders\n    ' + replacements.encoder : ''}
     ${replacements.init_single != '' ? '// Single channel ADC initialization\n    ' + replacements.init_single : ''}
-    ${replacements.som == 'seed' ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
+    ${replacements.som == 'seed' && replacements.analogcount ? 'som.adc.Init(cfg, ANALOG_COUNT);' : ''}
     ${replacements.ctrl_init != '' ? '// AnalogControl objects\n    ' + replacements.ctrl_init : ''}
     ${replacements.ctrl_mux_init != '' ? '// Multiplexed AnlogControl objects\n    ' + replacements.ctrl_mux_init : ''}
     ${replacements.led != '' ? '// LEDs\n    ' + replacements.led : ''}
@@ -414,30 +463,33 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     ${replacements.Icm20948 != '' ? '// Icm20948 Sensor\n    ' + replacements.Icm20948 : ''}
     ${replacements.Dps310 != '' ? '// Dps310 Sensor\n    ' + replacements.Dps310 : ''}
 
+    ${replacements.CodeClass != '' ? '// Custom classes\n    ' + replacements.CodeClass : ''}
+
     ${replacements.external_codecs.length == 0 ? '' : generateCodecs(replacements.external_codecs)}
 
     ${replacements.som == 'seed' ? 'som.adc.Start();' : ''}
   }
 
   /** Handles all the controls processing that needs to occur at the block rate
-   * 
+   *
    */
-  void ProcessAllControls() 
+  void ProcessAllControls()
   {
     ${replacements.process}
-    ${replacements.som == 'patch_sm' ? 'som.ProcessAllControls();' : ''}
+    ${replacements.som == 'patch_sm' || replacements.som == 'petal_125b_sm' ? 'som.ProcessAllControls();' : ''}
   }
 
   /** Handles all the maintenance processing. This should be run last within the audio callback.
-   * 
+   *
    */
   void PostProcess()
   {
     ${replacements.postprocess}
+    ${replacements.som == 'petal_125b_sm' ? 'som.UpdateLeds();' : ''}
   }
 
   /** Handles processing that shouldn't occur in the audio block, such as blocking transfers
-   * 
+   *
    */
   void LoopProcess()
   {
@@ -445,7 +497,7 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   }
 
   /** Handles display-related processing
-   * 
+   *
    */
   void Display()
   {
@@ -455,9 +507,9 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio sample rate
    *  \\param sample_rate the new sample rate in Hz
    */
-  void SetAudioSampleRate(size_t sample_rate) 
+  void SetAudioSampleRate(size_t sample_rate)
   {
-    ${som == 'patch_sm' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    ${som == 'patch_sm' ? 'som.SetAudioSampleRate(sample_rate);' :
     `daisy::SaiHandle::Config::SampleRate enum_rate;
     if (sample_rate >= 96000)
       enum_rate = daisy::SaiHandle::Config::SampleRate::SAI_96KHZ;
@@ -477,9 +529,9 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio sample rate
    *  \\param sample_rate the new sample rate as an enum
    */
-  void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate) 
+  void SetAudioSampleRate(daisy::SaiHandle::Config::SampleRate sample_rate)
   {
-    ${som == 'seed' ? 'som.SetAudioSampleRate(sample_rate);' : 
+    ${som == 'seed' || som == 'petal_125b_sm' ? 'som.SetAudioSampleRate(sample_rate);' :
     `size_t hz_rate;
     switch (sample_rate)
     {
@@ -508,13 +560,13 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
   /** Sets the audio block size
    *  \\param block_size the new block size in words
    */
-  inline void SetAudioBlockSize(size_t block_size) 
+  inline void SetAudioBlockSize(size_t block_size)
   {
     som.SetAudioBlockSize(block_size);
   }
 
   /** Starts up the audio callback process with the given callback
-   * 
+   *
    */
   inline void StartAudio(daisy::AudioHandle::AudioCallback cb)
   {
@@ -547,7 +599,8 @@ ${replacements.name != '' ? `struct Daisy${replacements.name[0].toUpperCase()}${
     name: target.name,
     components: components,
     aliases: target.aliases,
-    channels: audio_channels
+    channels: audio_channels,
+    includes: include_paths,
   };
 
   return board_info;

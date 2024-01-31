@@ -44,6 +44,10 @@ static bool      update = false;
 #include "daisy_field.h"
 #endif
 
+#ifdef OOPSY_TARGET_PETAL
+#include "petal_led_hardcode.h"
+#endif
+
 ////////////////////////// DAISY EXPORT INTERFACING //////////////////////////
 
 #define OOPSY_MIDI_BUFFER_SIZE (1024)
@@ -51,7 +55,7 @@ static bool      update = false;
 #define OOPSY_SUPER_LONG_PRESS_MS (20000)
 #define OOPSY_DISPLAY_PERIOD_MS 10
 #define OOPSY_SCOPE_MAX_ZOOM (8)
-static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024; 
+static const uint32_t OOPSY_SRAM_SIZE = 512 * 1024;
 static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 
 // Added dedicated global SDFile to replace old global from libDaisy
@@ -66,7 +70,10 @@ namespace oopsy {
 
 	void init() {
 		if (!sram_pool) sram_pool = (char *)malloc(OOPSY_SRAM_SIZE);
-		sram_usable = OOPSY_SRAM_SIZE;
+		// There's no guarantee the allocation will actually be
+		// of size "OOPSY_SRAM_SIZE," so this just clamps the
+		// usable space to what it really is.
+		sram_usable = (0x24080000 - 1024) - ((size_t) sram_pool);
 		sram_used = 0;
 		sdram_usable = OOPSY_SDRAM_SIZE;
 		sdram_used = 0;
@@ -154,13 +161,17 @@ namespace oopsy {
 	struct GenDaisy {
 
 		Daisy hardware;
-		#ifdef OOPSY_SOM_PATCH_SM
-		daisy::patch_sm::DaisyPatchSM *som = &hardware.som;
+		#ifdef OOPSY_SOM_PETAL_SM
+		daisy::Petal125BSM *som = &hardware.som;
 		#else
-			#ifdef OOPSY_OLD_JSON
-			daisy::DaisySeed *som = &hardware.seed;
+			#ifdef OOPSY_SOM_PATCH_SM
+			daisy::patch_sm::DaisyPatchSM *som = &hardware.som;
 			#else
-			daisy::DaisySeed *som = &hardware.som;
+				#ifdef OOPSY_OLD_JSON
+				daisy::DaisySeed *som = &hardware.seed;
+				#else
+				daisy::DaisySeed *som = &hardware.som;
+				#endif
 			#endif
 		#endif
 		AppDef * appdefs = nullptr;
@@ -532,7 +543,9 @@ namespace oopsy {
 				t = t1;
 
 				// pulse seed LED for status according to CPU usage:
+				#ifndef OOPSY_SOM_PETAL_SM
 				som->SetLed((t % 1000)/10 <= uint32_t(audioCpuUsage));
+				#endif
 
 				if (app_load_scheduled) {
 					app_load_scheduled = 0;
@@ -575,7 +588,7 @@ namespace oopsy {
 					hardware.display.Fill(false);
 					#endif
 					#ifdef OOPSY_TARGET_PETAL 
-					hardware.ClearLeds();
+					hardware.led_driver.SetAllTo((uint8_t) 0);
 					#endif
 
 					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
@@ -590,7 +603,8 @@ namespace oopsy {
 					#endif
 					for(int i = 0; i < 8; i++) {
 						float white = (i == app_selecting || menu_button_released);
-						hardware.SetRingLed((daisy::DaisyPetal::RingLed)i, 
+
+						SetRingLed(&hardware.led_driver, (daisy::DaisyPetal::RingLed)i, 
 							(i == app_selected || white) * 1.f,
 							white * 1.f,
 							(i < app_count) * 0.3f + white * 1.f
@@ -598,22 +612,22 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_PETAL
 
-					#ifdef OOPSY_TARGET_VERSIO
-					// has no mode selection
-					is_mode_selecting = 0;
-					#if defined(OOPSY_MULTI_APP)
-					// multi-app is always in menu mode:
-					mode = MODE_MENU;
-					#endif
-					for(int i = 0; i < 4; i++) {
-						float white = (i == app_selecting || menu_button_released);
-						hardware.SetLed(i, 
-							(i == app_selected || white) * 1.f,
-							white * 1.f,
-							(i < app_count) * 0.3f + white * 1.f
-						);
-					}
-					#endif //OOPSY_TARGET_VERSIO
+					// #ifdef OOPSY_TARGET_VERSIO
+					// // has no mode selection
+					// is_mode_selecting = 0;
+					// #if defined(OOPSY_MULTI_APP)
+					// // multi-app is always in menu mode:
+					// mode = MODE_MENU;
+					// #endif
+					// for(int i = 0; i < 4; i++) {
+					// 	float white = (i == app_selecting || menu_button_released);
+					// 	hardware.SetLed(i, 
+					// 		(i == app_selected || white) * 1.f,
+					// 		white * 1.f,
+					// 		(i < app_count) * 0.3f + white * 1.f
+					// 	);
+					// }
+					// #endif //OOPSY_TARGET_VERSIO
 
 					// Handle encoder increment actions:
 					if (is_mode_selecting) {
@@ -847,7 +861,7 @@ namespace oopsy {
 					#endif //OOPSY_TARGET_HAS_OLED
 
 					#if (OOPSY_TARGET_PETAL)
-					hardware.UpdateLeds();
+					hardware.led_driver.SwapBuffersAndTransmit();
 					#endif //(OOPSY_TARGET_PETAL)
 				} // uitimer.ready
 				

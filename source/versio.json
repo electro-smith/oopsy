@@ -1,7 +1,10 @@
 {
 	"name":"versio",
 	"som":"seed",
-	"defines": {},
+	"defines": {
+		"OOPSY_TARGET_VERSIO": 1
+	},
+	"max_apps": 1,
 	"components": {
 		"knob1": {
 			"component": "AnalogControl",
@@ -38,7 +41,8 @@
 		},
 		"gate1": {
 			"component": "GateIn",
-			"pin": 24
+			"pin": 24,
+			"invert": false
 		},
 		"sw1": {
 			"component": "Switch3",
