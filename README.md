@@ -71,7 +71,7 @@ node oopsy.js field ../examples/simple.cpp
 
 ## Installing
 
-See the instructions [on the wiki page](https://github.com/electro-smith/DaisyWiki/wiki/1e.-Getting-Started-With-Oopsy-(Gen~-Integration))
+See the instructions [on the support site](https://daisy.audio/tutorials/oopsy-dev-env/)
 
 ## Licensing
 
@@ -83,7 +83,7 @@ For details of the licensing terms of code exported from gen~ see https://suppor
 
 - Electrosmith: https://forum.electro-smith.com/c/integrations/oopsy-max-msp-gen
 - Cycling '74: https://cycling74.com/forums/oopsy 
-- MW: https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=242322
+- MW: https://www.modwiggler.com/forum/viewtopic.php?f=16&t=242322
 
 -----
 
