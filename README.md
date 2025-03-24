@@ -82,7 +82,7 @@ For details of the licensing terms of code exported from gen~ see https://suppor
 ## Discussion
 
 - Electrosmith: https://forum.electro-smith.com/c/integrations/oopsy-max-msp-gen
-- Cycling '74: https://cycling74.com/forums/oopsy 
+- Cycling '74: https://cycling74.com
 - MW: https://www.modwiggler.com/forum/viewtopic.php?f=16&t=242322
 
 -----
