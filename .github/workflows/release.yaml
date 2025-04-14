@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: 'oopsy'
+          ref: 'main'
+      - name: Install ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '10-2020-q4'
+      - name: update submodules
+        working-directory: oopsy
+        run: |
+          git submodule update --init
+      - name: Build libDaisy
+        run: |
+          make -C oopsy/source/libdaisy -j$(nproc)
+      - name: Zip it up
+        run: |
+          rm -rf oopsy/.git
+          rm -rf oopsy/.github
+          zip -r oopsy.zip oopsy
+      - name: Make Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ github.token }}
+          draft: true
+          prerelease: false
+          files: |
+            oopsy.zip
+            LICENSE

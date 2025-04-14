@@ -4,8 +4,8 @@ node oopsy.js ../templates/oopsy_field.cpp field && \
 node oopsy.js ../templates/oopsy_petal.cpp petal && \
 node oopsy.js ../templates/oopsy_pod.cpp pod && \
 node oopsy.js ../templates/oopsy_versio.cpp versio && \
-node oopsy.js ../templates/oopsy_pod.cpp seed.pod.json && \
-node oopsy.js ../templates/oopsy_versio.cpp seed.versio.json && \
+node oopsy.js ../templates/oopsy_pod.cpp pod.json && \
+node oopsy.js ../templates/oopsy_versio.cpp versio.json && \
 node oopsy.js ../templates/oopsy_bluemchen.cpp bluemchen && \
 node oopsy.js ../templates/oopsy_nehcmeulb.cpp nehcmeulb && \
 node oopsy.js ../examples/dattoro.cpp ../examples/gigaverb.cpp ../examples/crossover.cpp ../examples/midside.cpp && \
