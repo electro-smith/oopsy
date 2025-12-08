@@ -12,3 +12,5 @@ max definesubstitution oopsy.bluemchen bpatcher @name oopsy.maxpat @args bluemch
 max objectfile oopsy.bluemchen oopsy.bluemchen;
 max definesubstitution oopsy.nehcmeulb bpatcher @name oopsy.maxpat @args nehcmeulb;
 max objectfile oopsy.nehcmeulb oopsy.nehcmeulb;
+max definesubstitution oopsy.cosmolab bpatcher @name oopsy.maxpat @args cosmolab @patching_rect 256 256 171 171;
+max objectfile oopsy.cosmolab oopsy.cosmolab;

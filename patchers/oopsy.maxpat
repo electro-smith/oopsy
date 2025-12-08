@@ -353,7 +353,7 @@
 				"box" : 				{
 					"fontsize" : 9.0,
 					"id" : "obj-76",
-					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "nehcmeulb" ],
+					"items" : [ "patch", ",", "patch_sm", ",", "field", ",", "petal", ",", "pod", ",", "versio", ",", "bluemchen", ",", "nehcmeulb", ",", "cosmolab" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,

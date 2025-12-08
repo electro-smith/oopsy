@@ -85,6 +85,102 @@ For details of the licensing terms of code exported from gen~ see https://suppor
 - Cycling '74: https://cycling74.com
 - MW: https://www.modwiggler.com/forum/viewtopic.php?f=16&t=242322
 
+## Changelog
+
+### libdaisy v8.0.0 Update (December 2025)
+
+This update brings Oopsy compatibility with libdaisy v8.0.0 and adds support for the Cosmolab board by Faselunare. The update was performed by Francesco Mulassano of Faselunare.
+
+**⚠️ Important:** After updating to this version, you must run `./install.sh` to rebuild libdaisy with the new APIs. This is required for the changes to take effect.
+
+#### libdaisy v8.0.0 Compatibility Updates
+
+**Breaking Changes Addressed:**
+
+1. **GPIO/Pin Migration**
+   - **Why:** libdaisy v8.0.0 completed the GPIO/Pin migration. The `dsy_gpio` and `dsy_gpio_pin` structs are deprecated and no longer accepted by libdaisy objects.
+   - **Changes:**
+     - Updated `component_defs.json` to use `GPIO` class with `Config` struct instead of `dsy_gpio`
+     - Changed `GateOut` initialization from `dsy_gpio_init(&gateout)` to `GPIO::Init(Config)`
+     - Updated `GateIn` to use `Pin` directly instead of `dsy_gpio_pin*` pointer
+     - Changed `Switch::PULL_UP` to `GPIO::Pull::PULLUP`
+     - Updated Pin syntax from `{DSY_GPIOB, 7}` to `Pin(PORTB, 7)`
+
+2. **UartHandler API Migration**
+   - **Why:** The old UART methods (`StartRx`, `Readable`, `PopRx`) were deprecated in libdaisy v5.1.0 and removed in v8.0.0. The new API uses DMA listen mode for better performance and reliability.
+   - **Changes:**
+     - Replaced `uart.StartRx()` with `uart.DmaListenStart()` using circular buffer callback
+     - Replaced `uart.Readable()` and `uart.PopRx()` with DMA buffer reading
+     - Added `MidiRxCallback` function to handle incoming MIDI data via DMA interrupts
+     - Implemented circular buffer system for MIDI reception
+
+3. **Hardware Structure Updates**
+   - **Why:** The internal structure changed from `hardware.seed` to `hardware.som` to support different System-on-Module types (seed, patch_sm, petal_125b_sm).
+   - **Changes:**
+     - Updated `genlib_daisy.h` to use `som` pointer instead of `sub_board`
+     - Changed `hardware.seed.AudioSampleRate()` calls to `som->()` calls
+     - Added conditional compilation for different SOM types
+     - Updated `oopsy.js` to generate code using `som->AudioSampleRate()` instead of `hardware.seed.AudioSampleRate()`
+
+4. **System API Updates**
+   - **Why:** `System::ResetToBootloader()` now requires an explicit `BootloaderMode` parameter.
+   - **Changes:**
+     - Updated calls to include `BootloaderMode::STM` parameter
+
+5. **Component Definitions**
+   - **Why:** Missing component definition files prevented support for newer components like `CD4021Switch`.
+   - **Changes:**
+     - Added `component_defs.json`, `component_defs_patchsm.json`, `component_defs_petalsm.json`
+     - Added `json2daisy.js` and `daisy_glue.js` utility files
+     - Updated `oopsy.js` to use `json2daisy.generate_header()` for component generation
+     - Fixed Makefile generation to include `hardware.includes` and `APP_TYPE` support
+
+6. **Makefile Improvements**
+   - **Why:** The Makefile was incorrectly including petal_sm source files for all boards.
+   - **Changes:**
+     - Made petal_sm source inclusion conditional based on `hardware.som` type
+     - Only includes `daisy_petal_125b_sm.cpp` when `som == 'petal_125b_sm'`
+
+#### Cosmolab Board Support
+
+Added full support for the Cosmolab board by Faselunare:
+- Board definition in `source/cosmolab.json`
+- Max/MSP template `templates/oopsy_cosmolab.maxpat`
+- Object mapping in `init/oopsy-objectmappings.txt`
+- Integration in `patchers/oopsy.maxpat` menu
+
+The Cosmolab board features:
+- 32 pads (4x8 matrix) using CD4021 shift registers
+- 8 multiplexed knobs using CD4051
+- 48 RGB LEDs via PCA9685 drivers
+- OLED display support
+- MIDI input/output support
+- 4 CV inputs, 2 CV outputs
+- Gate input and output
+
+#### Migration Notes
+
+If you're upgrading from an earlier version of Oopsy:
+
+1. **Run `./install.sh`** - This is critical! It will rebuild libdaisy with the new APIs.
+2. **Update your custom board definitions** - If you have custom JSON board definitions, you may need to update them to use the new GPIO/Pin syntax.
+3. **Check your gen~ code** - If you're using any deprecated APIs directly in your gen~ code, update them according to the libdaisy v8.0.0 migration guide.
+
+#### Technical Details
+
+All changes follow the official libdaisy v8.0.0 migration guide:
+- [libdaisy v8.0.0 Release Notes](https://github.com/electro-smith/libDaisy/releases/tag/v8.0.0)
+- GPIO/Pin migration examples from changelog
+- UartHandler DMA API documentation
+
+**Total commits:** 14 commits implementing the migration
+
+#### Disclaimer
+
+This software is provided **AS IS** without warranty of any kind, express or implied. The update was performed by Francesco Mulassano of Faselunare for the purpose of adding Cosmolab board support and updating to libdaisy v8.0.0. Use at your own risk.
+
 -----
 
 Oopsy was authored by [Graham](https://github.com/grrrwaaa) [Wakefield](http://alicelab.world) in 2020-2021.
+
+**libdaisy v8.0.0 Update:** December 2024 by Francesco Mulassano (Faselunare)
