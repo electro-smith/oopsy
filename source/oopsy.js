@@ -324,13 +324,11 @@ function generate_target_struct(target) {
 		target.defines.OOPSY_OLED_DISPLAY_HEIGHT = target.display.dim[1]
 	}
   
-	return `
+        return `
 #include "daisy_seed.h"
-${target.display ? `#include "dev/oled_ssd130x.h"` : ""}
+${target.display ? (target.display.driver.includes("ST7735") ? `#include "dev/st7735.h"` : `#include "dev/oled_ssd130x.h"`) : ""}
 // name: ${target.name}
-struct Daisy {
-  
-	void Init(bool boost = false) {
+struct Daisy {	void Init(bool boost = false) {
 		seed.Configure();
 		seed.Init(boost);
 		${components.filter((e) => e.init)
@@ -469,6 +467,10 @@ function run() {
 			case "versio": target = arg; break;
 			case "bluemchen": target_path = path.join(__dirname, "seed.bluemchen.json"); break;
 			case "nehcmeulb": target_path = path.join(__dirname, "seed.nehcmeulb.json"); break;
+			case "seed_st7735": target_path = path.join(__dirname, "seed.st7735.json"); break;
+                        case "seed_st7735_128x128": target_path = path.join(__dirname, "seed.st7735_128x128.json"); break;
+                        case "seed_st7735_80x160": target_path = path.join(__dirname, "seed.st7735_80x160.json"); break;
+                        case "seed_st7735_128x64": target_path = path.join(__dirname, "seed.st7735_128x64.json"); break;
 
 			case "watch": watch=true; break;
 

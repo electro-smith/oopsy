@@ -562,7 +562,21 @@ namespace oopsy {
 					}
 					#endif
 
-					// CLEAR DISPLAY
+					// ST7735 COLOR THEMES - Set different colors for each mode
+                                        #ifdef OOPSY_TARGET_ST7735
+                                        {
+                                                using Driver = daisy::ST7735_4WireSpi128x160Driver;
+                                                switch(mode) {
+                                                        case MODE_MENU:    hardware.display.GetDriver().SetTheme(Driver::COLOR_CYAN, Driver::COLOR_DARKBLUE, Driver::COLOR_MAGENTA); break;
+                                                        case MODE_PARAMS:  hardware.display.GetDriver().SetTheme(Driver::COLOR_GREEN, Driver::COLOR_BLACK, Driver::COLOR_LIME); break;
+                                                        case MODE_SCOPE:   hardware.display.GetDriver().SetTheme(Driver::COLOR_ORANGE, Driver::COLOR_PURPLE, Driver::COLOR_YELLOW); break;
+                                                        case MODE_CONSOLE: hardware.display.GetDriver().SetTheme(Driver::COLOR_MAGENTA, Driver::COLOR_BLACK, Driver::COLOR_CYAN); break;
+                                                        default:           hardware.display.GetDriver().SetTheme(Driver::COLOR_WHITE, Driver::COLOR_BLACK, Driver::COLOR_CYAN); break;
+                                                }
+                                        }
+                                        #endif
+
+                                        // CLEAR DISPLAY
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Fill(false);
 					#endif
