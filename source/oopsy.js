@@ -264,12 +264,12 @@ const component_defs = {
 		]
 	},
 	GateOut: {
-		typename: "daisy::dsy_gpio",
+		typename: "daisy::GPIO",
 		pin: "a",
-		mode: "DSY_GPIO_MODE_OUTPUT_PP",
-		pull: "DSY_GPIO_NOPULL",
+		mode: "daisy::GPIO::Mode::OUTPUT",
+		pull: "daisy::GPIO::Pull::NOPULL",
 		mapping: [
-			{ name: "${name}", set: "dsy_gpio_write(&hardware.${name}, $<name> } 0.f);" }
+			{ name: "${name}", set: "hardware.${name}.Write($<name> > 0.f);" }
 		]
 	},
 	CVOuts: {
@@ -1633,8 +1633,8 @@ struct App_${name} : public oopsy::App<App_${name}> {
 			.map(node=>`
 		${interpolate(node.config.code, node)}`).join("")}
 		${defines.OOPSY_TARGET_USES_MIDI_UART ? `
-		while(daisy.uart.Readable()) {
-			uint8_t byte = daisy.uart.PopRx();
+		while(daisy.UartReadable()) {
+			uint8_t byte = daisy.UartPopRx();
 			if (byte >= 128) { // status byte
 				${gen.params
 				.map(name=>nodes[name])

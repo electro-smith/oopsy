@@ -12,10 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 #include "daisy.h"
+#include "daisy_seed.h"
+#include "util/FIFO.h"
 #include "genlib.h"
 #include "genlib_ops.h"
 #include "genlib_exportfunctions.h"
-#include "daisy_seed.h"
 
 #include <math.h>
 #include <string>
@@ -92,7 +93,7 @@ namespace oopsy {
 			return p;
 		}
 		return nullptr;
-	}	
+	}
 
 	void memset(void *p, int c, long size) {
 		char *p2 = (char *)p;
@@ -125,7 +126,7 @@ namespace oopsy {
 	// }
 
 	struct Timer {
-		int32_t period = OOPSY_DISPLAY_PERIOD_MS, 
+		int32_t period = OOPSY_DISPLAY_PERIOD_MS,
 				t = OOPSY_DISPLAY_PERIOD_MS;
 
 		bool ready(int32_t dt) {
@@ -156,7 +157,7 @@ namespace oopsy {
 		MODE_COUNT
 	} Mode;
 
-	
+
 
 	struct GenDaisy {
 
@@ -189,7 +190,7 @@ namespace oopsy {
 		Timer uitimer;
 
 		// percent (0-100) of available processing time used
-		float audioCpuUsage = 0; 
+		float audioCpuUsage = 0;
 
 		void (*mainloopCallback)(uint32_t t, uint32_t dt);
 		void (*displayCallback)(uint32_t t, uint32_t dt);
@@ -199,7 +200,7 @@ namespace oopsy {
 		void * app = nullptr;
 		void * gen = nullptr;
 		bool nullAudioCallbackRunning = false;
-		
+
 		#ifdef OOPSY_TARGET_HAS_OLED
 
 		enum {
@@ -216,10 +217,10 @@ namespace oopsy {
 			SCOPEOPTION_ZOOM,
 			SCOPEOPTION_COUNT
 		} ScopeOptions;
-		
+
 		FontDef& font = Font_6x8;
-		uint_fast8_t scope_zoom = 7; 
-		uint_fast8_t scope_step = 0; 
+		uint_fast8_t scope_zoom = 7;
+		uint_fast8_t scope_step = 0;
 		uint_fast8_t scope_option = 0, scope_style = SCOPESTYLE_TOPBOTTOM, scope_source = OOPSY_IO_COUNT/2;
 		uint16_t console_cols, console_rows, console_line;
 		char * console_stats;
@@ -275,6 +276,20 @@ namespace oopsy {
 		} midi;
 
 		daisy::UartHandler uart;
+		daisy::FIFO<uint8_t, 1024> uart_fifo;
+		uint8_t uart_dma_buffer[256];
+
+		static void UartCallback(uint8_t* data, size_t size, void* context, daisy::UartHandler::Result res) {
+			GenDaisy* self = reinterpret_cast<GenDaisy*>(context);
+			if(res == daisy::UartHandler::Result::OK) {
+				for(size_t i = 0; i < size; i++) {
+					self->uart_fifo.PushBack(data[i]);
+				}
+			}
+		}
+
+		bool UartReadable() { return !uart_fifo.IsEmpty(); }
+		uint8_t UartPopRx() { return uart_fifo.PopFront(); }
 		uint32_t midi_out_writeidx = 0;
 		uint32_t midi_out_readidx = 0;
 
@@ -304,7 +319,7 @@ namespace oopsy {
 		daisy::FatFSInterface fsi;
 
 		uint8_t workspace[OOPSY_WAV_WORKSPACE_BYTES];
-		
+
 		void sdcard_init() {
 			daisy::SdmmcHandler::Config sdconfig;
 			sdconfig.Defaults(); // 4-bit, 50MHz
@@ -331,28 +346,28 @@ namespace oopsy {
 				log("no %s", filename);
 				return -1;
 			}
-			if (f_eof(&SDFile) 
+			if (f_eof(&SDFile)
 				|| f_read(&SDFile, (void *)&header, sizeof(header), &bytesread) != FR_OK
-				|| header[0] != daisy::kWavFileChunkId 
+				|| header[0] != daisy::kWavFileChunkId
 				|| header[2] != daisy::kWavFileWaveId) goto badwav;
 			// find the format chunk:
 			do {
 				if (f_eof(&SDFile) || f_read(&SDFile, (void *)&marker, sizeof(marker), &bytesread) != FR_OK) break;
 			} while (marker != daisy::kWavFileSubChunk1Id);
-			if (f_eof(&SDFile) 
+			if (f_eof(&SDFile)
 				|| f_read(&SDFile, (void *)&format, sizeof(format), &bytesread) != FR_OK
-				|| format.chans == 0 
-				|| format.samplerate == 0 
+				|| format.chans == 0
+				|| format.samplerate == 0
 				|| format.bitspersample == 0) goto badwav;
 			// find the data chunk:
 			do {
 				if (f_eof(&SDFile) || f_read(&SDFile, (void *)&marker, sizeof(marker), &bytesread) != FR_OK) break;
 			} while (marker != daisy::kWavFileSubChunk2Id);
 			bytespersample = format.bytesperframe / format.chans;
-			if (f_eof(&SDFile) 
+			if (f_eof(&SDFile)
 				|| f_read(&SDFile, (void *)&chunksize, sizeof(chunksize), &bytesread) != FR_OK
-				|| format.format != 1 
-				|| bytespersample < 2 
+				|| format.format != 1
+				|| bytespersample < 2
 				|| bytespersample > 4) goto badwav; // only 16/24/32-bit PCM, sorry
 			// make sure we read in (multiples of) whole frames
 			frames = chunksize / format.bytesperframe;
@@ -381,8 +396,8 @@ namespace oopsy {
 							for (size_t c=0; c<buffer_channels; c++) {
 								uint8_t * frame = workspace + f*format.bytesperframe + (c % format.chans)*bytespersample;
 								int32_t b = (int32_t)(
-									((uint32_t)(frame[0]) <<  8) | 
-									((uint32_t)(frame[1]) << 16) | 
+									((uint32_t)(frame[0]) <<  8) |
+									((uint32_t)(frame[1]) << 16) |
 									((uint32_t)(frame[2]) << 24)
 								) >> 8;
 								buffer[(buffer_index+f)*buffer_channels + c] = (float)(((double)b) * 0.00000011920928955078125);
@@ -435,12 +450,12 @@ namespace oopsy {
 			log("gen~ %s", appdefs[app_selected].name);
 			log("SR %dkHz / %dHz", (int)(som->AudioSampleRate()/1000), (int)som->AudioCallbackRate());
 			{
-				log("%d%s/%dKB+%d%s/%dMB", 
-					oopsy::sram_used > 1024 ? oopsy::sram_used/1024 : oopsy::sram_used, 
-					(oopsy::sram_used > 1024 || oopsy::sram_used == 0) ? "" : "B", 
-					OOPSY_SRAM_SIZE/1024, 
-					oopsy::sdram_used > 1048576 ? oopsy::sdram_used/1048576 : oopsy::sdram_used/1024, 
-					(oopsy::sdram_used > 1048576 || oopsy::sdram_used == 0) ? "" : "KB", 
+				log("%d%s/%dKB+%d%s/%dMB",
+					oopsy::sram_used > 1024 ? oopsy::sram_used/1024 : oopsy::sram_used,
+					(oopsy::sram_used > 1024 || oopsy::sram_used == 0) ? "" : "B",
+					OOPSY_SRAM_SIZE/1024,
+					oopsy::sdram_used > 1048576 ? oopsy::sdram_used/1048576 : oopsy::sdram_used/1024,
+					(oopsy::sdram_used > 1048576 || oopsy::sdram_used == 0) ? "" : "KB",
 					OOPSY_SDRAM_SIZE/1048576);
 				// console_display();
 				// hardware.display.Update();
@@ -491,10 +506,10 @@ namespace oopsy {
 			// TODO REMOVE THIS HACK WHEN STARTING SERIAL OVER USB DOESN'T FREAK OUT WITH AUDIO CALLBACK
 			daisy::System::Delay(275);
 			#endif
-			
+
 			#ifdef OOPSY_TARGET_HAS_OLED
 			console_cols = OOPSY_OLED_DISPLAY_WIDTH / font.FontWidth + 1; // +1 to accommodate null terminators.
-			console_rows = OOPSY_OLED_DISPLAY_HEIGHT / font.FontHeight; 
+			console_rows = OOPSY_OLED_DISPLAY_HEIGHT / font.FontHeight;
 			console_memory = (char *)calloc(console_cols, console_rows);
 			console_stats = (char *)calloc(console_cols, 1);
 			for (int i=0; i<console_rows; i++) {
@@ -524,10 +539,10 @@ namespace oopsy {
 			config.parity        = daisy::UartHandler::Config::Parity::NONE;
 			config.mode          = daisy::UartHandler::Config::Mode::TX_RX;
 			config.wordlength    = daisy::UartHandler::Config::WordLength::BITS_8;
-			config.pin_config.rx = {DSY_GPIOB, 7};
-			config.pin_config.tx = {DSY_GPIOB, 6};
+			config.pin_config.rx = daisy::Pin(daisy::PORTB, 7);
+			config.pin_config.tx = daisy::Pin(daisy::PORTB, 6);
 			uart.Init(config);
-			uart.StartRx();
+			uart.DmaListenStart(uart_dma_buffer, sizeof(uart_dma_buffer), UartCallback, this);
 			#endif
 
 			app_selected = 0;
@@ -535,7 +550,7 @@ namespace oopsy {
 
 			#ifdef OOPSY_TARGET_HAS_OLED
 			console_display();
-			#endif 
+			#endif
 
 			while(1) {
 				uint32_t t1 = daisy::System::GetNow();
@@ -552,7 +567,7 @@ namespace oopsy {
 					appdefs[app_selected].load();
 					continue;
 				}
-				
+
 				// handle app-level code (e.g. for CV/gate outs)
 				mainloopCallback(t, dt);
 				#ifdef OOPSY_TARGET_USES_MIDI_UART
@@ -570,7 +585,7 @@ namespace oopsy {
 					}
 				}
 				#endif
-				
+
 				if (uitimer.ready(dt)) {
 					#ifdef OOPSY_USE_LOGGING
 						som->PrintLine("the time is"FLT_FMT3"", FLT_VAR3(t/1000.f));
@@ -587,13 +602,13 @@ namespace oopsy {
 					#ifdef OOPSY_TARGET_HAS_OLED
 					hardware.display.Fill(false);
 					#endif
-					#ifdef OOPSY_TARGET_PETAL 
+					#ifdef OOPSY_TARGET_PETAL
 					hardware.led_driver.SetAllTo((uint8_t) 0);
 					#endif
 
 					if (menu_button_held_ms > OOPSY_LONG_PRESS_MS) {
 						is_mode_selecting = 1;
-					} 
+					}
 					#ifdef OOPSY_TARGET_PETAL
 					// has no mode selection
 					is_mode_selecting = 0;
@@ -604,7 +619,7 @@ namespace oopsy {
 					for(int i = 0; i < 8; i++) {
 						float white = (i == app_selecting || menu_button_released);
 
-						SetRingLed(&hardware.led_driver, (daisy::DaisyPetal::RingLed)i, 
+						SetRingLed(&hardware.led_driver, (daisy::DaisyPetal::RingLed)i,
 							(i == app_selected || white) * 1.f,
 							white * 1.f,
 							(i < app_count) * 0.3f + white * 1.f
@@ -621,7 +636,7 @@ namespace oopsy {
 					// #endif
 					// for(int i = 0; i < 4; i++) {
 					// 	float white = (i == app_selecting || menu_button_released);
-					// 	hardware.SetLed(i, 
+					// 	hardware.SetLed(i,
 					// 		(i == app_selected || white) * 1.f,
 					// 		white * 1.f,
 					// 		(i < app_count) * 0.3f + white * 1.f
@@ -638,9 +653,9 @@ namespace oopsy {
 						if (mode < 0) mode = MODE_COUNT-1;
 						#else
 						// mode menu clamps at either end
-						if (mode >= MODE_COUNT) mode = MODE_COUNT-1; 
+						if (mode >= MODE_COUNT) mode = MODE_COUNT-1;
 						if (mode < 0) mode = 0;
-						#endif	
+						#endif
 					#ifdef OOPSY_MULTI_APP
 					} else if (mode == MODE_MENU) {
 						#ifdef OOPSY_TARGET_VERSIO
@@ -670,12 +685,12 @@ namespace oopsy {
 							param_selected += menu_button_incr;
 							if (param_selected >= param_count) param_selected = 0;
 							if (param_selected < 0) param_selected = param_count-1;
-						} 
+						}
 					#endif //OOPSY_HAS_PARAM_VIEW
 					#endif //OOPSY_TARGET_HAS_OLED
 					}
-				
-					// SHORT PRESS	
+
+					// SHORT PRESS
 					if (menu_button_released) {
 						menu_button_released = 0;
 						if (is_mode_selecting) {
@@ -700,7 +715,7 @@ namespace oopsy {
 						#endif //OOPSY_HAS_PARAM_VIEW && OOPSY_CAN_PARAM_TWEAK
 						#endif //OOPSY_TARGET_HAS_OLED
 						}
-					} 
+					}
 
 					// OLED DISPLAY:
 					#ifdef OOPSY_TARGET_HAS_OLED
@@ -731,7 +746,7 @@ namespace oopsy {
 							for (int line=0; line<console_rows && idx < param_count; line++, idx++) {
 								paramCallback(idx, label, console_cols, param_is_tweaking && idx == param_selected);
 								hardware.display.SetCursor(0, font.FontHeight * line);
-								hardware.display.WriteString(label, font, (param_selected != idx));	
+								hardware.display.WriteString(label, font, (param_selected != idx));
 							}
 						} break;
 						#endif // OOPSY_HAS_PARAM_VIEW
@@ -827,10 +842,10 @@ namespace oopsy {
 								// for view style, just leave it blank :-)
 							}
 						} break;
-						case MODE_CONSOLE: 
+						case MODE_CONSOLE:
 						{
 							showstats = 1;
-							console_display(); 
+							console_display();
 							break;
 						}
 						default: {
@@ -838,7 +853,7 @@ namespace oopsy {
 					}
 					if (is_mode_selecting) {
 						hardware.display.DrawRect(0, 0, OOPSY_OLED_DISPLAY_WIDTH-1, OOPSY_OLED_DISPLAY_HEIGHT-1, 1);
-					} 
+					}
 					if (showstats) {
 						int offset = 0;
 						#ifdef OOPSY_TARGET_USES_MIDI_UART
@@ -852,7 +867,7 @@ namespace oopsy {
 					}
 					#endif //OOPSY_TARGET_HAS_OLED
 					menu_button_incr = 0;
-					
+
 					// handle app-level code (e.g. for LED etc.)
 					displayCallback(t, dt);
 
@@ -864,7 +879,7 @@ namespace oopsy {
 					hardware.led_driver.SwapBuffersAndTransmit();
 					#endif //(OOPSY_TARGET_PETAL)
 				} // uitimer.ready
-				
+
 			}
 			return 0;
 		}
@@ -914,7 +929,7 @@ namespace oopsy {
 				// 01, 23, 45, 67  2n:2n+1  i1i2 i3i4 o1o2 o3o4
 				// 04, 15, 26, 37  n:n+ch   i1o1 i2o2 i3o3 i4o4
 				int n = scope_source % OOPSY_IO_COUNT;
-				float * buf0 = (scope_source < OOPSY_IO_COUNT) ? buffers[2*n  ] : buffers[n   ]; 
+				float * buf0 = (scope_source < OOPSY_IO_COUNT) ? buffers[2*n  ] : buffers[n   ];
 				float * buf1 = (scope_source < OOPSY_IO_COUNT) ? buffers[2*n+1] : buffers[n+OOPSY_IO_COUNT];
 
 				// float * buf0 = scope_source ? buffers[0] : buffers[2];
@@ -936,7 +951,7 @@ namespace oopsy {
 					scope_data[scope_step][0] = (min0);
 					scope_data[scope_step][1] = (min1);
 					scope_step++;
-					scope_data[scope_step][0] = (max0); 
+					scope_data[scope_step][0] = (max0);
 					scope_data[scope_step][1] = (max1);
 					scope_step++;
 					if (scope_step >= OOPSY_OLED_DISPLAY_WIDTH*2) scope_step = 0;
@@ -1070,7 +1085,7 @@ namespace oopsy {
 		#endif
 
 		static void nullAudioCallback(daisy::AudioHandle::InputBuffer ins, daisy::AudioHandle::OutputBuffer outs, size_t size);
-		
+
 		static void nullMainloopCallback(uint32_t t, uint32_t dt) {}
 	} daisy;
 
@@ -1086,7 +1101,7 @@ namespace oopsy {
 	// Curiously-recurring template to make App definitions simpler:
 	template<typename T>
 	struct App {
-		
+
 		static void staticMainloopCallback(uint32_t t, uint32_t dt) {
 			T& self = *(T *)daisy.app;
 			self.mainloopCallback(daisy, t, dt);
@@ -1098,12 +1113,12 @@ namespace oopsy {
 		}
 
 		static void staticAudioCallback(daisy::AudioHandle::InputBuffer hardware_ins, daisy::AudioHandle::OutputBuffer hardware_outs, size_t size) {
-			uint32_t start = daisy::System::GetUs(); 
+			uint32_t start = daisy::System::GetUs();
 			daisy.audio_preperform(size);
 			((T *)daisy.app)->audioCallback(daisy, hardware_ins, hardware_outs, size);
 			#if (OOPSY_IO_COUNT == 4)
 			float * buffers[] = {
-				(float *)hardware_ins[0], (float *)hardware_ins[1], (float *)hardware_ins[2], (float *)hardware_ins[3], 
+				(float *)hardware_ins[0], (float *)hardware_ins[1], (float *)hardware_ins[2], (float *)hardware_ins[3],
 				hardware_outs[0], hardware_outs[1], hardware_outs[2], hardware_outs[3]};
 			#else
 			float * buffers[] = {(float *)hardware_ins[0], (float *)hardware_ins[1], hardware_outs[0], hardware_outs[1]};
@@ -1114,7 +1129,7 @@ namespace oopsy {
 			float percent = (daisy::System::GetUs() - start)*0.0001f*daisy.som->AudioCallbackRate();
 			percent = percent > 100.f ? 100.f : percent;
 			// with a falling-only slew to capture spikes, since we care most about worst-case performance
-			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent 
+			daisy.audioCpuUsage = (percent > daisy.audioCpuUsage) ? percent
 				: daisy.audioCpuUsage + 0.02f*(percent - daisy.audioCpuUsage);
 		}
 
@@ -1131,8 +1146,8 @@ namespace oopsy {
 void genlib_report_error(const char *s) { oopsy::daisy.log(s); }
 void genlib_report_message(const char *s) { oopsy::daisy.log(s); }
 
-unsigned long genlib_ticks() { 
-	return 0; //daisy::System::GetTick(); 
+unsigned long genlib_ticks() {
+	return 0; //daisy::System::GetTick();
 }
 
 t_ptr genlib_sysmem_newptr(t_ptr_size size) {

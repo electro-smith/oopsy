@@ -65,12 +65,12 @@ namespace daisy
         auto qspi_config = qspi.GetConfig();
         qspi_config.device = QSPIHandle::Config::Device::IS25LP064A;
         qspi_config.mode = QSPIHandle::Config::Mode::MEMORY_MAPPED;
-        qspi_config.pin_config.io0 = dsy_pin(DSY_GPIOF, 8);
-        qspi_config.pin_config.io1 = dsy_pin(DSY_GPIOF, 9);
-        qspi_config.pin_config.io2 = dsy_pin(DSY_GPIOF, 7);
-        qspi_config.pin_config.io3 = dsy_pin(DSY_GPIOF, 6);
-        qspi_config.pin_config.clk = dsy_pin(DSY_GPIOF, 10);
-        qspi_config.pin_config.ncs = dsy_pin(DSY_GPIOG, 6);
+        qspi_config.pin_config.io0 = Pin(PORTF, 8);
+        qspi_config.pin_config.io1 = Pin(PORTF, 9);
+        qspi_config.pin_config.io2 = Pin(PORTF, 7);
+        qspi_config.pin_config.io3 = Pin(PORTF, 6);
+        qspi_config.pin_config.clk = Pin(PORTF, 10);
+        qspi_config.pin_config.ncs = Pin(PORTG, 6);
         qspi.Init(qspi_config);
 
         // Audio Init
@@ -82,11 +82,11 @@ namespace daisy
         sai_config.b_sync = SaiHandle::Config::Sync::SLAVE;
         sai_config.a_dir = SaiHandle::Config::Direction::RECEIVE;
         sai_config.b_dir = SaiHandle::Config::Direction::TRANSMIT;
-        sai_config.pin_config.fs = {DSY_GPIOE, 4};
-        sai_config.pin_config.mclk = {DSY_GPIOE, 2};
-        sai_config.pin_config.sck = {DSY_GPIOE, 5};
-        sai_config.pin_config.sa = {DSY_GPIOE, 6};
-        sai_config.pin_config.sb = {DSY_GPIOE, 3};
+        sai_config.pin_config.fs = Pin(PORTE, 4);
+        sai_config.pin_config.mclk = Pin(PORTE, 2);
+        sai_config.pin_config.sck = Pin(PORTE, 5);
+        sai_config.pin_config.sa = Pin(PORTE, 6);
+        sai_config.pin_config.sb = Pin(PORTE, 3);
         SaiHandle sai_1_handle;
         sai_1_handle.Init(sai_config);
 
@@ -95,8 +95,8 @@ namespace daisy
         i2c_cfg.periph = I2CHandle::Config::Peripheral::I2C_1;
         i2c_cfg.speed = I2CHandle::Config::Speed::I2C_400KHZ;
         i2c_cfg.mode = I2CHandle::Config::Mode::I2C_MASTER;
-        i2c_cfg.pin_config.scl = {DSY_GPIOB, 8};
-        i2c_cfg.pin_config.sda = {DSY_GPIOB, 9};
+        i2c_cfg.pin_config.scl = Pin(PORTB, 8);
+        i2c_cfg.pin_config.sda = Pin(PORTB, 9);
 
         I2CHandle i2c1;
         i2c1.Init(i2c_cfg);
