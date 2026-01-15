@@ -62,6 +62,11 @@ static const uint32_t OOPSY_SDRAM_SIZE = 64 * 1024 * 1024;
 // Added dedicated global SDFile to replace old global from libDaisy
 FIL SDFile;
 
+extern "C" {
+    extern char __heap_start;
+    extern char __heap_end;
+}
+
 namespace oopsy {
 
 	uint32_t sram_used = 0, sram_usable = 0;
@@ -70,11 +75,43 @@ namespace oopsy {
 	char DSY_SDRAM_BSS sdram_pool[OOPSY_SDRAM_SIZE];
 
 	void init() {
-		if (!sram_pool) sram_pool = (char *)malloc(OOPSY_SRAM_SIZE);
-		// There's no guarantee the allocation will actually be
-		// of size "OOPSY_SRAM_SIZE," so this just clamps the
-		// usable space to what it really is.
-		sram_usable = (0x24080000 - 1024) - ((size_t) sram_pool);
+        // Use linker vars to find the start of the heap and infer the available
+        // size based on the memory map of the STM32H750IB.
+        //
+        // This allows correct heap sizing regardless of which memory section the linker places it in.
+        // I think in all current situations, the `__heap_end` will always match the `__heap_start`
+        // relying on the memory map inferencing done below.
+        //
+        // This may not take into account stack collision if the stack & heap are in the same section..
+        uint32_t heap_start = (uint32_t)&__heap_start;
+        uint32_t heap_end = (uint32_t)&__heap_end;
+        uint32_t heap_size = heap_end - heap_start;
+
+        if (heap_size < 1024) {
+            // Infer available size from memory map if linker script doesn't specify it
+            if (heap_start >= 0x20000000 && heap_start < 0x20020000) { // DTCM
+                heap_size = 0x20020000 - heap_start;
+            } else if (heap_start >= 0x24000000 && heap_start < 0x24080000) { // AXI SRAM
+                heap_size = 0x24080000 - heap_start;
+            } else if (heap_start >= 0x30000000 && heap_start < 0x30048000) { // SRAM D2 (SRAM1+2+3)
+                heap_size = 0x30048000 - heap_start;
+            } else if (heap_start >= 0x38000000 && heap_start < 0x38010000) { // SRAM D3 (SRAM4)
+                heap_size = 0x38010000 - heap_start;
+            } else if (heap_start >= 0xC0000000 && heap_start < 0xC4000000) { // SDRAM
+                heap_size = 0xC4000000 - heap_start;
+            }
+        }
+
+        if (!sram_pool) {
+            sram_pool = (char*)malloc(heap_size);
+            // retry once with slightly less, to account for potential malloc overhead
+            if (!sram_pool && heap_size > 1024) {
+                heap_size -= 256;
+                sram_pool = (char*)malloc(heap_size);
+            }
+        }
+        sram_usable = sram_pool ? heap_size : 0;
+
 		sram_used = 0;
 		sdram_usable = OOPSY_SDRAM_SIZE;
 		sdram_used = 0;
